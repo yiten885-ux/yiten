@@ -62,7 +62,10 @@ const plans = {
 };
 
 const paymentConfig = {
-  paypalClientId: "REPLACE_WITH_PAYPAL_CLIENT_ID",
+  paypalClientId:
+    "AfOcsZ60jzBLe4OL3qboZu9L5_9EjaR4tHnPtRJ4OQvlkRdgVlasL2OMMy5bbxvXMBmcp1nZ55dnTzoO",
+  paypalEnvironment: "sandbox",
+  paypalMode: "client",
   createOrderEndpoint: "/api/paypal/create-order",
   captureOrderEndpoint: "/api/paypal/capture-order",
   wechatPayUrl: "",
@@ -102,34 +105,17 @@ let activeFilter = "all";
 let selectedPlan = "yearly";
 let selectedMethod = "paypal";
 
-const readWorks = () => {
-  const saved = localStorage.getItem("personal-site-works");
-  return saved ? JSON.parse(saved) : defaultWorks;
-};
-
-const saveWorks = (works) => {
-  localStorage.setItem("personal-site-works", JSON.stringify(works));
-};
-
+const readWorks = () => JSON.parse(localStorage.getItem("personal-site-works") || "null") || defaultWorks;
+const saveWorks = (works) => localStorage.setItem("personal-site-works", JSON.stringify(works));
 const escapeHtml = (value) =>
-  value.replace(/[&<>"']/g, (character) => {
-    const entities = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
-    };
-    return entities[character];
-  });
-
+  value.replace(/[&<>"']/g, (character) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character])
+  );
 const escapeAttribute = (value) => escapeHtml(value).replace(/`/g, "&#096;");
 
 const renderWorks = () => {
   const works = readWorks();
-  const visibleWorks =
-    activeFilter === "all" ? works : works.filter((work) => work.type === activeFilter);
-
+  const visibleWorks = activeFilter === "all" ? works : works.filter((work) => work.type === activeFilter);
   workGrid.innerHTML = visibleWorks
     .map(
       (work) => `
@@ -142,8 +128,7 @@ const renderWorks = () => {
           <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">
             阅读 / 查看
           </a>
-        </article>
-      `
+        </article>`
     )
     .join("");
 };
@@ -167,15 +152,14 @@ const renderEpisodes = () => {
           <span>${escapeHtml(episode.label)}</span>
           <strong>${escapeHtml(episode.title)}</strong>
           <small>${escapeHtml(episode.duration)}</small>
-        </button>
-      `
+        </button>`
     )
     .join("");
 
   document.querySelectorAll(".episode-button").forEach((button) => {
     button.addEventListener("click", () => {
-      const episode = defaultEpisodes[Number(button.dataset.index)];
-      setEpisode(episode, Number(button.dataset.index));
+      const index = Number(button.dataset.index);
+      setEpisode(defaultEpisodes[index], index);
     });
   });
 };
@@ -190,10 +174,9 @@ const loadPaypalSdk = () =>
       return;
     }
 
+    const host = paymentConfig.paypalEnvironment === "sandbox" ? "https://www.sandbox.paypal.com" : "https://www.paypal.com";
     const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
-      paymentConfig.paypalClientId
-    )}&currency=USD&intent=capture`;
+    script.src = `${host}/sdk/js?client-id=${encodeURIComponent(paymentConfig.paypalClientId)}&currency=USD&intent=capture`;
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);
@@ -201,25 +184,31 @@ const loadPaypalSdk = () =>
 
 const renderPaypal = async () => {
   paypalButtons.innerHTML = "";
-
   if (!hasRealPaypalClient()) {
-    paymentStatus.textContent =
-      "PayPal Client ID 和后端订单接口配置完成后，这里会显示正式 PayPal 支付按钮。";
+    paymentStatus.textContent = "PayPal Client ID 和后端订单接口配置完成后，这里会显示正式 PayPal 支付按钮。";
     return;
   }
 
-  paymentStatus.textContent = "正在加载 PayPal...";
+  paymentStatus.textContent = "正在加载 PayPal Sandbox...";
   try {
     await loadPaypalSdk();
     window.paypal
       .Buttons({
-        style: {
-          layout: "vertical",
-          color: "gold",
-          shape: "rect",
-          label: "subscribe",
-        },
-        createOrder: async () => {
+        style: { layout: "vertical", color: "gold", shape: "rect", label: "subscribe" },
+        createOrder: async (_data, actions) => {
+          const plan = plans[selectedPlan];
+          if (paymentConfig.paypalMode === "client") {
+            return actions.order.create({
+              intent: "CAPTURE",
+              purchase_units: [
+                {
+                  description: plan.title,
+                  amount: { currency_code: plan.currency, value: plan.amount },
+                },
+              ],
+            });
+          }
+
           const response = await fetch(paymentConfig.createOrderEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -229,7 +218,13 @@ const renderPaypal = async () => {
           if (!response.ok) throw new Error(order.message || "创建订单失败");
           return order.id;
         },
-        onApprove: async (data) => {
+        onApprove: async (data, actions) => {
+          if (paymentConfig.paypalMode === "client") {
+            const result = await actions.order.capture();
+            paymentStatus.textContent = `Sandbox 付款成功，订单号：${result.id}`;
+            return;
+          }
+
           const response = await fetch(paymentConfig.captureOrderEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -309,13 +304,10 @@ workForm.addEventListener("submit", (event) => {
     summary: formData.get("summary").trim(),
   };
 
-  const works = [work, ...readWorks()];
-  saveWorks(works);
+  saveWorks([work, ...readWorks()]);
   workForm.reset();
   activeFilter = "all";
-  filterButtons.forEach((item) => {
-    item.classList.toggle("active", item.dataset.filter === "all");
-  });
+  filterButtons.forEach((item) => item.classList.toggle("active", item.dataset.filter === "all"));
   renderWorks();
   document.querySelector("#works").scrollIntoView({ behavior: "smooth" });
 });
@@ -324,12 +316,10 @@ subscribeForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const email = new FormData(subscribeForm).get("email").trim().toLowerCase();
   const subscribers = JSON.parse(localStorage.getItem("personal-site-subscribers") || "[]");
-
   if (!subscribers.includes(email)) {
     subscribers.push(email);
     localStorage.setItem("personal-site-subscribers", JSON.stringify(subscribers));
   }
-
   subscribeMessage.textContent = "已订阅。正式上线后这里会接入邮件服务。";
   subscribeForm.reset();
 });
@@ -337,9 +327,7 @@ subscribeForm.addEventListener("submit", (event) => {
 resetDemo.addEventListener("click", () => {
   localStorage.removeItem("personal-site-works");
   activeFilter = "all";
-  filterButtons.forEach((item) => {
-    item.classList.toggle("active", item.dataset.filter === "all");
-  });
+  filterButtons.forEach((item) => item.classList.toggle("active", item.dataset.filter === "all"));
   renderWorks();
 });
 
