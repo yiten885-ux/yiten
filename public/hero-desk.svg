@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Editorial creator desk</title>
+  <desc id="desc">A calm desk scene with a laptop, notebook, pen, essay sheets, and a green plant accent.</desc>
+  <defs>
+    <linearGradient id="light" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff6df"/>
+      <stop offset="0.43" stop-color="#c9d8d9"/>
+      <stop offset="1" stop-color="#704b36"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7a5137"/>
+      <stop offset="1" stop-color="#2b2019"/>
+    </linearGradient>
+    <radialGradient id="paperGlow" cx="35%" cy="28%" r="65%">
+      <stop offset="0" stop-color="#fffdf4"/>
+      <stop offset="1" stop-color="#ded4c1"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#161513" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <rect width="1536" height="1024" fill="url(#desk)"/>
+  <path d="M0 0h1536v610C1052 496 646 540 0 748Z" fill="url(#light)" opacity=".62"/>
+  <path d="M84 126c210 30 335 98 445 205 97 95 230 148 444 140 200-7 352 31 479 112v441H0V128c25-6 53-7 84-2Z" fill="#161513" opacity=".26"/>
+  <g filter="url(#shadow)">
+    <rect x="690" y="282" width="548" height="330" rx="18" fill="#111315"/>
+    <rect x="718" y="310" width="492" height="264" rx="8" fill="#e6eef0"/>
+    <rect x="770" y="366" width="224" height="18" rx="9" fill="#51686a" opacity=".35"/>
+    <rect x="770" y="410" width="354" height="14" rx="7" fill="#51686a" opacity=".23"/>
+    <rect x="770" y="446" width="286" height="14" rx="7" fill="#51686a" opacity=".2"/>
+    <rect x="626" y="616" width="680" height="38" rx="10" fill="#2a2b2c"/>
+  </g>
+  <g filter="url(#shadow)" transform="rotate(-7 440 586)">
+    <rect x="220" y="394" width="430" height="554" rx="18" fill="url(#paperGlow)"/>
+    <line x1="288" y1="514" x2="586" y2="514" stroke="#8a8173" stroke-width="10" stroke-linecap="round" opacity=".35"/>
+    <line x1="288" y1="582" x2="548" y2="582" stroke="#8a8173" stroke-width="8" stroke-linecap="round" opacity=".24"/>
+    <line x1="288" y1="634" x2="570" y2="634" stroke="#8a8173" stroke-width="8" stroke-linecap="round" opacity=".24"/>
+    <line x1="288" y1="686" x2="498" y2="686" stroke="#8a8173" stroke-width="8" stroke-linecap="round" opacity=".24"/>
+  </g>
+  <g filter="url(#shadow)" transform="rotate(8 1035 778)">
+    <rect x="920" y="640" width="318" height="230" rx="12" fill="#f8f1df"/>
+    <rect x="956" y="692" width="206" height="12" rx="6" fill="#594e43" opacity=".25"/>
+    <rect x="956" y="736" width="238" height="10" rx="5" fill="#594e43" opacity=".18"/>
+    <rect x="956" y="772" width="180" height="10" rx="5" fill="#594e43" opacity=".18"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1260" y="558" width="84" height="176" rx="38" fill="#1f5e4d"/>
+    <path d="M1298 558c-28-65-8-114 58-151 18 72-1 121-58 151Z" fill="#2f7c64"/>
+    <path d="M1302 570c-66-18-96-58-91-121 70 18 100 58 91 121Z" fill="#3b8b70"/>
+    <ellipse cx="1302" cy="734" rx="68" ry="18" fill="#161513" opacity=".25"/>
+  </g>
+  <g transform="rotate(-16 744 780)">
+    <rect x="530" y="764" width="438" height="18" rx="9" fill="#1a1b1c"/>
+    <rect x="908" y="758" width="78" height="30" rx="15" fill="#b28b55"/>
+  </g>
+  <rect x="0" y="0" width="1536" height="1024" fill="#161513" opacity=".08"/>
+</svg>
