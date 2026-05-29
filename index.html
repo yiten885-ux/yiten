@@ -21,7 +21,8 @@
       <a class="brand" href="#top">Yiten Huang</a>
       <nav class="nav-links">
         <a href="#works">作品</a>
-        <a href="#subscribe">订阅</a>
+        <a href="#podcast">播客</a>
+        <a href="#membership">订阅</a>
         <a href="#studio">上传</a>
       </nav>
     </header>
@@ -38,11 +39,11 @@
           <p class="eyebrow">Essays / Projects / Notes</p>
           <h1>把长期思考，变成一个可以被订阅的个人宇宙。</h1>
           <p class="hero-copy">
-            这里可以发布你的文章、作品、播客、研究札记和项目更新。读者留下邮箱后，就能持续跟随你的创作。
+            这里可以发布你的文章、作品、播客、研究札记和项目更新。读者付费订阅后，就能持续跟随你的创作。
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="#subscribe">开始订阅</a>
-            <a class="button ghost" href="#works">浏览作品</a>
+            <a class="button primary" href="#membership">付费订阅</a>
+            <a class="button ghost" href="#podcast">收听播客</a>
           </div>
         </div>
       </section>
@@ -55,6 +56,34 @@
         <p>
           风格参考 Naval 的个人网站：内容优先、信息清楚、没有过度装饰。你可以把它改成中文为主、英文为主，或中英混排。
         </p>
+      </section>
+
+      <section id="podcast" class="podcast band">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Podcast</p>
+            <h2>音频播客</h2>
+          </div>
+          <p class="muted">
+            放置公开试听和会员专属节目。正式上线后，音频文件可以放在喜马拉雅、对象存储或 CDN。
+          </p>
+        </div>
+        <div class="podcast-shell">
+          <div class="player-panel">
+            <p class="episode-label" id="episodeLabel">精选试听</p>
+            <h3 id="episodeTitle">一个人如何建立自己的内容资产</h3>
+            <p id="episodeSummary">
+              从个人网站、邮件列表、播客到付费订阅，搭出最小但完整的创作者系统。
+            </p>
+            <audio id="episodePlayer" controls preload="metadata">
+              <source
+                src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                type="audio/mpeg"
+              />
+            </audio>
+          </div>
+          <div id="episodeList" class="episode-list" aria-label="播客节目列表"></div>
+        </div>
       </section>
 
       <section id="works" class="works band">
@@ -76,9 +105,9 @@
       <section id="subscribe" class="subscribe band">
         <div>
           <p class="section-kicker">Newsletter</p>
-          <h2>订阅我的更新</h2>
+          <h2>免费接收更新</h2>
           <p>
-            输入邮箱后会保存到本地演示列表。正式上线时可以接入 Buttondown、ConvertKit、Beehiiv、Mailchimp 或 Supabase。
+            输入邮箱后会保存到本地演示列表。正式上线时可以接入邮件服务，付费会员则在下方开通。
           </p>
         </div>
         <form id="subscribeForm" class="subscribe-form">
@@ -96,6 +125,68 @@
           </div>
           <p id="subscribeMessage" class="form-message" role="status"></p>
         </form>
+      </section>
+
+      <section id="membership" class="membership band">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Membership</p>
+            <h2>付费订阅</h2>
+          </div>
+          <p class="muted">
+            支持 PayPal、微信和支付宝。商户参数配置完成后，付款、收款、到账和回调确认会走同一套订单流程。
+          </p>
+        </div>
+        <div class="membership-grid">
+          <article class="plan-card featured">
+            <div>
+              <span class="plan-tag">推荐</span>
+              <h3>年度会员</h3>
+              <p>完整文章、会员播客、每月闭门笔记和项目更新。</p>
+            </div>
+            <div>
+              <p class="price">$99 <span>/ 年</span></p>
+              <button class="button primary plan-button" data-plan="yearly" type="button">
+                开通年度会员
+              </button>
+            </div>
+          </article>
+          <article class="plan-card">
+            <div>
+              <span class="plan-tag quiet">灵活</span>
+              <h3>月度会员</h3>
+              <p>适合先体验内容节奏，随时升级到年度会员。</p>
+            </div>
+            <div>
+              <p class="price">$12 <span>/ 月</span></p>
+              <button class="button secondary plan-button" data-plan="monthly" type="button">
+                开通月度会员
+              </button>
+            </div>
+          </article>
+        </div>
+        <div class="checkout-panel" aria-live="polite">
+          <div>
+            <p class="section-kicker">Checkout</p>
+            <h3 id="selectedPlanTitle">选择一个订阅方案</h3>
+            <p id="selectedPlanSummary" class="muted">
+              选择方案后，可使用 PayPal、微信或支付宝付款。当前页面已预留支付接口。
+            </p>
+          </div>
+          <div class="payment-methods" aria-label="支付方式">
+            <button class="payment-method active" data-method="paypal" type="button">PayPal</button>
+            <button class="payment-method" data-method="wechat" type="button">微信支付</button>
+            <button class="payment-method" data-method="alipay" type="button">支付宝</button>
+          </div>
+          <div id="paypalButtons" class="paypal-box"></div>
+          <div id="offlinePayment" class="offline-payment" hidden>
+            <p id="offlinePaymentText"></p>
+            <a id="offlinePaymentLink" class="button primary" href="#" target="_blank" rel="noreferrer">
+              前往付款
+            </a>
+          </div>
+          <p id="paymentStatus" class="form-message" role="status"></p>
+        </div>
       </section>
 
       <section id="studio" class="studio band">
@@ -119,6 +210,7 @@
               <option value="essay">文章</option>
               <option value="project">项目</option>
               <option value="note">札记</option>
+              <option value="audio">音频</option>
             </select>
           </label>
           <label>
