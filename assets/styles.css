@@ -287,11 +287,211 @@ h3 {
   font-weight: 700;
 }
 
+.podcast {
+  border-bottom: 1px solid var(--line);
+}
+
+.podcast .muted,
+.membership .muted {
+  max-width: 460px;
+}
+
+.podcast-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 18px;
+}
+
+.player-panel {
+  display: grid;
+  align-content: space-between;
+  min-height: 360px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(22px, 4vw, 38px);
+  background: #151817;
+  color: #fffdf7;
+}
+
+.episode-label {
+  width: fit-content;
+  margin: 0 0 16px;
+  border: 1px solid rgba(255, 253, 247, 0.22);
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: #f5c0a8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.player-panel h3 {
+  max-width: 640px;
+  font-size: clamp(28px, 4vw, 48px);
+}
+
+.player-panel p:not(.episode-label) {
+  max-width: 620px;
+  color: rgba(255, 253, 247, 0.76);
+}
+
+.player-panel audio {
+  width: 100%;
+  margin-top: 28px;
+}
+
+.episode-list {
+  display: grid;
+  gap: 10px;
+}
+
+.episode-button {
+  display: grid;
+  min-height: 108px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--paper-strong);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.episode-button:hover,
+.episode-button.active {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+
+.episode-button span {
+  color: var(--terracotta);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.episode-button strong {
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+.episode-button small {
+  margin-top: 10px;
+  color: var(--muted);
+}
+
 .subscribe {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1fr);
   gap: clamp(24px, 6vw, 84px);
   border-block: 1px solid var(--line);
+}
+
+.membership {
+  border-bottom: 1px solid var(--line);
+}
+
+.membership-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.plan-card {
+  display: grid;
+  min-height: 280px;
+  align-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(20px, 3vw, 30px);
+  background: var(--paper-strong);
+}
+
+.plan-card.featured {
+  border-color: rgba(31, 94, 77, 0.5);
+  background: #eef3ee;
+}
+
+.plan-card p {
+  color: var(--muted);
+}
+
+.plan-tag {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: var(--accent);
+  color: #fffdf7;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.plan-tag.quiet {
+  background: var(--blue-gray);
+  color: #27484a;
+}
+
+.price {
+  margin: 24px 0 16px;
+  color: var(--ink);
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.price span {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.checkout-panel {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(20px, 3vw, 30px);
+  background: var(--paper-strong);
+}
+
+.payment-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.payment-method {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 14px;
+  background: #fffdf7;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.payment-method.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fffdf7;
+}
+
+.paypal-box {
+  min-height: 80px;
+}
+
+.offline-payment {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  color: var(--muted);
+}
+
+.button.disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .subscribe-form,
@@ -395,6 +595,8 @@ textarea:focus {
 
   .intro,
   .subscribe,
+  .podcast-shell,
+  .membership-grid,
   .work-form {
     grid-template-columns: 1fr;
   }
