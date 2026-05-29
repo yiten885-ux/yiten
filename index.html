@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="一个极简、可订阅、可展示作品的个人网站模板。"
+    />
+    <title>Yiten Huang | Essays, Work, Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header" aria-label="主导航">
+      <a class="brand" href="#top">Yiten Huang</a>
+      <nav class="nav-links">
+        <a href="#works">作品</a>
+        <a href="#subscribe">订阅</a>
+        <a href="#studio">上传</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <img
+          class="hero-image"
+          src="./public/hero-desk.svg"
+          alt="桌面上有笔记本、钢笔、电脑和手稿的极简创作场景"
+        />
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Essays / Projects / Notes</p>
+          <h1>把长期思考，变成一个可以被订阅的个人宇宙。</h1>
+          <p class="hero-copy">
+            这里可以发布你的文章、作品、播客、研究札记和项目更新。读者留下邮箱后，就能持续跟随你的创作。
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#subscribe">开始订阅</a>
+            <a class="button ghost" href="#works">浏览作品</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="intro band">
+        <div class="intro-text">
+          <p class="section-kicker">About</p>
+          <h2>一个清醒、克制、耐读的个人主页。</h2>
+        </div>
+        <p>
+          风格参考 Naval 的个人网站：内容优先、信息清楚、没有过度装饰。你可以把它改成中文为主、英文为主，或中英混排。
+        </p>
+      </section>
+
+      <section id="works" class="works band">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Library</p>
+            <h2>最新作品</h2>
+          </div>
+          <div class="filters" aria-label="作品筛选">
+            <button class="filter active" data-filter="all">全部</button>
+            <button class="filter" data-filter="essay">文章</button>
+            <button class="filter" data-filter="project">项目</button>
+            <button class="filter" data-filter="note">札记</button>
+          </div>
+        </div>
+        <div id="workGrid" class="work-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="subscribe" class="subscribe band">
+        <div>
+          <p class="section-kicker">Newsletter</p>
+          <h2>订阅我的更新</h2>
+          <p>
+            输入邮箱后会保存到本地演示列表。正式上线时可以接入 Buttondown、ConvertKit、Beehiiv、Mailchimp 或 Supabase。
+          </p>
+        </div>
+        <form id="subscribeForm" class="subscribe-form">
+          <label for="email">邮箱</label>
+          <div class="form-row">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            />
+            <button class="button primary" type="submit">订阅</button>
+          </div>
+          <p id="subscribeMessage" class="form-message" role="status"></p>
+        </form>
+      </section>
+
+      <section id="studio" class="studio band">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Studio</p>
+            <h2>上传你的作品</h2>
+          </div>
+          <p class="muted">
+            当前为本地演示：你添加的作品会存进这个浏览器。真正生产环境需要后端数据库和登录权限。
+          </p>
+        </div>
+        <form id="workForm" class="work-form">
+          <label>
+            标题
+            <input name="title" type="text" placeholder="例如：AI 时代的个人杠杆" required />
+          </label>
+          <label>
+            类型
+            <select name="type">
+              <option value="essay">文章</option>
+              <option value="project">项目</option>
+              <option value="note">札记</option>
+            </select>
+          </label>
+          <label>
+            链接
+            <input name="url" type="url" placeholder="https://..." required />
+          </label>
+          <label class="wide">
+            摘要
+            <textarea
+              name="summary"
+              rows="4"
+              placeholder="用两三句话说明这个作品解决了什么问题，或表达了什么想法。"
+              required
+            ></textarea>
+          </label>
+          <button class="button primary" type="submit">发布到作品墙</button>
+          <button class="button secondary" id="resetDemo" type="button">恢复示例</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>© <span id="year"></span> Yiten Huang. Built for independent work.</p>
+      <a href="mailto:hello@example.com">hello@example.com</a>
+    </footer>
+
+    <script src="./assets/app.js"></script>
+  </body>
+</html>
