@@ -3,9 +3,15 @@
   const paypalConfigEndpoint = "/api/paypal/client-config";
   const paypalCreateOrderEndpoint = "/api/paypal/create-order";
   const paypalCaptureOrderEndpoint = "/api/paypal/capture-order";
-  const planAmounts = {
-    monthly: { title: "月度会员", amount: "12.00", currency: "USD" },
-    yearly: { title: "年度会员", amount: "99.00", currency: "USD" },
+  const catalog = {
+    membership: {
+      monthly: { title: "月度会员", amount: "12.00", currency: "USD" },
+      yearly: { title: "年度会员", amount: "99.00", currency: "USD" },
+    },
+    ebook: {
+      visitor: { title: "电子书：长期思考与个人系统", amount: "29.00", currency: "USD" },
+      member: { title: "电子书：长期思考与个人系统（会员价）", amount: "19.00", currency: "USD" },
+    },
   };
   const providerCopy = {
     paypal: "PayPal 将通过 PayPal 官方收银台收款。适合海外用户和已有 PayPal 账户的用户。",
@@ -20,7 +26,7 @@
     alipay: "支付宝支付",
   };
 
-  let selectedPlan = "yearly";
+  let selectedCheckout = { type: "membership", id: "yearly" };
   let selectedMethod = "card";
   let paypalReady = false;
 
@@ -29,8 +35,19 @@
   const offlinePaymentText = document.querySelector("#offlinePaymentText");
   const offlinePaymentLink = document.querySelector("#offlinePaymentLink");
   const paymentStatus = document.querySelector("#paymentStatus");
+  const selectedPlanTitle = document.querySelector("#selectedPlanTitle");
+  const selectedPlanSummary = document.querySelector("#selectedPlanSummary");
 
   if (!offlinePayment || !offlinePaymentText || !offlinePaymentLink || !paymentStatus || !paypalButtons) return;
+
+  const getSelectedItem = () => catalog[selectedCheckout.type]?.[selectedCheckout.id];
+
+  const getPayload = () => {
+    if (selectedCheckout.type === "ebook") {
+      return { product: "ebook", audience: selectedCheckout.id, method: selectedMethod };
+    }
+    return { plan: selectedCheckout.id, method: selectedMethod };
+  };
 
   const setMessage = (message) => {
     paymentStatus.textContent = message;
@@ -48,6 +65,13 @@
       document.head.appendChild(script);
     });
 
+  const resetPayPal = () => {
+    if (paypalReady && window.paypal) {
+      paypalReady = false;
+      paypalButtons.innerHTML = "";
+    }
+  };
+
   const renderPayPalButtons = async () => {
     if (paypalReady || !window.paypal) return;
     paypalReady = true;
@@ -60,7 +84,7 @@
           const response = await fetch(paypalCreateOrderEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ plan: selectedPlan }),
+            body: JSON.stringify(getPayload()),
           });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || "创建 PayPal 订单失败");
@@ -96,8 +120,15 @@
   };
 
   const syncCheckoutCopy = () => {
-    const plan = planAmounts[selectedPlan];
-    offlinePaymentText.textContent = `${providerCopy[selectedMethod]} 当前方案：${plan.title} ${plan.currency} ${plan.amount}。`;
+    const item = getSelectedItem();
+    if (!item) return;
+    if (selectedPlanTitle) selectedPlanTitle.textContent = item.title;
+    if (selectedPlanSummary) {
+      selectedPlanSummary.textContent = selectedCheckout.type === "ebook"
+        ? "这是一次性电子书购买，游客可原价购买，订阅会员可用会员价购买。"
+        : "选择方案后，可以用 PayPal 或银行卡/信用卡完成真实支付测试；微信/支付宝审批通过后会自动走同一套 Stripe Checkout。";
+    }
+    offlinePaymentText.textContent = `${providerCopy[selectedMethod]} 当前商品：${item.title} ${item.currency} ${item.amount}。`;
 
     if (selectedMethod === "paypal") {
       offlinePayment.hidden = true;
@@ -113,20 +144,27 @@
     offlinePaymentLink.classList.remove("disabled");
     offlinePaymentLink.textContent = `创建${methodLabels[selectedMethod]}链接`;
     if (selectedMethod === "card") {
-      setMessage("银行卡通道已接入 Stripe，可用于真实测试支付；到账到银行仍取决于 Stripe 提现状态。");
+      setMessage("银行卡通道已接入 Stripe，可用于真实测试支付；到账到银行仍取决于 Stripe 提现状态。电子书交付页下一步接入。 ");
     } else {
-      setMessage("微信/支付宝已在代码中接入，等待 Stripe 支付方式审批通过后才能真实付款。");
+      setMessage("微信/支付宝已在代码中接入，等待 Stripe 支付方式审批通过后才能真实付款。 ");
     }
   };
 
   document.querySelectorAll(".plan-button").forEach((button) => {
     button.addEventListener("click", () => {
-      selectedPlan = button.dataset.plan || selectedPlan;
-      if (paypalReady && window.paypal) {
-        paypalReady = false;
-        paypalButtons.innerHTML = "";
-      }
+      selectedCheckout = { type: "membership", id: button.dataset.plan || "yearly" };
+      resetPayPal();
       syncCheckoutCopy();
+      document.querySelector("#membership")?.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+
+  document.querySelectorAll(".ebook-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectedCheckout = { type: "ebook", id: button.dataset.audience === "member" ? "member" : "visitor" };
+      resetPayPal();
+      syncCheckoutCopy();
+      document.querySelector("#membership")?.scrollIntoView({ behavior: "smooth" });
     });
   });
 
@@ -139,14 +177,14 @@
 
   offlinePaymentLink.addEventListener("click", async (event) => {
     event.preventDefault();
-    const plan = planAmounts[selectedPlan];
+    const item = getSelectedItem();
     setMessage("正在创建 Stripe 支付会话...");
 
     try {
       const response = await fetch(checkoutEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: selectedPlan, method: selectedMethod }),
+        body: JSON.stringify(getPayload()),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "创建支付会话失败");
@@ -155,7 +193,7 @@
     } catch (error) {
       const label = methodLabels[selectedMethod] || selectedMethod;
       setMessage(`${error.message}。如果是微信/支付宝，这是 Stripe 仍在审批该支付方式；银行卡请检查 Stripe 密钥和账户状态。`);
-      offlinePaymentText.textContent = `${plan.title} 的 ${label}通道暂时没有返回可用收银台。`;
+      offlinePaymentText.textContent = `${item?.title || "当前商品"} 的 ${label}通道暂时没有返回可用收银台。`;
     }
   });
 
