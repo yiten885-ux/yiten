@@ -4,6 +4,8 @@
     { "src": "api/**/*.js", "use": "@vercel/node" },
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "admin.html", "use": "@vercel/static" },
+    { "src": "manifest.webmanifest", "use": "@vercel/static" },
+    { "src": "sw.js", "use": "@vercel/static" },
     { "src": "assets/**", "use": "@vercel/static" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
@@ -13,6 +15,8 @@
     { "src": "/api/paypal/client-config", "dest": "/api/paypal/client-config.js" },
     { "src": "/api/paypal/create-order", "dest": "/api/paypal/create-order.js" },
     { "src": "/api/paypal/capture-order", "dest": "/api/paypal/capture-order.js" },
+    { "src": "/manifest.webmanifest", "dest": "/manifest.webmanifest" },
+    { "src": "/sw.js", "dest": "/sw.js" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
     { "src": "/admin.html", "dest": "/admin.html" },
@@ -23,6 +27,10 @@
     {
       "source": "/api/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     }
   ]
 }
