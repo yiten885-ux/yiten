@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/styles.css" />
+    <link rel="stylesheet" href="./assets/launch.css" />
   </head>
   <body class="admin-body locked">
     <div id="adminGate" class="admin-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
@@ -25,27 +26,14 @@
     <header class="admin-topbar">
       <a class="brand" href="./index.html">Yiten Huang</a>
       <nav class="admin-nav" aria-label="后台导航">
-        <a href="#overview">概览</a>
-        <a href="#editor">编辑器</a>
-        <a href="#offers">折扣</a>
-        <a href="#books-admin">电子书</a>
-        <a href="#creators">创作者</a>
-        <a href="#payments">收款</a>
-        <a href="./index.html">返回网站</a>
+        <a href="#overview">概览</a><a href="#editor">编辑器</a><a href="#offers">折扣</a><a href="#books-admin">电子书</a><a href="#creators">创作者</a><a href="#payments">收款</a><a href="./index.html">返回网站</a>
       </nav>
     </header>
 
     <main class="admin-shell">
       <section id="overview" class="admin-hero">
-        <div>
-          <p class="section-kicker">Creator OS</p>
-          <h1>网站后台</h1>
-          <p class="muted">这里管理第三方创作者、作品编辑、活动折扣、电子书商品、订阅收入、流量统计和分账。用户订阅端不展示这些运营数据。</p>
-        </div>
-        <div class="admin-actions">
-          <a class="button primary" href="#editor">写文章</a>
-          <a class="button secondary" href="https://dashboard.stripe.com/payments" target="_blank" rel="noreferrer">打开 Stripe</a>
-        </div>
+        <div><p class="section-kicker">Creator OS</p><h1>网站后台</h1><p class="muted">这里管理第三方创作者、作品编辑、活动折扣、电子书商品、订阅收入、流量统计和分账。用户订阅端不展示这些运营数据。</p></div>
+        <div class="admin-actions"><a class="button primary" href="#editor">写文章</a><a class="button secondary" href="https://dashboard.stripe.com/payments" target="_blank" rel="noreferrer">打开 Stripe</a></div>
       </section>
 
       <section class="metric-grid" aria-label="运营指标">
@@ -56,13 +44,7 @@
       </section>
 
       <section id="editor" class="admin-section">
-        <div class="admin-section-head">
-          <div>
-            <p class="section-kicker">Editor</p>
-            <h2>文章与作品编辑器</h2>
-          </div>
-          <button id="saveDraft" class="button primary" type="button">保存草稿</button>
-        </div>
+        <div class="admin-section-head"><div><p class="section-kicker">Editor</p><h2>文章与作品编辑器</h2></div><button id="saveDraft" class="button primary" type="button">保存草稿</button></div>
         <div class="editor-grid">
           <form id="editorForm" class="work-form admin-editor-form">
             <label>标题 <input name="title" type="text" value="新的创作者文章" required /></label>
@@ -74,46 +56,23 @@
 
 在这里写文章正文。下一步接数据库后，保存按钮会写入真实后台。</textarea></label>
           </form>
-          <article class="editor-preview">
-            <p class="section-kicker">Preview</p>
-            <h3 id="previewTitle">新的创作者文章</h3>
-            <p id="previewMeta" class="muted">Yiten Huang / 草稿</p>
-            <p id="previewSummary">这里写摘要，发布后会出现在作品卡片和社交分发文案里。</p>
-            <pre id="previewBody"># 标题
-
-在这里写文章正文。</pre>
-          </article>
+          <article class="editor-preview"><p class="section-kicker">Preview</p><h3 id="previewTitle">新的创作者文章</h3><p id="previewMeta" class="muted">Yiten Huang / 草稿</p><p id="previewSummary"></p><pre id="previewBody"></pre></article>
         </div>
       </section>
 
       <section id="offers" class="admin-section">
-        <div class="admin-section-head">
-          <div>
-            <p class="section-kicker">Offers</p>
-            <h2>订阅活动与折扣</h2>
-          </div>
-          <button id="saveOffer" class="button primary" type="button">保存活动</button>
-        </div>
+        <div class="admin-section-head"><div><p class="section-kicker">Offers</p><h2>订阅活动与折扣</h2></div><button id="saveOffer" class="button primary" type="button">保存活动</button></div>
         <form id="offerForm" class="work-form">
-          <label>活动名称 <input name="name" type="text" value="上线早鸟价" /></label>
-          <label>优惠码 <input name="code" type="text" value="YITEN20" /></label>
-          <label>年度会员价 <input name="yearly" type="number" value="79" min="1" /></label>
-          <label>电子书会员价 <input name="ebook" type="number" value="19" min="1" /></label>
-          <label>开始日期 <input name="start" type="date" /></label>
-          <label>结束日期 <input name="end" type="date" /></label>
+          <label>活动名称 <input name="name" type="text" value="上线早鸟价" /></label><label>优惠码 <input name="code" type="text" value="YITEN20" /></label>
+          <label>年度会员价 <input name="yearly" type="number" value="79" min="1" /></label><label>电子书会员价 <input name="ebook" type="number" value="19" min="1" /></label>
+          <label>开始日期 <input name="start" type="date" /></label><label>结束日期 <input name="end" type="date" /></label>
           <label class="wide">活动说明 <textarea name="note" rows="3">用于开站早期促销。真正扣款折扣需要同步创建 Stripe Coupon / Promotion Code。</textarea></label>
         </form>
         <p id="offerMessage" class="form-message" role="status"></p>
       </section>
 
       <section id="books-admin" class="admin-section">
-        <div class="admin-section-head">
-          <div>
-            <p class="section-kicker">Books</p>
-            <h2>电子书商品</h2>
-          </div>
-          <a class="button secondary" href="./index.html#books">查看前台</a>
-        </div>
+        <div class="admin-section-head"><div><p class="section-kicker">Books</p><h2>电子书商品</h2></div><a class="button secondary" href="./index.html#books">查看前台</a></div>
         <div class="admin-table" role="table" aria-label="电子书商品列表">
           <div role="row" class="table-head"><span>商品</span><span>游客价</span><span>会员价</span><span>交付状态</span></div>
           <div role="row"><span>长期思考与个人系统</span><span>USD 29</span><span>USD 19</span><span>等待上传 PDF/EPUB 后接下载页</span></div>
@@ -121,13 +80,7 @@
       </section>
 
       <section id="creators" class="admin-section">
-        <div class="admin-section-head">
-          <div>
-            <p class="section-kicker">Creators</p>
-            <h2>创作者管理</h2>
-          </div>
-          <button class="button primary" type="button">邀请创作者</button>
-        </div>
+        <div class="admin-section-head"><div><p class="section-kicker">Creators</p><h2>创作者管理</h2></div><button class="button primary" type="button">邀请创作者</button></div>
         <div class="admin-table" role="table" aria-label="创作者列表">
           <div role="row" class="table-head"><span>创作者</span><span>状态</span><span>分成</span><span>Stripe Connect</span></div>
           <div role="row"><span>Yiten Huang</span><span>Owner</span><span>100%</span><span>主收款账户</span></div>
@@ -136,13 +89,7 @@
       </section>
 
       <section id="payments" class="admin-section">
-        <div class="admin-section-head">
-          <div>
-            <p class="section-kicker">Payments</p>
-            <h2>订阅、收款和分账</h2>
-          </div>
-          <a class="button secondary" href="https://dashboard.stripe.com/payments" target="_blank" rel="noreferrer">打开 Stripe</a>
-        </div>
+        <div class="admin-section-head"><div><p class="section-kicker">Payments</p><h2>订阅、收款和分账</h2></div><a class="button secondary" href="https://dashboard.stripe.com/payments" target="_blank" rel="noreferrer">打开 Stripe</a></div>
         <div class="admin-table" role="table" aria-label="支付状态">
           <div role="row" class="table-head"><span>通道</span><span>状态</span><span>用途</span><span>下一步</span></div>
           <div role="row"><span>银行卡/信用卡</span><span>已接入</span><span>真实 Checkout</span><span>可做小额测试付款</span></div>
@@ -160,23 +107,9 @@
       const gateMessage = document.querySelector("#gateMessage");
       const gatePassword = document.querySelector("#gatePassword");
       const adminPass = "Yiten2026";
-
-      const unlock = () => {
-        document.body.classList.remove("locked");
-        gate.hidden = true;
-        sessionStorage.setItem("yiten-admin-unlocked", "yes");
-      };
-
+      const unlock = () => { document.body.classList.remove("locked"); gate.hidden = true; sessionStorage.setItem("yiten-admin-unlocked", "yes"); };
       if (sessionStorage.getItem("yiten-admin-unlocked") === "yes") unlock();
-
-      gateForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        if (gatePassword.value === adminPass) {
-          unlock();
-          return;
-        }
-        gateMessage.textContent = "口令不对。临时口令在代码里可改，正式版会换成账号登录。";
-      });
+      gateForm.addEventListener("submit", (event) => { event.preventDefault(); gatePassword.value === adminPass ? unlock() : gateMessage.textContent = "口令不对。正式版会换成账号登录。"; });
 
       const editorForm = document.querySelector("#editorForm");
       const syncPreview = () => {
@@ -187,27 +120,11 @@
         document.querySelector("#previewBody").textContent = data.get("body") || "";
       };
       editorForm.addEventListener("input", syncPreview);
-      document.querySelector("#saveDraft").addEventListener("click", () => {
-        const data = Object.fromEntries(new FormData(editorForm).entries());
-        localStorage.setItem("yiten-admin-draft", JSON.stringify(data));
-        alert("草稿已保存到当前浏览器。接数据库后会保存到云端后台。");
-      });
-
+      document.querySelector("#saveDraft").addEventListener("click", () => { localStorage.setItem("yiten-admin-draft", JSON.stringify(Object.fromEntries(new FormData(editorForm).entries()))); alert("草稿已保存到当前浏览器。接数据库后会保存到云端后台。"); });
       const savedDraft = localStorage.getItem("yiten-admin-draft");
-      if (savedDraft) {
-        const data = JSON.parse(savedDraft);
-        Object.entries(data).forEach(([key, value]) => {
-          const field = editorForm.elements[key];
-          if (field) field.value = value;
-        });
-      }
+      if (savedDraft) Object.entries(JSON.parse(savedDraft)).forEach(([key, value]) => { if (editorForm.elements[key]) editorForm.elements[key].value = value; });
       syncPreview();
-
-      document.querySelector("#saveOffer").addEventListener("click", () => {
-        const data = Object.fromEntries(new FormData(document.querySelector("#offerForm")).entries());
-        localStorage.setItem("yiten-offer", JSON.stringify(data));
-        document.querySelector("#offerMessage").textContent = "活动配置已保存到当前浏览器。正式折扣需要同步 Stripe 优惠码。";
-      });
+      document.querySelector("#saveOffer").addEventListener("click", () => { localStorage.setItem("yiten-offer", JSON.stringify(Object.fromEntries(new FormData(document.querySelector("#offerForm")).entries()))); document.querySelector("#offerMessage").textContent = "活动配置已保存到当前浏览器。正式折扣需要同步 Stripe 优惠码。"; });
     </script>
   </body>
 </html>
