@@ -26,6 +26,7 @@ const labels = {
   essay: "文章",
   project: "项目",
   note: "札记",
+  audio: "音频",
 };
 
 const workGrid = document.querySelector("#workGrid");
@@ -48,7 +49,7 @@ const saveWorks = (works) => {
 };
 
 const escapeHtml = (value) =>
-  value.replace(/[&<>"']/g, (character) => {
+  String(value).replace(/[&<>"']/g, (character) => {
     const entities = {
       "&": "&amp;",
       "<": "&lt;",
@@ -61,6 +62,36 @@ const escapeHtml = (value) =>
 
 const escapeAttribute = (value) => escapeHtml(value).replace(/`/g, "&#096;");
 
+const buildShareUrl = (platform, work) => {
+  const url = encodeURIComponent(work.url);
+  const title = encodeURIComponent(work.title);
+  const text = encodeURIComponent(`${work.title} - ${work.summary}`);
+  const shareTargets = {
+    x: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    weibo: `https://service.weibo.com/share/share.php?url=${url}&title=${text}`,
+    telegram: `https://t.me/share/url?url=${url}&text=${title}`,
+    email: `mailto:?subject=${title}&body=${text}%0A%0A${url}`,
+  };
+  return shareTargets[platform];
+};
+
+const shareWork = async (platform, work) => {
+  if (platform === "native" && navigator.share) {
+    await navigator.share({ title: work.title, text: work.summary, url: work.url });
+    return;
+  }
+
+  if (platform === "copy") {
+    await navigator.clipboard.writeText(work.url);
+    return;
+  }
+
+  const shareUrl = buildShareUrl(platform, work);
+  if (shareUrl) window.open(shareUrl, "_blank", "noopener,noreferrer");
+};
+
 const renderWorks = () => {
   const works = readWorks();
   const visibleWorks =
@@ -68,21 +99,46 @@ const renderWorks = () => {
 
   workGrid.innerHTML = visibleWorks
     .map(
-      (work) => `
-        <article class="work-card">
+      (work, index) => `
+        <article class="work-card" data-index="${index}">
           <div>
             <span class="work-type">${labels[work.type] || "作品"}</span>
             <h3>${escapeHtml(work.title)}</h3>
             <p>${escapeHtml(work.summary)}</p>
           </div>
-          <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">
-            阅读 / 查看
-          </a>
+          <div class="work-actions">
+            <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">
+              阅读 / 查看
+            </a>
+            <div class="share-actions" aria-label="分发 ${escapeAttribute(work.title)}">
+              <button type="button" data-share="native">分享</button>
+              <button type="button" data-share="copy">复制</button>
+              <button type="button" data-share="x">X</button>
+              <button type="button" data-share="linkedin">LinkedIn</button>
+              <button type="button" data-share="weibo">微博</button>
+            </div>
+          </div>
         </article>
       `
     )
     .join("");
 };
+
+workGrid.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-share]");
+  if (!button) return;
+  const card = button.closest(".work-card");
+  const works = activeFilter === "all" ? readWorks() : readWorks().filter((work) => work.type === activeFilter);
+  const work = works[Number(card.dataset.index)];
+  if (!work) return;
+
+  try {
+    await shareWork(button.dataset.share, work);
+    button.textContent = button.dataset.share === "copy" ? "已复制" : button.textContent;
+  } catch (error) {
+    console.warn("Share failed", error);
+  }
+});
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
