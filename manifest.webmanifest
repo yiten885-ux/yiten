@@ -1,0 +1,33 @@
+{
+  "name": "Yiten Huang",
+  "short_name": "Yiten",
+  "description": "Yiten Huang 的个人创作者网站：作品、播客、电子书和会员订阅。",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8f4ec",
+  "theme_color": "#1f5e4d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/public/hero-desk.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "最新作品",
+      "url": "/#works"
+    },
+    {
+      "name": "电子书",
+      "url": "/#books"
+    },
+    {
+      "name": "付费订阅",
+      "url": "/#membership"
+    }
+  ]
+}
