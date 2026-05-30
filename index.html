@@ -4,11 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Yiten Huang 的个人网站：作品、播客、电子书和付费订阅。" />
+    <meta name="theme-color" content="#1f5e4d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Yiten" />
     <title>Yiten Huang | Essays, Podcast, Books, Membership</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./public/hero-desk.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/styles.css" />
+    <link rel="stylesheet" href="./assets/launch.css" />
   </head>
   <body>
     <header class="site-header" aria-label="主导航">
@@ -48,10 +54,7 @@
 
       <section id="podcast" class="podcast band">
         <div class="section-head">
-          <div>
-            <p class="section-kicker">Podcast</p>
-            <h2>音频播客</h2>
-          </div>
+          <div><p class="section-kicker">Podcast</p><h2>音频播客</h2></div>
           <p class="muted">已接入 Himalaya / 喜马拉雅课程链接。点击节目或全集入口可进入喜马拉雅资源页；站内播放依赖喜马拉雅开放平台审核和接口返回。</p>
         </div>
         <div class="podcast-shell">
@@ -59,9 +62,7 @@
             <p class="episode-label" id="episodeLabel">Himalaya 课程</p>
             <h3 id="episodeTitle">正在加载喜马拉雅节目</h3>
             <p id="episodeSummary">节目列表会在这里显示。点击右侧声音即可收听。</p>
-            <audio id="episodePlayer" controls preload="metadata">
-              <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
-            </audio>
+            <audio id="episodePlayer" controls preload="metadata"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" /></audio>
           </div>
           <div id="episodeList" class="episode-list" aria-label="播客节目列表"></div>
         </div>
@@ -69,15 +70,9 @@
 
       <section id="works" class="works band">
         <div class="section-head">
-          <div>
-            <p class="section-kicker">Library</p>
-            <h2>最新作品</h2>
-          </div>
+          <div><p class="section-kicker">Library</p><h2>最新作品</h2></div>
           <div class="filters" aria-label="作品筛选">
-            <button class="filter active" data-filter="all">全部</button>
-            <button class="filter" data-filter="essay">文章</button>
-            <button class="filter" data-filter="project">项目</button>
-            <button class="filter" data-filter="note">札记</button>
+            <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="essay">文章</button><button class="filter" data-filter="project">项目</button><button class="filter" data-filter="note">札记</button>
           </div>
         </div>
         <div id="workGrid" class="work-grid" aria-live="polite"></div>
@@ -85,133 +80,50 @@
 
       <section id="books" class="books band">
         <div class="section-head">
-          <div>
-            <p class="section-kicker">Bookstore</p>
-            <h2>电子书商店</h2>
-          </div>
+          <div><p class="section-kicker">Bookstore</p><h2>电子书商店</h2></div>
           <p class="muted">任何游客均可购买电子书。订阅会员可使用会员折扣价购买；支付成功后的下载交付页会在下一步接入。</p>
         </div>
         <div class="membership-grid">
-          <article class="plan-card featured ebook-card">
-            <div>
-              <span class="plan-tag">电子书</span>
-              <h3>长期思考与个人系统</h3>
-              <p>一本面向独立创作者的电子书：把长期主义、内容资产、订阅关系和个人操作系统串起来。</p>
-            </div>
-            <div>
-              <p class="price">$29 <span>/ 游客价</span></p>
-              <button class="button primary ebook-button" data-audience="visitor" type="button">游客购买电子书</button>
-            </div>
-          </article>
-          <article class="plan-card ebook-card">
-            <div>
-              <span class="plan-tag quiet">会员折扣</span>
-              <h3>订阅会员专属价</h3>
-              <p>已经订阅会员的读者可用折扣价购买电子书。正式会员识别会在登录系统接入后自动校验。</p>
-            </div>
-            <div>
-              <p class="price">$19 <span>/ 会员价</span></p>
-              <button class="button secondary ebook-button" data-audience="member" type="button">会员价购买</button>
-            </div>
-          </article>
+          <article class="plan-card featured ebook-card"><div><span class="plan-tag">电子书</span><h3>长期思考与个人系统</h3><p>一本面向独立创作者的电子书：把长期主义、内容资产、订阅关系和个人操作系统串起来。</p></div><div><p class="price">$29 <span>/ 游客价</span></p><button class="button primary ebook-button" data-audience="visitor" type="button">游客购买电子书</button></div></article>
+          <article class="plan-card ebook-card"><div><span class="plan-tag quiet">会员折扣</span><h3>订阅会员专属价</h3><p>已经订阅会员的读者可用折扣价购买电子书。正式会员识别会在登录系统接入后自动校验。</p></div><div><p class="price">$19 <span>/ 会员价</span></p><button class="button secondary ebook-button" data-audience="member" type="button">会员价购买</button></div></article>
         </div>
       </section>
 
       <section id="subscribe" class="subscribe band">
-        <div>
-          <p class="section-kicker">Newsletter</p>
-          <h2>免费接收更新</h2>
-          <p>输入邮箱后会保存到本地演示列表。正式上线时可以接入邮件服务。</p>
-        </div>
-        <form id="subscribeForm" class="subscribe-form">
-          <label for="email">邮箱</label>
-          <div class="form-row">
-            <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
-            <button class="button primary" type="submit">订阅</button>
-          </div>
-          <p id="subscribeMessage" class="form-message" role="status"></p>
-        </form>
+        <div><p class="section-kicker">Newsletter</p><h2>免费接收更新</h2><p>输入邮箱后会保存到本地演示列表。正式上线时可以接入邮件服务。</p></div>
+        <form id="subscribeForm" class="subscribe-form"><label for="email">邮箱</label><div class="form-row"><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required /><button class="button primary" type="submit">订阅</button></div><p id="subscribeMessage" class="form-message" role="status"></p></form>
       </section>
 
       <section id="membership" class="membership band">
         <div class="section-head">
-          <div>
-            <p class="section-kicker">Checkout</p>
-            <h2>付费订阅与商品结账</h2>
-          </div>
+          <div><p class="section-kicker">Checkout</p><h2>付费订阅与商品结账</h2></div>
           <p class="muted">当前支持 PayPal 与 Stripe 银行卡/信用卡正式收银台。微信/支付宝已预留接口，等待 Stripe 审批通过后启用。</p>
         </div>
         <div class="membership-grid">
-          <article class="plan-card featured">
-            <div>
-              <span class="plan-tag">推荐</span>
-              <h3>年度会员</h3>
-              <p>完整文章、会员播客、每月闭门笔记、项目更新和电子书会员价。</p>
-            </div>
-            <div>
-              <p class="price">$99 <span>/ 年</span></p>
-              <button class="button primary plan-button" data-plan="yearly" type="button">开通年度会员</button>
-            </div>
-          </article>
-          <article class="plan-card">
-            <div>
-              <span class="plan-tag quiet">灵活</span>
-              <h3>月度会员</h3>
-              <p>适合先体验内容节奏，随时升级到年度会员。</p>
-            </div>
-            <div>
-              <p class="price">$12 <span>/ 月</span></p>
-              <button class="button secondary plan-button" data-plan="monthly" type="button">开通月度会员</button>
-            </div>
-          </article>
+          <article class="plan-card featured"><div><span class="plan-tag">推荐</span><h3>年度会员</h3><p>完整文章、会员播客、每月闭门笔记、项目更新和电子书会员价。</p></div><div><p class="price">$99 <span>/ 年</span></p><button class="button primary plan-button" data-plan="yearly" type="button">开通年度会员</button></div></article>
+          <article class="plan-card"><div><span class="plan-tag quiet">灵活</span><h3>月度会员</h3><p>适合先体验内容节奏，随时升级到年度会员。</p></div><div><p class="price">$12 <span>/ 月</span></p><button class="button secondary plan-button" data-plan="monthly" type="button">开通月度会员</button></div></article>
         </div>
         <div class="checkout-panel" aria-live="polite">
-          <div>
-            <p class="section-kicker">Payment</p>
-            <h3 id="selectedPlanTitle">选择一个订阅方案或电子书</h3>
-            <p id="selectedPlanSummary" class="muted">选择方案后，可以用 PayPal 或银行卡/信用卡完成真实支付测试；微信/支付宝审批通过后会自动走同一套 Stripe Checkout。</p>
-          </div>
-          <div class="payment-methods" aria-label="支付方式">
-            <button class="payment-method" data-method="paypal" type="button">PayPal</button>
-            <button class="payment-method active" data-method="card" type="button">银行卡</button>
-            <button class="payment-method" data-method="wechat" type="button">微信支付</button>
-            <button class="payment-method" data-method="alipay" type="button">支付宝</button>
-          </div>
+          <div><p class="section-kicker">Payment</p><h3 id="selectedPlanTitle">选择一个订阅方案或电子书</h3><p id="selectedPlanSummary" class="muted">选择方案后，可以用 PayPal 或银行卡/信用卡完成真实支付测试；微信/支付宝审批通过后会自动走同一套 Stripe Checkout。</p></div>
+          <div class="payment-methods" aria-label="支付方式"><button class="payment-method" data-method="paypal" type="button">PayPal</button><button class="payment-method active" data-method="card" type="button">银行卡</button><button class="payment-method" data-method="wechat" type="button">微信支付</button><button class="payment-method" data-method="alipay" type="button">支付宝</button></div>
           <div id="paypalButtons" class="paypal-box" hidden></div>
-          <div id="offlinePayment" class="offline-payment">
-            <p id="offlinePaymentText"></p>
-            <a id="offlinePaymentLink" class="button primary" href="#" target="_blank" rel="noreferrer">前往付款</a>
-          </div>
+          <div id="offlinePayment" class="offline-payment"><p id="offlinePaymentText"></p><a id="offlinePaymentLink" class="button primary" href="#" target="_blank" rel="noreferrer">前往付款</a></div>
           <p id="paymentStatus" class="form-message" role="status"></p>
         </div>
       </section>
 
       <section id="studio" class="studio band">
-        <div class="section-head">
-          <div>
-            <p class="section-kicker">Studio</p>
-            <h2>上传你的作品</h2>
-          </div>
-          <p class="muted">当前为本地演示：你添加的作品会存进这个浏览器。作品卡片已支持一键分发到多个社交平台。</p>
-        </div>
-        <form id="workForm" class="work-form">
-          <label>标题 <input name="title" type="text" placeholder="例如：AI 时代的个人杠杆" required /></label>
-          <label>类型 <select name="type"><option value="essay">文章</option><option value="project">项目</option><option value="note">札记</option><option value="audio">音频</option></select></label>
-          <label>链接 <input name="url" type="url" placeholder="https://..." required /></label>
-          <label class="wide">摘要 <textarea name="summary" rows="4" placeholder="用两三句话说明这个作品。" required></textarea></label>
-          <button class="button primary" type="submit">发布到作品墙</button>
-          <button class="button secondary" id="resetDemo" type="button">恢复示例</button>
-        </form>
+        <div class="section-head"><div><p class="section-kicker">Studio</p><h2>上传你的作品</h2></div><p class="muted">当前为本地演示：你添加的作品会存进这个浏览器。作品卡片已支持一键分发到多个社交平台。</p></div>
+        <form id="workForm" class="work-form"><label>标题 <input name="title" type="text" placeholder="例如：AI 时代的个人杠杆" required /></label><label>类型 <select name="type"><option value="essay">文章</option><option value="project">项目</option><option value="note">札记</option><option value="audio">音频</option></select></label><label>链接 <input name="url" type="url" placeholder="https://..." required /></label><label class="wide">摘要 <textarea name="summary" rows="4" placeholder="用两三句话说明这个作品。" required></textarea></label><button class="button primary" type="submit">发布到作品墙</button><button class="button secondary" id="resetDemo" type="button">恢复示例</button></form>
       </section>
     </main>
 
-    <footer class="footer">
-      <p>© <span id="year"></span> Yiten Huang. Built for independent work.</p>
-      <a href="./admin.html">网站后台</a>
-    </footer>
+    <footer class="footer"><p>© <span id="year"></span> Yiten Huang. Built for independent work.</p><a href="./admin.html">网站后台</a></footer>
 
     <script src="./assets/app.js"></script>
+    <script src="./assets/smart-share.js"></script>
     <script src="./assets/payments.js"></script>
     <script src="./assets/ximalaya.js"></script>
+    <script src="./assets/install.js"></script>
   </body>
 </html>
