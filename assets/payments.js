@@ -5,12 +5,18 @@
     yearly: { title: "年度会员", amount: "99.00", currency: "USD" },
   };
   const providerCopy = {
-    wechat: "微信支付将通过跨境支付平台创建支付会话。推荐先接 Stripe Checkout 的 WeChat Pay；如果 Stripe 不支持你的账户地区，再切换连连支付或 PingPong。",
-    alipay: "支付宝将通过跨境支付平台创建支付会话。推荐先接 Stripe Checkout 的 Alipay；如果 Stripe 不支持你的账户地区，再切换连连支付或 PingPong。",
+    card: "银行卡/信用卡将通过 Stripe Checkout 收款。这是当前可以先跑通支付闭环的正式通道。",
+    wechat: "微信支付将通过 Stripe Checkout 创建支付会话；当前 Stripe 后台显示待批准，批准后即可使用。",
+    alipay: "支付宝将通过 Stripe Checkout 创建支付会话；当前 Stripe 后台显示待批准，批准后即可使用。",
+  };
+  const methodLabels = {
+    card: "银行卡支付",
+    wechat: "微信支付",
+    alipay: "支付宝支付",
   };
 
   let selectedPlan = "yearly";
-  let selectedMethod = "paypal";
+  let selectedMethod = "card";
 
   const offlinePayment = document.querySelector("#offlinePayment");
   const offlinePaymentText = document.querySelector("#offlinePaymentText");
@@ -23,36 +29,38 @@
     paymentStatus.textContent = message;
   };
 
-  const syncOfflineCopy = () => {
-    if (selectedMethod === "paypal") return;
+  const syncCheckoutCopy = () => {
     const plan = planAmounts[selectedPlan];
     offlinePayment.hidden = false;
     offlinePaymentText.textContent = `${providerCopy[selectedMethod]} 当前方案：${plan.title} ${plan.currency} ${plan.amount}。`;
     offlinePaymentLink.href = "#";
     offlinePaymentLink.classList.remove("disabled");
-    offlinePaymentLink.textContent = selectedMethod === "wechat" ? "创建微信支付链接" : "创建支付宝支付链接";
-    setMessage("后端支付网关上线并完成平台 KYC 后，这里会跳转到真实收银台。当前代码已预留 Stripe/连连/PingPong 中转入口。");
+    offlinePaymentLink.textContent = `创建${methodLabels[selectedMethod]}链接`;
+    if (selectedMethod === "card") {
+      setMessage("银行卡通道已接入 Stripe，可用于真实测试支付；到账到银行仍取决于 Stripe 提现状态。");
+    } else {
+      setMessage("微信/支付宝已在代码中接入，等待 Stripe 支付方式审批通过后才能真实付款。");
+    }
   };
 
   document.querySelectorAll(".plan-button").forEach((button) => {
     button.addEventListener("click", () => {
       selectedPlan = button.dataset.plan || selectedPlan;
-      syncOfflineCopy();
+      syncCheckoutCopy();
     });
   });
 
   document.querySelectorAll(".payment-method").forEach((button) => {
     button.addEventListener("click", () => {
       selectedMethod = button.dataset.method || selectedMethod;
-      window.setTimeout(syncOfflineCopy, 0);
+      window.setTimeout(syncCheckoutCopy, 0);
     });
   });
 
   offlinePaymentLink.addEventListener("click", async (event) => {
-    if (selectedMethod === "paypal") return;
     event.preventDefault();
     const plan = planAmounts[selectedPlan];
-    setMessage("正在创建跨境支付会话...");
+    setMessage("正在创建 Stripe 支付会话...");
 
     try {
       const response = await fetch(checkoutEndpoint, {
@@ -65,10 +73,11 @@
       if (!result.url) throw new Error("支付平台没有返回收银台地址");
       window.location.href = result.url;
     } catch (error) {
-      setMessage(
-        `${error.message}。需要先在 Stripe、连连或 PingPong 完成收款账户审核，才能真正完成付款、收款、到账。`
-      );
-      offlinePaymentText.textContent = `${plan.title} 的 ${selectedMethod === "wechat" ? "微信" : "支付宝"}跨境收款通道已在代码中预留，等待支付平台账号开通。`;
+      const label = methodLabels[selectedMethod] || selectedMethod;
+      setMessage(`${error.message}。如果是微信/支付宝，这是 Stripe 仍在审批该支付方式；银行卡请检查 Stripe 密钥和账户状态。`);
+      offlinePaymentText.textContent = `${plan.title} 的 ${label}通道暂时没有返回可用收银台。`;
     }
   });
+
+  syncCheckoutCopy();
 })();
