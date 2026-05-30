@@ -1,6 +1,12 @@
-const plans = {
-  monthly: { title: "月度会员", amount: 1200, currency: "usd" },
-  yearly: { title: "年度会员", amount: 9900, currency: "usd" },
+const catalog = {
+  membership: {
+    monthly: { title: "月度会员", amount: 1200, currency: "usd", description: "Yiten Huang 会员订阅" },
+    yearly: { title: "年度会员", amount: 9900, currency: "usd", description: "Yiten Huang 会员订阅" },
+  },
+  ebook: {
+    visitor: { title: "电子书：长期思考与个人系统", amount: 2900, currency: "usd", description: "游客电子书购买" },
+    member: { title: "电子书：长期思考与个人系统（会员折扣）", amount: 1900, currency: "usd", description: "订阅会员电子书折扣购买" },
+  },
 };
 
 const paymentMethods = {
@@ -27,27 +33,39 @@ const readBody = (req) =>
     req.on("error", reject);
   });
 
-const createStripeSession = async ({ plan, method }) => {
+const resolveItem = (body) => {
+  if (body.product === "ebook") {
+    const audience = body.audience === "member" ? "member" : "visitor";
+    return { kind: "ebook", id: audience, item: catalog.ebook[audience] };
+  }
+  const plan = body.plan || "yearly";
+  return { kind: "membership", id: plan, item: catalog.membership[plan] };
+};
+
+const createStripeSession = async (body) => {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const siteUrl = process.env.SITE_URL || "https://project-a4ft0.vercel.app";
   if (!secretKey) {
     return { status: 501, body: { message: "Stripe secret key is not configured. Complete Stripe onboarding and set STRIPE_SECRET_KEY." } };
   }
-  const selectedPlan = plans[plan];
+
+  const method = body.method;
   const stripeMethod = paymentMethods[method];
-  if (!selectedPlan || !stripeMethod) return { status: 400, body: { message: "Invalid plan or payment method" } };
+  const selected = resolveItem(body);
+  if (!selected.item || !stripeMethod) return { status: 400, body: { message: "Invalid product, plan, or payment method" } };
 
   const params = new URLSearchParams();
   params.append("mode", "payment");
-  params.append("success_url", `${siteUrl}/?payment=success&plan=${encodeURIComponent(plan)}&method=${encodeURIComponent(method)}`);
-  params.append("cancel_url", `${siteUrl}/?payment=cancelled&plan=${encodeURIComponent(plan)}&method=${encodeURIComponent(method)}`);
+  params.append("success_url", `${siteUrl}/?payment=success&type=${encodeURIComponent(selected.kind)}&item=${encodeURIComponent(selected.id)}&method=${encodeURIComponent(method)}`);
+  params.append("cancel_url", `${siteUrl}/?payment=cancelled&type=${encodeURIComponent(selected.kind)}&item=${encodeURIComponent(selected.id)}&method=${encodeURIComponent(method)}`);
   params.append("payment_method_types[0]", stripeMethod);
   params.append("line_items[0][quantity]", "1");
-  params.append("line_items[0][price_data][currency]", selectedPlan.currency);
-  params.append("line_items[0][price_data][unit_amount]", String(selectedPlan.amount));
-  params.append("line_items[0][price_data][product_data][name]", selectedPlan.title);
-  params.append("line_items[0][price_data][product_data][description]", `Yiten Huang 会员订阅 - ${methodLabels[method]}`);
-  params.append("metadata[plan]", plan);
+  params.append("line_items[0][price_data][currency]", selected.item.currency);
+  params.append("line_items[0][price_data][unit_amount]", String(selected.item.amount));
+  params.append("line_items[0][price_data][product_data][name]", selected.item.title);
+  params.append("line_items[0][price_data][product_data][description]", `${selected.item.description} - ${methodLabels[method]}`);
+  params.append("metadata[type]", selected.kind);
+  params.append("metadata[item]", selected.id);
   params.append("metadata[payment_method]", method);
 
   const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
@@ -69,7 +87,7 @@ module.exports = async function handler(req, res) {
     const body = await readBody(req);
     const provider = process.env.PAYMENT_PROVIDER || "stripe";
     if (provider !== "stripe") return res.status(501).json({ message: "This provider is not implemented yet. Use Stripe first, or add LianLian/PingPong adapter code." });
-    const result = await createStripeSession({ plan: body.plan, method: body.method });
+    const result = await createStripeSession(body);
     res.status(result.status).json(result.body);
   } catch (error) {
     res.status(500).json({ message: error.message || "Unable to create checkout session" });
