@@ -27,13 +27,41 @@
   status.setAttribute("role", "status");
   playerPanel.appendChild(status);
 
+  const actionRow = document.createElement("div");
+  actionRow.className = "ximalaya-actions";
+
   const action = document.createElement("a");
   action.className = "button secondary";
   action.href = config.courseUrl;
   action.target = "_blank";
   action.rel = "noreferrer";
   action.textContent = "在 Himalaya 打开全集";
-  playerPanel.appendChild(action);
+
+  const fullCatalogButton = document.createElement("button");
+  fullCatalogButton.className = "button primary";
+  fullCatalogButton.type = "button";
+  fullCatalogButton.textContent = "查看全部资源";
+
+  actionRow.append(action, fullCatalogButton);
+  playerPanel.appendChild(actionRow);
+
+  const fullCatalog = document.createElement("div");
+  fullCatalog.className = "ximalaya-catalog";
+  fullCatalog.hidden = true;
+  fullCatalog.innerHTML = `
+    <div class="catalog-head">
+      <strong>喜马拉雅完整资源</strong>
+      <a href="${config.courseUrl}" target="_blank" rel="noreferrer">新窗口打开</a>
+    </div>
+    <iframe title="Himalaya course catalog" src="${config.courseUrl}" loading="lazy"></iframe>
+    <p class="muted">如果喜马拉雅限制嵌入显示，请点“新窗口打开”。站内列表当前展示精选节目，完整目录以喜马拉雅课程页为准。</p>
+  `;
+  playerPanel.appendChild(fullCatalog);
+
+  fullCatalogButton.addEventListener("click", () => {
+    fullCatalog.hidden = !fullCatalog.hidden;
+    fullCatalogButton.textContent = fullCatalog.hidden ? "查看全部资源" : "收起全部资源";
+  });
 
   const setStatus = (message) => {
     status.textContent = message;
@@ -53,8 +81,8 @@
     episodeLabel.textContent = "Himalaya 课程";
     episodeTitle.textContent = episode.title;
     episodeSummary.textContent = readyForSdk
-      ? "音频由 Himalaya / 喜马拉雅开放能力提供，点击后会通过 JSSDK 播放。"
-      : "当前可通过 Himalaya 原站入口收听，后端签名配置完成后会自动启用站内播放器。";
+      ? "音频由 Himalaya / 喜马拉雅开放能力提供，点击后会通过 JSSDK 播放。也可以点“查看全部资源”浏览完整课程目录。"
+      : "当前可通过 Himalaya 原站入口收听。右侧展示精选节目，点“查看全部资源”可查看喜马拉雅完整目录。";
     action.href = episodeUrl(episode);
     action.textContent = "在 Himalaya 打开这一集";
   };
@@ -106,7 +134,7 @@
         setEpisodeText(episode, true);
         try {
           player.play(episode.id);
-          setStatus("正在通过喜马拉雅 JSSDK 播放。若接口未通过审核，请用 Himalaya 链接收听。");
+          setStatus("正在通过喜马拉雅 JSSDK 播放。完整目录请点“查看全部资源”。");
         } catch (_error) {
           setStatus("JSSDK 播放暂不可用，已保留 Himalaya 原站收听入口。");
         }
@@ -114,11 +142,11 @@
       episodeList.appendChild(button);
     });
     setEpisodeText(config.episodes[0], true);
-    setStatus("喜马拉雅播放器已接入。首次播放会向后端签名接口请求授权。");
+    setStatus("喜马拉雅播放器已接入；完整课程目录可在此模块展开查看。");
   };
 
   boot().catch((error) => {
     renderFallbackList();
-    setStatus(`${error.message}。已切换为 Himalaya 原站收听入口。`);
+    setStatus(`${error.message}。已切换为 Himalaya 原站收听入口，完整目录可点“查看全部资源”。`);
   });
 })();
