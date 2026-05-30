@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yiten Huang 创作者网站后台：内容、订阅、流量和分账运营。" />
+    <title>Yiten Huang | Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body class="admin-body">
+    <header class="admin-topbar">
+      <a class="brand" href="./index.html">Yiten Huang</a>
+      <nav class="admin-nav" aria-label="后台导航">
+        <a href="#overview">概览</a>
+        <a href="#creators">创作者</a>
+        <a href="#content">作品</a>
+        <a href="#payments">订阅与分账</a>
+        <a href="./index.html">返回网站</a>
+      </nav>
+    </header>
+
+    <main class="admin-shell">
+      <section id="overview" class="admin-hero">
+        <div>
+          <p class="section-kicker">Creator OS</p>
+          <h1>网站后台</h1>
+          <p class="muted">这里用于管理第三方创作者、作品发布、订阅收入、流量统计和分账。当前是可迭代后台壳，下一步接数据库、登录权限、Stripe Webhook 和 Stripe Connect。</p>
+        </div>
+        <div class="admin-actions">
+          <a class="button primary" href="#content">发布作品</a>
+          <a class="button secondary" href="#payments">查看收款</a>
+        </div>
+      </section>
+
+      <section class="metric-grid" aria-label="运营指标">
+        <article class="metric-card"><span>本月订阅收入</span><strong>USD 0.00</strong><small>Stripe Webhook 接入后自动更新</small></article>
+        <article class="metric-card"><span>活跃订阅</span><strong>0</strong><small>需接订阅数据库</small></article>
+        <article class="metric-card"><span>作品浏览</span><strong>0</strong><small>需接事件统计</small></article>
+        <article class="metric-card"><span>待分账</span><strong>USD 0.00</strong><small>Stripe Connect 接入后计算</small></article>
+      </section>
+
+      <section id="creators" class="admin-section">
+        <div class="admin-section-head">
+          <div>
+            <p class="section-kicker">Creators</p>
+            <h2>创作者管理</h2>
+          </div>
+          <button class="button primary" type="button">邀请创作者</button>
+        </div>
+        <div class="admin-table" role="table" aria-label="创作者列表">
+          <div role="row" class="table-head"><span>创作者</span><span>状态</span><span>分成</span><span>Stripe Connect</span></div>
+          <div role="row"><span>Yiten Huang</span><span>Owner</span><span>100%</span><span>待接入</span></div>
+          <div role="row"><span>第三方创作者示例</span><span>待邀请</span><span>70%</span><span>待开户</span></div>
+        </div>
+      </section>
+
+      <section id="content" class="admin-section">
+        <div class="admin-section-head">
+          <div>
+            <p class="section-kicker">Publishing</p>
+            <h2>作品与分发</h2>
+          </div>
+          <button class="button primary" type="button">新建作品</button>
+        </div>
+        <div class="pipeline-grid">
+          <article><strong>草稿</strong><p>创作者上传文章、播客、视频或外链。</p></article>
+          <article><strong>审核</strong><p>检查版权、质量、会员权限和封面素材。</p></article>
+          <article><strong>发布</strong><p>发布到网站，并生成社交平台分发链接。</p></article>
+          <article><strong>复盘</strong><p>追踪浏览、播放、转化和收入归因。</p></article>
+        </div>
+      </section>
+
+      <section id="payments" class="admin-section">
+        <div class="admin-section-head">
+          <div>
+            <p class="section-kicker">Payments</p>
+            <h2>订阅、收款和分账</h2>
+          </div>
+          <a class="button secondary" href="https://dashboard.stripe.com/payments" target="_blank" rel="noreferrer">打开 Stripe</a>
+        </div>
+        <div class="admin-table" role="table" aria-label="支付状态">
+          <div role="row" class="table-head"><span>通道</span><span>状态</span><span>用途</span><span>下一步</span></div>
+          <div role="row"><span>银行卡/信用卡</span><span>已接入</span><span>真实 Checkout</span><span>进行小额测试付款</span></div>
+          <div role="row"><span>支付宝</span><span>待 Stripe 批准</span><span>中国用户付款</span><span>等待后台审核通过</span></div>
+          <div role="row"><span>微信支付</span><span>待 Stripe 批准</span><span>中国用户付款</span><span>等待后台审核通过</span></div>
+          <div role="row"><span>创作者分账</span><span>未接入</span><span>给第三方创作者分钱</span><span>接 Stripe Connect</span></div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
