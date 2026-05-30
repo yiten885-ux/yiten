@@ -48,6 +48,13 @@ const platformDestinations = {
   tiktok: "https://www.tiktok.com/upload",
 };
 
+const injectResponsiveStyles = () => {
+  const style = document.createElement("style");
+  style.textContent = `
+    .work-meta-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px}.work-meta-row .work-type{margin-bottom:0}.access-pill{display:inline-flex;border:1px solid rgba(31,94,77,.24);border-radius:999px;padding:4px 10px;background:#fffdf7;color:var(--accent);font-size:12px;font-weight:700}.preview-meter{height:7px;overflow:hidden;border-radius:999px;background:#e9e1d5}.preview-meter span{display:block;width:var(--free-percent);height:100%;border-radius:inherit;background:var(--accent)}.preview-copy{display:block;margin-top:8px;color:var(--muted);font-weight:700}.work-card.gated{background:linear-gradient(180deg,#fffdf7 0%,#fbf7ef 100%)}.subscribe-link{width:fit-content;border-bottom:1px solid rgba(31,94,77,.36)}.access-controls{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.55fr);gap:14px}.share-actions button[data-share=wechat]{border-color:rgba(31,94,77,.42);background:#eff7f1;color:var(--accent);font-weight:800}.ximalaya-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.ximalaya-catalog{display:grid;gap:12px;margin-top:18px}.catalog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.catalog-head a{color:var(--accent);font-weight:700}.ximalaya-catalog iframe{width:100%;min-height:520px;border:1px solid var(--line);border-radius:8px;background:#fffdf7}@media(max-width:820px){.site-header{position:absolute;display:grid;gap:12px;background:linear-gradient(rgba(22,21,19,.64),rgba(22,21,19,0));}.nav-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;font-size:13px}.nav-links a{display:flex;min-height:34px;align-items:center;justify-content:center;border:1px solid rgba(255,253,247,.22);border-radius:999px;background:rgba(22,21,19,.18)}.hero{min-height:82vh}.hero-content{padding-top:180px}.hero-copy{font-size:16px}.band{width:min(100% - 28px,1120px);padding:58px 0}.section-head{gap:14px;margin-bottom:24px}.work-card,.plan-card,.checkout-panel,.player-panel,.episode-list{padding:18px}.share-actions{gap:6px}.share-actions button{min-height:34px;padding:0 9px}.access-controls{grid-template-columns:1fr}.ximalaya-catalog iframe{min-height:420px}}@media(max-width:520px){h1{font-size:38px}h2{font-size:28px}.nav-links{grid-template-columns:repeat(2,minmax(0,1fr))}.button{width:100%}.payment-methods,.filters{display:grid;grid-template-columns:1fr 1fr}.filter,.payment-method{width:100%}.share-actions{display:grid;grid-template-columns:1fr 1fr}.share-actions button{width:100%;border-radius:8px}.work-grid{gap:14px}.price{font-size:30px}.footer{padding:24px 18px}}`;
+  document.head.appendChild(style);
+};
+
 const workGrid = document.querySelector("#workGrid");
 const filterButtons = document.querySelectorAll(".filter");
 const workForm = document.querySelector("#workForm");
@@ -88,6 +95,26 @@ const normalizeWork = (work) => {
     ? Math.max(0, Math.min(100, Number(work.freePercent)))
     : fallbackPercent;
   return { ...work, access, freePercent };
+};
+
+const enhanceWorkForm = () => {
+  if (!workForm || workForm.querySelector("[name='access']")) return;
+  const wrapper = document.createElement("div");
+  wrapper.className = "access-controls";
+  wrapper.innerHTML = `
+    <label>可见范围
+      <select name="access">
+        <option value="metered">部分免费，订阅解锁剩余内容</option>
+        <option value="free">游客免费阅读全文/完整收听</option>
+        <option value="member">会员专属，仅开放少量试看</option>
+      </select>
+    </label>
+    <label>免费试看比例
+      <input name="freePercent" type="number" min="0" max="100" value="35" />
+    </label>
+  `;
+  const summary = workForm.querySelector("textarea[name='summary']")?.closest("label");
+  if (summary) summary.insertAdjacentElement("afterend", wrapper);
 };
 
 const buildDistributionText = (work, target = "default") => {
@@ -168,15 +195,11 @@ const renderWorks = () => {
             </div>
             <h3>${escapeHtml(work.title)}</h3>
             <p>${escapeHtml(work.summary)}</p>
-            <div class="preview-meter" ${progressStyle}>
-              <span></span>
-            </div>
+            <div class="preview-meter" ${progressStyle}><span></span></div>
             <small class="preview-copy">${work.access === "free" ? "游客可阅读全文 / 收听完整节目" : `游客可免费试看 ${work.freePercent}%，剩余内容订阅后解锁`}</small>
           </div>
           <div class="work-actions">
-            <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">
-              ${locked ? "免费试看" : "阅读 / 查看"}
-            </a>
+            <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">${locked ? "免费试看" : "阅读 / 查看"}</a>
             ${locked ? `<a class="work-link subscribe-link" href="#membership">订阅解锁</a>` : ""}
             <div class="share-actions" aria-label="分发 ${escapeAttribute(work.title)}">
               <button type="button" data-share="native">分享</button>
@@ -246,6 +269,7 @@ workForm.addEventListener("submit", (event) => {
   const works = [normalizeWork(work), ...readWorks().map(normalizeWork)];
   saveWorks(works);
   workForm.reset();
+  enhanceWorkForm();
   activeFilter = "all";
   filterButtons.forEach((item) => {
     item.classList.toggle("active", item.dataset.filter === "all");
@@ -277,5 +301,7 @@ resetDemo.addEventListener("click", () => {
   renderWorks();
 });
 
+injectResponsiveStyles();
+enhanceWorkForm();
 year.textContent = new Date().getFullYear();
 renderWorks();
