@@ -4,8 +4,15 @@ const plans = {
 };
 
 const paymentMethods = {
+  card: "card",
   wechat: "wechat_pay",
   alipay: "alipay",
+};
+
+const methodLabels = {
+  card: "银行卡",
+  wechat: "微信支付",
+  alipay: "支付宝",
 };
 
 const readBody = (req) =>
@@ -32,13 +39,14 @@ const createStripeSession = async ({ plan, method }) => {
 
   const params = new URLSearchParams();
   params.append("mode", "payment");
-  params.append("success_url", `${siteUrl}/?payment=success&plan=${encodeURIComponent(plan)}`);
-  params.append("cancel_url", `${siteUrl}/?payment=cancelled&plan=${encodeURIComponent(plan)}`);
+  params.append("success_url", `${siteUrl}/?payment=success&plan=${encodeURIComponent(plan)}&method=${encodeURIComponent(method)}`);
+  params.append("cancel_url", `${siteUrl}/?payment=cancelled&plan=${encodeURIComponent(plan)}&method=${encodeURIComponent(method)}`);
   params.append("payment_method_types[0]", stripeMethod);
   params.append("line_items[0][quantity]", "1");
   params.append("line_items[0][price_data][currency]", selectedPlan.currency);
   params.append("line_items[0][price_data][unit_amount]", String(selectedPlan.amount));
   params.append("line_items[0][price_data][product_data][name]", selectedPlan.title);
+  params.append("line_items[0][price_data][product_data][description]", `Yiten Huang 会员订阅 - ${methodLabels[method]}`);
   params.append("metadata[plan]", plan);
   params.append("metadata[payment_method]", method);
 
