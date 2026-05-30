@@ -5,6 +5,8 @@ const defaultWorks = [
     summary:
       "当平台不断变化，个人网站是你的思想、作品和关系的长期资产。它不是简历，而是一块可以持续复利的土地。",
     url: "https://example.com/essay",
+    access: "metered",
+    freePercent: 35,
   },
   {
     title: "独立创作者工具箱",
@@ -12,6 +14,8 @@ const defaultWorks = [
     summary:
       "整理写作、发布、收款、邮件列表和数据分析工具，帮助一个人搭起从创作到分发的最小系统。",
     url: "https://example.com/project",
+    access: "free",
+    freePercent: 100,
   },
   {
     title: "关于注意力的十二条札记",
@@ -19,6 +23,8 @@ const defaultWorks = [
     summary:
       "一些短句和观察：如何减少信息噪音，如何把灵感收集成主题，如何让阅读真正改变行动。",
     url: "https://example.com/note",
+    access: "member",
+    freePercent: 20,
   },
 ];
 
@@ -27,6 +33,12 @@ const labels = {
   project: "项目",
   note: "札记",
   audio: "音频",
+};
+
+const accessLabels = {
+  free: "免费公开",
+  metered: "部分免费",
+  member: "订阅解锁",
 };
 
 const platformDestinations = {
@@ -69,17 +81,33 @@ const escapeHtml = (value) =>
 
 const escapeAttribute = (value) => escapeHtml(value).replace(/`/g, "&#096;");
 
-const buildDistributionText = (work) =>
-  `${work.title}\n\n${work.summary}\n\n阅读全文：${work.url}\n\n发布自 Yiten Huang`;
+const normalizeWork = (work) => {
+  const access = work.access || "metered";
+  const fallbackPercent = access === "free" ? 100 : access === "member" ? 20 : 35;
+  const freePercent = Number.isFinite(Number(work.freePercent))
+    ? Math.max(0, Math.min(100, Number(work.freePercent)))
+    : fallbackPercent;
+  return { ...work, access, freePercent };
+};
 
-const copyDistributionText = async (work) => {
-  await navigator.clipboard.writeText(buildDistributionText(work));
+const buildDistributionText = (work, target = "default") => {
+  const normalized = normalizeWork(work);
+  const lockLine = normalized.access === "free"
+    ? "全文免费阅读。"
+    : `可免费试看 ${normalized.freePercent}%，剩余内容订阅后解锁。`;
+  const prefix = target === "wechat" ? "我在 Yiten Huang 看到一篇值得读的内容：" : "Yiten Huang 新作品：";
+  return `${prefix}\n\n${normalized.title}\n\n${normalized.summary}\n\n${lockLine}\n\n阅读全文：${normalized.url}`;
+};
+
+const copyDistributionText = async (work, target) => {
+  await navigator.clipboard.writeText(buildDistributionText(work, target));
 };
 
 const buildShareUrl = (platform, work) => {
-  const url = encodeURIComponent(work.url);
-  const title = encodeURIComponent(work.title);
-  const text = encodeURIComponent(`${work.title} - ${work.summary}`);
+  const normalized = normalizeWork(work);
+  const url = encodeURIComponent(normalized.url);
+  const title = encodeURIComponent(normalized.title);
+  const text = encodeURIComponent(`${normalized.title} - ${normalized.summary}`);
   const shareTargets = {
     x: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
@@ -93,13 +121,19 @@ const buildShareUrl = (platform, work) => {
 
 const shareWork = async (platform, work) => {
   if (platform === "native" && navigator.share) {
-    await navigator.share({ title: work.title, text: work.summary, url: work.url });
+    const normalized = normalizeWork(work);
+    await navigator.share({ title: normalized.title, text: normalized.summary, url: normalized.url });
     return "已打开系统分享";
   }
 
   if (platform === "copy") {
     await copyDistributionText(work);
     return "已复制分发文案";
+  }
+
+  if (platform === "wechat") {
+    await copyDistributionText(work, "wechat");
+    return "已复制微信文案";
   }
 
   if (platformDestinations[platform]) {
@@ -117,25 +151,36 @@ const shareWork = async (platform, work) => {
 };
 
 const renderWorks = () => {
-  const works = readWorks();
+  const works = readWorks().map(normalizeWork);
   const visibleWorks =
     activeFilter === "all" ? works : works.filter((work) => work.type === activeFilter);
 
   workGrid.innerHTML = visibleWorks
-    .map(
-      (work, index) => `
-        <article class="work-card" data-index="${index}">
+    .map((work, index) => {
+      const locked = work.access !== "free";
+      const progressStyle = `style="--free-percent: ${work.freePercent}%"`;
+      return `
+        <article class="work-card${locked ? " gated" : ""}" data-index="${index}">
           <div>
-            <span class="work-type">${labels[work.type] || "作品"}</span>
+            <div class="work-meta-row">
+              <span class="work-type">${labels[work.type] || "作品"}</span>
+              <span class="access-pill">${accessLabels[work.access] || "部分免费"}</span>
+            </div>
             <h3>${escapeHtml(work.title)}</h3>
             <p>${escapeHtml(work.summary)}</p>
+            <div class="preview-meter" ${progressStyle}>
+              <span></span>
+            </div>
+            <small class="preview-copy">${work.access === "free" ? "游客可阅读全文 / 收听完整节目" : `游客可免费试看 ${work.freePercent}%，剩余内容订阅后解锁`}</small>
           </div>
           <div class="work-actions">
             <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">
-              阅读 / 查看
+              ${locked ? "免费试看" : "阅读 / 查看"}
             </a>
+            ${locked ? `<a class="work-link subscribe-link" href="#membership">订阅解锁</a>` : ""}
             <div class="share-actions" aria-label="分发 ${escapeAttribute(work.title)}">
               <button type="button" data-share="native">分享</button>
+              <button type="button" data-share="wechat">微信</button>
               <button type="button" data-share="copy">复制文案</button>
               <button type="button" data-share="substack">Substack</button>
               <button type="button" data-share="youtube">YouTube</button>
@@ -147,8 +192,8 @@ const renderWorks = () => {
             </div>
           </div>
         </article>
-      `
-    )
+      `;
+    })
     .join("");
 };
 
@@ -156,7 +201,7 @@ workGrid.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-share]");
   if (!button) return;
   const card = button.closest(".work-card");
-  const works = activeFilter === "all" ? readWorks() : readWorks().filter((work) => work.type === activeFilter);
+  const works = activeFilter === "all" ? readWorks().map(normalizeWork) : readWorks().map(normalizeWork).filter((work) => work.type === activeFilter);
   const work = works[Number(card.dataset.index)];
   if (!work) return;
 
@@ -188,14 +233,17 @@ filterButtons.forEach((button) => {
 workForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(workForm);
+  const access = formData.get("access") || "metered";
   const work = {
     title: formData.get("title").trim(),
     type: formData.get("type"),
     url: formData.get("url").trim(),
     summary: formData.get("summary").trim(),
+    access,
+    freePercent: access === "free" ? 100 : Number(formData.get("freePercent") || 35),
   };
 
-  const works = [work, ...readWorks()];
+  const works = [normalizeWork(work), ...readWorks().map(normalizeWork)];
   saveWorks(works);
   workForm.reset();
   activeFilter = "all";
