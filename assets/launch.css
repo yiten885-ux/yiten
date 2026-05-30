@@ -113,7 +113,108 @@ body.locked .admin-shell {
   color: var(--accent);
 }
 
+.install-widget {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 80;
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.install-button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 18px;
+  background: var(--accent);
+  color: #fffdf7;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.install-tip {
+  width: min(320px, calc(100vw - 32px));
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--paper-strong);
+  box-shadow: var(--shadow);
+}
+
+.install-tip p {
+  margin: 6px 0 12px;
+  color: var(--muted);
+}
+
+.install-close {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 12px;
+  background: #fffdf7;
+  cursor: pointer;
+  font-weight: 700;
+}
+
 @media (max-width: 820px) {
+  .site-header {
+    position: absolute;
+    display: grid;
+    gap: 12px;
+    background: linear-gradient(rgba(22, 21, 19, 0.66), rgba(22, 21, 19, 0));
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .nav-links a {
+    display: flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 253, 247, 0.22);
+    border-radius: 999px;
+    background: rgba(22, 21, 19, 0.18);
+  }
+
+  .hero {
+    min-height: 82vh;
+  }
+
+  .hero-content {
+    padding-top: 180px;
+  }
+
+  .hero-copy {
+    font-size: 16px;
+  }
+
+  .band {
+    width: min(100% - 28px, 1120px);
+    padding: 58px 0;
+  }
+
+  .section-head {
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .work-card,
+  .plan-card,
+  .checkout-panel,
+  .player-panel,
+  .episode-list {
+    padding: 18px;
+  }
+
   .editor-grid,
   .admin-editor-form {
     grid-template-columns: 1fr;
@@ -121,5 +222,63 @@ body.locked .admin-shell {
 
   .ximalaya-catalog iframe {
     min-height: 420px;
+  }
+}
+
+@media (max-width: 520px) {
+  h1 {
+    font-size: 38px;
+  }
+
+  h2 {
+    font-size: 28px;
+  }
+
+  .nav-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .button,
+  .install-button {
+    width: 100%;
+  }
+
+  .payment-methods,
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter,
+  .payment-method {
+    width: 100%;
+  }
+
+  .share-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .share-actions button {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .work-grid {
+    gap: 14px;
+  }
+
+  .price {
+    font-size: 30px;
+  }
+
+  .install-widget {
+    left: 14px;
+    right: 14px;
+    justify-items: stretch;
+  }
+
+  .footer {
+    padding: 24px 18px;
   }
 }
