@@ -1,0 +1,125 @@
+.ximalaya-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.ximalaya-catalog {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.catalog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.catalog-head a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.ximalaya-catalog iframe {
+  width: 100%;
+  min-height: 520px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf7;
+}
+
+.admin-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(22, 21, 19, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.gate-card {
+  display: grid;
+  gap: 18px;
+  width: min(520px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(24px, 4vw, 42px);
+  background: var(--paper-strong);
+  box-shadow: var(--shadow);
+}
+
+.gate-card h1 {
+  color: var(--ink);
+  font-size: clamp(34px, 5vw, 56px);
+}
+
+body.locked .admin-topbar,
+body.locked .admin-shell {
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.admin-editor-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.editor-preview {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px;
+  background: var(--paper-strong);
+}
+
+.editor-preview pre {
+  overflow: auto;
+  max-height: 420px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+  background: #f4efe5;
+  white-space: pre-wrap;
+  font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.ebook-card p {
+  color: var(--muted);
+}
+
+.share-actions {
+  align-items: center;
+}
+
+.share-actions button[data-share="substack"],
+.share-actions button[data-share="youtube"],
+.share-actions button[data-share="xiaohongshu"],
+.share-actions button[data-share="tiktok"] {
+  border-color: rgba(31, 94, 77, 0.34);
+  color: var(--accent);
+}
+
+@media (max-width: 820px) {
+  .editor-grid,
+  .admin-editor-form {
+    grid-template-columns: 1fr;
+  }
+
+  .ximalaya-catalog iframe {
+    min-height: 420px;
+  }
+}
