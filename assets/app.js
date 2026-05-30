@@ -29,6 +29,13 @@ const labels = {
   audio: "音频",
 };
 
+const platformDestinations = {
+  substack: "https://substack.com/home",
+  youtube: "https://studio.youtube.com/",
+  xiaohongshu: "https://creator.xiaohongshu.com/",
+  tiktok: "https://www.tiktok.com/upload",
+};
+
 const workGrid = document.querySelector("#workGrid");
 const filterButtons = document.querySelectorAll(".filter");
 const workForm = document.querySelector("#workForm");
@@ -62,6 +69,13 @@ const escapeHtml = (value) =>
 
 const escapeAttribute = (value) => escapeHtml(value).replace(/`/g, "&#096;");
 
+const buildDistributionText = (work) =>
+  `${work.title}\n\n${work.summary}\n\n阅读全文：${work.url}\n\n发布自 Yiten Huang`;
+
+const copyDistributionText = async (work) => {
+  await navigator.clipboard.writeText(buildDistributionText(work));
+};
+
 const buildShareUrl = (platform, work) => {
   const url = encodeURIComponent(work.url);
   const title = encodeURIComponent(work.title);
@@ -80,16 +94,26 @@ const buildShareUrl = (platform, work) => {
 const shareWork = async (platform, work) => {
   if (platform === "native" && navigator.share) {
     await navigator.share({ title: work.title, text: work.summary, url: work.url });
-    return;
+    return "已打开系统分享";
   }
 
   if (platform === "copy") {
-    await navigator.clipboard.writeText(work.url);
-    return;
+    await copyDistributionText(work);
+    return "已复制分发文案";
+  }
+
+  if (platformDestinations[platform]) {
+    await copyDistributionText(work);
+    window.open(platformDestinations[platform], "_blank", "noopener,noreferrer");
+    return "已复制文案并打开平台后台";
   }
 
   const shareUrl = buildShareUrl(platform, work);
-  if (shareUrl) window.open(shareUrl, "_blank", "noopener,noreferrer");
+  if (shareUrl) {
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
+    return "已打开分享窗口";
+  }
+  return "该平台暂未配置";
 };
 
 const renderWorks = () => {
@@ -112,7 +136,11 @@ const renderWorks = () => {
             </a>
             <div class="share-actions" aria-label="分发 ${escapeAttribute(work.title)}">
               <button type="button" data-share="native">分享</button>
-              <button type="button" data-share="copy">复制</button>
+              <button type="button" data-share="copy">复制文案</button>
+              <button type="button" data-share="substack">Substack</button>
+              <button type="button" data-share="youtube">YouTube</button>
+              <button type="button" data-share="xiaohongshu">小红书</button>
+              <button type="button" data-share="tiktok">TikTok</button>
               <button type="button" data-share="x">X</button>
               <button type="button" data-share="linkedin">LinkedIn</button>
               <button type="button" data-share="weibo">微博</button>
@@ -132,11 +160,19 @@ workGrid.addEventListener("click", async (event) => {
   const work = works[Number(card.dataset.index)];
   if (!work) return;
 
+  const previousText = button.textContent;
   try {
-    await shareWork(button.dataset.share, work);
-    button.textContent = button.dataset.share === "copy" ? "已复制" : button.textContent;
+    const message = await shareWork(button.dataset.share, work);
+    button.textContent = message;
+    window.setTimeout(() => {
+      button.textContent = previousText;
+    }, 1800);
   } catch (error) {
     console.warn("Share failed", error);
+    button.textContent = "分发失败";
+    window.setTimeout(() => {
+      button.textContent = previousText;
+    }, 1800);
   }
 });
 
