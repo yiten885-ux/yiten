@@ -7,7 +7,10 @@
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/api/payments/create-checkout-session", "dest": "/api/payments/create-checkout-session.js" },
+    { "src": "/api/ximalaya/jssdk-sign", "dest": "/api/ximalaya/jssdk-sign.js" },
+    { "src": "/api/paypal/create-order", "dest": "/api/paypal/create-order.js" },
+    { "src": "/api/paypal/capture-order", "dest": "/api/paypal/capture-order.js" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
     { "src": "/", "dest": "/index.html" }
