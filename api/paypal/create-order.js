@@ -1,6 +1,12 @@
-const plans = {
-  monthly: { amount: "12.00", currency: "USD", label: "Yiten Huang Monthly Membership" },
-  yearly: { amount: "99.00", currency: "USD", label: "Yiten Huang Yearly Membership" },
+const catalog = {
+  membership: {
+    monthly: { amount: "12.00", currency: "USD", label: "Yiten Huang Monthly Membership" },
+    yearly: { amount: "99.00", currency: "USD", label: "Yiten Huang Yearly Membership" },
+  },
+  ebook: {
+    visitor: { amount: "29.00", currency: "USD", label: "Ebook: Long-term Thinking and Personal Systems" },
+    member: { amount: "19.00", currency: "USD", label: "Ebook: Long-term Thinking and Personal Systems - Member Price" },
+  },
 };
 
 const paypalBaseUrl =
@@ -19,6 +25,14 @@ const readBody = (req) =>
     req.on("end", () => resolve(raw ? JSON.parse(raw) : {}));
     req.on("error", reject);
   });
+
+const resolveItem = (body) => {
+  if (body.product === "ebook") {
+    const audience = body.audience === "member" ? "member" : "visitor";
+    return catalog.ebook[audience];
+  }
+  return catalog.membership[body.plan || "yearly"];
+};
 
 async function getAccessToken() {
   if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
@@ -57,11 +71,11 @@ async function handler(request, response) {
   }
 
   try {
-    const { plan: planId = "yearly" } = await readBody(request);
-    const plan = plans[planId];
+    const body = await readBody(request);
+    const item = resolveItem(body);
 
-    if (!plan) {
-      response.status(400).json({ message: "Unknown subscription plan" });
+    if (!item) {
+      response.status(400).json({ message: "Unknown product or subscription plan" });
       return;
     }
 
@@ -76,10 +90,10 @@ async function handler(request, response) {
         intent: "CAPTURE",
         purchase_units: [
           {
-            description: plan.label,
+            description: item.label,
             amount: {
-              currency_code: plan.currency,
-              value: plan.amount,
+              currency_code: item.currency,
+              value: item.amount,
             },
           },
         ],
