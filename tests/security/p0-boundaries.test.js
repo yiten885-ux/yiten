@@ -109,12 +109,13 @@ test("credential-backed integration endpoints are disabled or fail closed by def
 test("paid files are not public and creator client-side auth is fail-closed", () => {
   const privateArchive = path.join(projectRoot, "private-assets/yiten-toolkit.zip");
   assert.equal(fs.existsSync(path.join(projectRoot, "public/downloads/yiten-toolkit.zip")), false);
-  assert.equal(fs.existsSync(privateArchive), true);
+  const privateArchiveExists = fs.existsSync(privateArchive);
   const vercelIgnore = fs.readFileSync(path.join(projectRoot, ".vercelignore"), "utf8");
   const gitIgnore = fs.readFileSync(path.join(projectRoot, ".gitignore"), "utf8");
   assert.match(vercelIgnore, /^private-assets\/$/m);
   assert.match(gitIgnore, /^private-assets\/$/m);
-  const privateHash = crypto.createHash("sha256").update(fs.readFileSync(privateArchive)).digest("hex");
+  // The private archive is gitignored, so it is absent in CI checkouts by design.
+  // When present locally, verify it is never duplicated anywhere public.
   const publicRoots = ["assets", "public"];
   const publicFiles = publicRoots.flatMap((root) => {
     const start = path.join(projectRoot, root);
@@ -127,8 +128,11 @@ test("paid files are not public and creator client-side auth is fail-closed", ()
     walk(start);
     return files;
   });
-  const duplicateHashes = publicFiles.filter((file) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex") === privateHash);
-  assert.deepEqual(duplicateHashes, []);
+  if (privateArchiveExists) {
+    const privateHash = crypto.createHash("sha256").update(fs.readFileSync(privateArchive)).digest("hex");
+    const duplicateHashes = publicFiles.filter((file) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex") === privateHash);
+    assert.deepEqual(duplicateHashes, []);
+  }
 
   const vercel = JSON.parse(fs.readFileSync(path.join(projectRoot, "vercel.json"), "utf8"));
   assert.doesNotMatch(JSON.stringify(vercel.builds), /private-assets/);
