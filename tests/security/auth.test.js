@@ -22,7 +22,7 @@ beforeEach(() => {
 afterEach(resetSecurityEnv);
 
 test("admin login fails closed for every missing-secret combination", async () => {
-  const login = requireProject("api/auth/login.js");
+  const login = requireProject("api/auth.js");
   const cases = [
     { adminPassword: "test-only-admin-password", authSecret: undefined },
     { adminPassword: undefined, authSecret: "test-only-auth-secret-with-at-least-thirty-two-characters" },
@@ -46,9 +46,10 @@ test("admin login fails closed for every missing-secret combination", async () =
 
 test("admin login rejects bad origin and bad password", async () => {
   configureTestAdmin();
-  const login = requireProject("api/auth/login.js");
+  const login = requireProject("api/auth.js");
   const crossOrigin = await invoke(login, {
     method: "POST",
+    url: "/api/auth/login",
     headers: { ...sameOriginHeaders, origin: "https://attacker.test" },
     body: { password: process.env.ADMIN_PASSWORD },
   });
@@ -56,6 +57,7 @@ test("admin login rejects bad origin and bad password", async () => {
 
   const badPassword = await invoke(login, {
     method: "POST",
+    url: "/api/auth/login",
     headers: sameOriginHeaders,
     body: { password: "not-the-admin-password" },
   });
@@ -65,10 +67,11 @@ test("admin login rejects bad origin and bad password", async () => {
 
 test("valid login issues a short-lived host-only secure cookie", async () => {
   configureTestAdmin();
-  const login = requireProject("api/auth/login.js");
-  const status = requireProject("api/auth/status.js");
+  const login = requireProject("api/auth.js");
+  const status = requireProject("api/auth.js");
   const response = await invoke(login, {
     method: "POST",
+    url: "/api/auth/login",
     headers: sameOriginHeaders,
     body: { password: process.env.ADMIN_PASSWORD },
   });
@@ -85,6 +88,7 @@ test("valid login issues a short-lived host-only secure cookie", async () => {
 
   const statusResponse = await invoke(status, {
     method: "GET",
+    url: "/api/auth/status",
     headers: { cookie: cookie.split(";")[0] },
   });
   assert.equal(statusResponse.statusCode, 200);
@@ -106,14 +110,15 @@ test("sessions reject tampering, future issuance, expiry and secret rotation", (
 
 test("logout requires same origin and clears the secure cookie", async () => {
   configureTestAdmin();
-  const logout = requireProject("api/auth/logout.js");
+  const logout = requireProject("api/auth.js");
   const rejected = await invoke(logout, {
     method: "POST",
+    url: "/api/auth/logout",
     headers: { ...sameOriginHeaders, origin: "https://attacker.test" },
   });
   assert.equal(rejected.statusCode, 403);
 
-  const response = await invoke(logout, { method: "POST", headers: sameOriginHeaders });
+  const response = await invoke(logout, { method: "POST", url: "/api/auth/logout", headers: sameOriginHeaders });
   assert.equal(response.statusCode, 200);
   const cookie = response.getHeader("set-cookie");
   assert.match(cookie, /^__Host-yiten_admin=;/);

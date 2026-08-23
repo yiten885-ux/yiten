@@ -69,18 +69,18 @@ test("all payment and fulfillment endpoints fail closed without external calls",
     process.env.PAYPAL_CLIENT_SECRET = "synthetic-paypal-secret";
     process.env.RESEND_API_KEY = "synthetic-email-credential";
     const cases = [
-      ["api/payments/create-checkout-session.js", "POST"],
-      ["api/payments/fulfill-checkout.js", "POST"],
-      ["api/paypal/create-order.js", "POST"],
-      ["api/paypal/capture-order.js", "POST"],
-      ["api/paypal/client-config.js", "GET"],
+      ["api/payments.js", "POST", "/api/payments/create-checkout-session"],
+      ["api/payments.js", "POST", "/api/payments/fulfill-checkout"],
+      ["api/paypal.js", "POST", "/api/paypal/create-order"],
+      ["api/paypal.js", "POST", "/api/paypal/capture-order"],
+      ["api/paypal.js", "GET", "/api/paypal/client-config"],
     ];
-    for (const [modulePath, method] of cases) {
-      const response = await invoke(requireProject(modulePath), { method, url: "/api/test" });
+    for (const [modulePath, method, url] of cases) {
+      const response = await invoke(requireProject(modulePath), { method, url });
       assert.equal(response.statusCode, 503, modulePath);
       assert.equal(response.body.code, "payments_disabled_security_review", modulePath);
     }
-    const replayableGet = await invoke(requireProject("api/payments/fulfill-checkout.js"), {
+    const replayableGet = await invoke(requireProject("api/payments.js"), {
       method: "GET",
       url: "/api/payments/fulfill-checkout?session_id=test",
     });

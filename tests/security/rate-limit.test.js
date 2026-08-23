@@ -35,7 +35,7 @@ test("rate limiter factory allows up to max and rejects beyond, then resets afte
 });
 
 test("login endpoint rate limits brute-force attempts per IP", async () => {
-  const login = requireProject("api/auth/login.js");
+  const login = requireProject("api/auth.js");
   const headers = {
     host: "example.test",
     origin: "https://example.test",

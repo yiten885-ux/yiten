@@ -13,6 +13,9 @@
   ],
   "routes": [
     { "src": "/api/sync/(state|upload|view)", "dest": "/api/sync.js?target=$1" },
+    { "src": "/api/auth/(.*)", "dest": "/api/auth.js?target=$1" },
+    { "src": "/api/payments/(.*)", "dest": "/api/payments.js?target=$1" },
+    { "src": "/api/paypal/(.*)", "dest": "/api/paypal.js?target=$1" },
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
