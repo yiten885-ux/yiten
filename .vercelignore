@@ -1,0 +1,7 @@
+.git/
+.env
+.env.*
+private-assets/
+tests/
+coverage/
+*.log

@@ -2,25 +2,33 @@
   "version": 2,
   "builds": [
     { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "admin.html", "use": "@vercel/static" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "robots.txt", "use": "@vercel/static" },
+    { "src": "sitemap.xml", "use": "@vercel/static" },
     { "src": "manifest.webmanifest", "use": "@vercel/static" },
+    { "src": "manifest-owner.webmanifest", "use": "@vercel/static" },
     { "src": "sw.js", "use": "@vercel/static" },
     { "src": "assets/**", "use": "@vercel/static" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/payments/create-checkout-session", "dest": "/api/payments/create-checkout-session.js" },
-    { "src": "/api/ximalaya/jssdk-sign", "dest": "/api/ximalaya/jssdk-sign.js" },
-    { "src": "/api/paypal/client-config", "dest": "/api/paypal/client-config.js" },
-    { "src": "/api/paypal/create-order", "dest": "/api/paypal/create-order.js" },
-    { "src": "/api/paypal/capture-order", "dest": "/api/paypal/capture-order.js" },
-    { "src": "/manifest.webmanifest", "dest": "/manifest.webmanifest" },
-    { "src": "/sw.js", "dest": "/sw.js" },
+    { "src": "/api/sync/(state|upload|view)", "dest": "/api/sync.js?target=$1" },
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/public/(.*)", "dest": "/public/$1" },
+    { "src": "/manifest.webmanifest", "dest": "/manifest.webmanifest" },
+    { "src": "/sw.js", "dest": "/sw.js" },
+    { "src": "/robots.txt", "dest": "/robots.txt" },
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
+    { "src": "/privacy.html", "dest": "/privacy.html" },
+    { "src": "/terms.html", "dest": "/terms.html" },
+    { "src": "/cookies.html", "dest": "/cookies.html" },
+    { "src": "/manifest-owner.webmanifest", "dest": "/manifest-owner.webmanifest" },
     { "src": "/admin.html", "dest": "/admin.html" },
     { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/owner.html", "dest": "/owner.html" },
+    { "src": "/owner", "dest": "/owner.html" },
+    { "src": "/creator.html", "dest": "/creator.html" },
     { "src": "/", "dest": "/index.html" }
   ],
   "headers": [
@@ -29,8 +37,24 @@
       "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     },
     {
+      "source": "/(.*\\.html)",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
+    },
+    {
+      "source": "/",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
+    },
+    {
+      "source": "/(admin|owner|creator)(\\.html)?",
+      "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
+    },
+    {
+      "source": "/manifest-owner.webmanifest",
+      "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
+    },
+    {
       "source": "/sw.js",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate" }]
     }
   ]
 }

@@ -9,13 +9,13 @@ const defaultWorks = [
     freePercent: 35,
   },
   {
-    title: "独立创作者工具箱",
+    title: "从零搭建个人内容资产库",
     type: "project",
     summary:
-      "整理写作、发布、收款、邮件列表和数据分析工具，帮助一个人搭起从创作到分发的最小系统。",
+      "把文章、音频、电子书和研究札记整理成可检索、可复用、可持续更新的长期资料库。",
     url: "https://example.com/project",
-    access: "free",
-    freePercent: 100,
+    access: "metered",
+    freePercent: 40,
   },
   {
     title: "关于注意力的十二条札记",
@@ -29,16 +29,83 @@ const defaultWorks = [
 ];
 
 const labels = {
-  essay: "文章",
-  project: "项目",
-  note: "札记",
-  audio: "音频",
+  essay: { zh: "文章", en: "Essays" },
+  project: { zh: "项目", en: "Projects" },
+  note: { zh: "札记", en: "Notes" },
+  audio: { zh: "音频", en: "Audio" },
 };
 
 const accessLabels = {
-  free: "免费公开",
-  metered: "部分免费",
-  member: "订阅解锁",
+  free: { zh: "免费公开", en: "Free" },
+  metered: { zh: "部分免费", en: "Partial Preview" },
+  member: { zh: "订阅解锁", en: "Member Only" },
+};
+
+const uiText = {
+  fallbackWork: { zh: "作品", en: "Work" },
+  rewardUnlocked: { zh: "分享奖励已解锁", en: "Unlocked by Sharing" },
+  freePreview: { zh: "游客可阅读全文 / 收听完整节目", en: "Visitors can read or listen in full" },
+  unlockedFull: { zh: "你已通过分享奖励解锁完整内容", en: "Unlocked with your share reward" },
+  trialPrefix: { zh: "游客可免费试看", en: "Visitors can preview" },
+  trialSuffix: { zh: "剩余内容订阅后解锁", en: "Subscribe to unlock the rest" },
+  readPreview: { zh: "免费试看", en: "Preview" },
+  readFull: { zh: "阅读完整内容", en: "Read Full" },
+  subscribeUnlock: { zh: "订阅解锁", en: "Subscribe to Unlock" },
+  useReward: { zh: "使用分享奖励解锁", en: "Use Share Reward" },
+  moreSharesPrefix: { zh: "再分享", en: "Share" },
+  moreSharesSuffix: { zh: "次可解锁", en: "more to unlock" },
+  shareLabel: { zh: "分享", en: "Share" },
+  shareTextLabel: { zh: "分享文案", en: "Share Copy" },
+  shareHint: { zh: "已自动生成文案，可直接分享，也可以删除后写自己的感受。", en: "Copy is generated automatically. Edit it before sharing if you want." },
+  shareReward: { zh: "分享解锁", en: "Share to Unlock" },
+  shareRewardRulePrefix: { zh: "每分享", en: "Every" },
+  shareRewardRuleSuffix: { zh: "篇作品，可解锁 1 篇完整内容。", en: "shares unlock 1 full piece." },
+  sharedCount: { zh: "已分享", en: "Shared" },
+  availableUnlocks: { zh: "可用解锁", en: "Unlocks" },
+  nowUnlockable: { zh: "现在可解锁", en: "Ready to unlock" },
+  times: { zh: "次", en: "" },
+  shareAria: { zh: "分发", en: "Share" },
+};
+
+const platformButtonLabels = {
+  wechat: { zh: "微信", en: "WeChat" },
+  substack: { zh: "Substack", en: "Substack" },
+  youtube: { zh: "YouTube", en: "YouTube" },
+  xiaohongshu: { zh: "小红书", en: "Xiaohongshu" },
+  tiktok: { zh: "TikTok", en: "TikTok" },
+  x: { zh: "X", en: "X" },
+  reddit: { zh: "Reddit", en: "Reddit" },
+  facebook: { zh: "Facebook", en: "Facebook" },
+  linkedin: { zh: "LinkedIn", en: "LinkedIn" },
+  weibo: { zh: "微博", en: "Weibo" },
+};
+
+const getLang = () => window.YitenI18n?.getLanguage?.() || document.body.dataset.lang || "zh";
+const chooseText = (value) => {
+  if (!value || typeof value !== "object") return value || "";
+  return value[getLang() === "en" ? "en" : "zh"] || value.zh || "";
+};
+const translateText = (value) => {
+  const text = String(value || "");
+  return getLang() === "en" ? window.YitenI18n?.t?.(text) || text : text;
+};
+const formatPreviewText = (work, rewardUnlocked) => {
+  if (work.access === "free") return chooseText(uiText.freePreview);
+  if (rewardUnlocked) return chooseText(uiText.unlockedFull);
+  if (getLang() === "en") return `${chooseText(uiText.trialPrefix)} ${work.freePercent}%. ${chooseText(uiText.trialSuffix)}.`;
+  return `${chooseText(uiText.trialPrefix)} ${work.freePercent}%，${chooseText(uiText.trialSuffix)}`;
+};
+const getSharesUntilNextUnlock = (state = readShareRewards()) => {
+  if (state.availableUnlocks > 0) return 0;
+  const remainder = Number(state.completedShares || 0) % SHARE_REWARD_THRESHOLD;
+  return remainder === 0 ? SHARE_REWARD_THRESHOLD : SHARE_REWARD_THRESHOLD - remainder;
+};
+
+const formatUnlockCopy = (shareState = readShareRewards()) => {
+  if (shareState.availableUnlocks > 0) return chooseText(uiText.useReward);
+  const next = getSharesUntilNextUnlock(shareState);
+  if (getLang() === "en") return `${chooseText(uiText.moreSharesPrefix)} ${next} ${chooseText(uiText.moreSharesSuffix)}`;
+  return `${chooseText(uiText.moreSharesPrefix)} ${next} ${chooseText(uiText.moreSharesSuffix)}`;
 };
 
 const platformDestinations = {
@@ -51,7 +118,7 @@ const platformDestinations = {
 const injectResponsiveStyles = () => {
   const style = document.createElement("style");
   style.textContent = `
-    .work-meta-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px}.work-meta-row .work-type{margin-bottom:0}.access-pill{display:inline-flex;border:1px solid rgba(31,94,77,.24);border-radius:999px;padding:4px 10px;background:#fffdf7;color:var(--accent);font-size:12px;font-weight:700}.preview-meter{height:7px;overflow:hidden;border-radius:999px;background:#e9e1d5}.preview-meter span{display:block;width:var(--free-percent);height:100%;border-radius:inherit;background:var(--accent)}.preview-copy{display:block;margin-top:8px;color:var(--muted);font-weight:700}.work-card.gated{background:linear-gradient(180deg,#fffdf7 0%,#fbf7ef 100%)}.subscribe-link{width:fit-content;border-bottom:1px solid rgba(31,94,77,.36)}.access-controls{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.55fr);gap:14px}.share-actions button[data-share=wechat]{border-color:rgba(31,94,77,.42);background:#eff7f1;color:var(--accent);font-weight:800}.ximalaya-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.ximalaya-catalog{display:grid;gap:12px;margin-top:18px}.catalog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.catalog-head a{color:var(--accent);font-weight:700}.ximalaya-catalog iframe{width:100%;min-height:520px;border:1px solid var(--line);border-radius:8px;background:#fffdf7}@media(max-width:820px){.site-header{position:absolute;display:grid;gap:12px;background:linear-gradient(rgba(22,21,19,.64),rgba(22,21,19,0));}.nav-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;font-size:13px}.nav-links a{display:flex;min-height:34px;align-items:center;justify-content:center;border:1px solid rgba(255,253,247,.22);border-radius:999px;background:rgba(22,21,19,.18)}.hero{min-height:82vh}.hero-content{padding-top:180px}.hero-copy{font-size:16px}.band{width:min(100% - 28px,1120px);padding:58px 0}.section-head{gap:14px;margin-bottom:24px}.work-card,.plan-card,.checkout-panel,.player-panel,.episode-list{padding:18px}.share-actions{gap:6px}.share-actions button{min-height:34px;padding:0 9px}.access-controls{grid-template-columns:1fr}.ximalaya-catalog iframe{min-height:420px}}@media(max-width:520px){h1{font-size:38px}h2{font-size:28px}.nav-links{grid-template-columns:repeat(2,minmax(0,1fr))}.button{width:100%}.payment-methods,.filters{display:grid;grid-template-columns:1fr 1fr}.filter,.payment-method{width:100%}.share-actions{display:grid;grid-template-columns:1fr 1fr}.share-actions button{width:100%;border-radius:8px}.work-grid{gap:14px}.price{font-size:30px}.footer{padding:24px 18px}}`;
+    .work-meta-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px}.work-meta-row .work-type{margin-bottom:0}.access-pill{display:inline-flex;border:1px solid rgba(31,94,77,.24);border-radius:999px;padding:4px 10px;background:#fffdf7;color:var(--accent);font-size:12px;font-weight:700}.preview-meter{height:7px;overflow:hidden;border-radius:999px;background:#e9e1d5}.preview-meter span{display:block;width:var(--free-percent);height:100%;border-radius:inherit;background:var(--accent)}.preview-copy{display:block;margin-top:8px;color:var(--muted);font-weight:700}.work-card.gated{background:linear-gradient(180deg,#fffdf7 0%,#fbf7ef 100%)}.subscribe-link{width:fit-content;border-bottom:1px solid rgba(31,94,77,.36)}.access-controls{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.55fr);gap:14px}.share-actions button[data-share=wechat]{border-color:rgba(31,94,77,.42);background:#eff7f1;color:var(--accent);font-weight:800}.ximalaya-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.ximalaya-catalog{display:grid;gap:12px;margin-top:18px}.catalog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.catalog-head a{color:var(--accent);font-weight:700}.ximalaya-catalog iframe{width:100%;min-height:520px;border:1px solid var(--line);border-radius:8px;background:#fffdf7}@media(max-width:820px){.band{width:min(100% - 28px,1120px);padding:58px 0}.section-head{gap:14px;margin-bottom:24px}.work-card,.plan-card,.checkout-panel,.player-panel,.episode-list{padding:18px}.share-actions{gap:6px}.share-actions button{min-height:34px;padding:0 9px}.access-controls{grid-template-columns:1fr}.ximalaya-catalog iframe{min-height:420px}}@media(max-width:520px){h2{font-size:28px}.payment-methods,.filters{display:grid;grid-template-columns:1fr 1fr}.filter,.payment-method{width:100%}.share-actions{display:grid;grid-template-columns:1fr 1fr}.share-actions button{width:100%;border-radius:8px}.work-grid{gap:14px}.price{font-size:30px}.footer{padding:24px 18px}}`;
   document.head.appendChild(style);
 };
 
@@ -65,14 +132,216 @@ const year = document.querySelector("#year");
 
 let activeFilter = "all";
 
+const SHARE_REWARD_STORAGE_KEY = "yiten-share-rewards-v1";
+const SHARE_REWARD_THRESHOLD = 3;
+
+const createWorkKey = (work) => {
+  if (work?.key || work?.workKey) return String(work.key || work.workKey);
+  const source = `${work.type || "work"}:${work.title || "untitled"}:${work.url || ""}`;
+  let hash = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash * 31 + source.charCodeAt(index)) >>> 0;
+  }
+  return `work-${hash.toString(16)}`;
+};
+
+const readShareRewards = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SHARE_REWARD_STORAGE_KEY) || "{}");
+    return {
+      completedShares: Number(saved.completedShares || 0),
+      availableUnlocks: Number(saved.availableUnlocks || 0),
+      unlockedWorks: saved.unlockedWorks || {},
+      history: Array.isArray(saved.history) ? saved.history : [],
+      lastAutoUnlocked: saved.lastAutoUnlocked || null,
+      updatedAt: saved.updatedAt || "",
+    };
+  } catch (_error) {
+    return { completedShares: 0, availableUnlocks: 0, unlockedWorks: {}, history: [], lastAutoUnlocked: null, updatedAt: "" };
+  }
+};
+
+const saveShareRewards = (state) => {
+  state.updatedAt = new Date().toISOString();
+  localStorage.setItem(SHARE_REWARD_STORAGE_KEY, JSON.stringify(state));
+  window.dispatchEvent(new CustomEvent("yiten:share-reward-updated", { detail: state }));
+};
+
+const isRewardUnlocked = (work) => Boolean(readShareRewards().unlockedWorks[createWorkKey(work)]);
+
+const recordShareReward = (work, platform) => {
+  const state = readShareRewards();
+  const key = createWorkKey(work);
+  state.completedShares += 1;
+  if (state.completedShares % SHARE_REWARD_THRESHOLD === 0) {
+    if (work && !state.unlockedWorks[key]) {
+      state.unlockedWorks[key] = { title: work.title || "完整内容", unlockedAt: new Date().toISOString(), source: "share" };
+      state.lastAutoUnlocked = { key, title: work.title || "完整内容", unlockedAt: state.unlockedWorks[key].unlockedAt };
+    } else {
+      state.availableUnlocks += 1;
+    }
+  }
+  state.history.unshift({
+    key,
+    title: work.title,
+    platform,
+    sharedAt: new Date().toISOString(),
+  });
+  state.history = state.history.slice(0, 50);
+  saveShareRewards(state);
+  renderShareRewardPanel();
+  return state;
+};
+
+const unlockWorkWithReward = (work) => {
+  const state = readShareRewards();
+  const key = createWorkKey(work);
+  if (state.unlockedWorks[key]) {
+    return { ok: true, message: getLang() === "en" ? "This piece is already unlocked." : "这篇内容已经解锁。" };
+  }
+  if (state.availableUnlocks < 1) {
+    const next = getSharesUntilNextUnlock();
+    return {
+      ok: false,
+      message: getLang() === "en" ? `${next} more shares unlock 1 full piece.` : `还差 ${next} 次分享可获得 1 次解锁。`,
+    };
+  }
+  state.availableUnlocks -= 1;
+  state.unlockedWorks[key] = { title: work.title, unlockedAt: new Date().toISOString() };
+  saveShareRewards(state);
+  renderShareRewardPanel();
+  return { ok: true, message: getLang() === "en" ? "Unlocked with your share reward." : "已使用分享奖励解锁这篇完整内容。" };
+};
+
+const renderShareRewardPanel = () => {
+  if (!workGrid) return;
+  const section = document.querySelector("#works .compact-head") || document.querySelector("#works .section-head");
+  if (!section) return;
+  let panel = document.querySelector("#shareRewardPanel");
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "shareRewardPanel";
+    panel.className = "share-reward-panel";
+    section.insertAdjacentElement("afterend", panel);
+  }
+  const state = readShareRewards();
+  const nextCopy = state.lastAutoUnlocked
+    ? `${getLang() === "en" ? "Unlocked" : "已兑现解锁"}：${state.lastAutoUnlocked.title}`
+    : state.availableUnlocks > 0 ? chooseText(uiText.nowUnlockable) : formatUnlockCopy(state);
+  panel.innerHTML = `
+    <div>
+      <strong>${chooseText(uiText.shareReward)}</strong>
+      <span>${chooseText(uiText.shareRewardRulePrefix)} ${SHARE_REWARD_THRESHOLD} ${chooseText(uiText.shareRewardRuleSuffix)}</span>
+    </div>
+    <div class="share-reward-stats" aria-live="polite">
+      <span>${chooseText(uiText.sharedCount)} ${state.completedShares} ${chooseText(uiText.times)}</span>
+      <span>${chooseText(uiText.availableUnlocks)} ${state.availableUnlocks} ${chooseText(uiText.times)}</span>
+      <span>${escapeHtml(nextCopy)}</span>
+    </div>
+  `;
+};
+
+const refreshShareRewardViews = () => {
+  renderShareRewardPanel();
+  if (workGrid) renderWorks();
+};
+
+const parseWorkList = (key) => {
+  try {
+    const works = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(works) ? works : [];
+  } catch (_error) {
+    return [];
+  }
+};
+
 const readWorks = () => {
-  const saved = localStorage.getItem("personal-site-works");
-  return saved ? JSON.parse(saved) : defaultWorks;
+  const primaryWorks = parseWorkList("personal-site-works");
+  if (!primaryWorks.length) return defaultWorks;
+  try {
+    const seen = new Set();
+    return primaryWorks.filter((work) => {
+      const key = work.id || work.sourceId || createWorkKey(work);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      const status = String(work.status || "").trim().toLowerCase();
+      return !work.hidden && (work.published === true || status === "published" || status === "已发布");
+    }).map((work) =>
+      work.title === "独立创作者工具箱"
+        ? {
+            ...work,
+            title: "从零搭建个人内容资产库",
+            summary: "把文章、音频、电子书和研究札记整理成可检索、可复用、可持续更新的长期资料库。",
+            access: "metered",
+            freePercent: 40,
+          }
+        : work
+    );
+  } catch (_error) {
+    return defaultWorks;
+  }
 };
 
 const saveWorks = (works) => {
   localStorage.setItem("personal-site-works", JSON.stringify(works));
+  localStorage.setItem("personal-site-works-updated-at", String(Date.now()));
 };
+
+const readWorkViews = () => {
+  try {
+    const views = JSON.parse(localStorage.getItem("yiten-work-views") || "{}");
+    return views && typeof views === "object" ? views : {};
+  } catch (_error) {
+    return {};
+  }
+};
+
+const recordWorkView = async (work) => {
+  const workKey = createWorkKey(work);
+  if (!workKey) return;
+  const sessionKey = `yiten-viewed:${workKey}`;
+  if (sessionStorage.getItem(sessionKey)) return;
+  sessionStorage.setItem(sessionKey, "1");
+  try {
+    const response = await fetch("./api/sync/view", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workKey,
+        title: work.title || "",
+        type: work.type || "work",
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok) throw new Error(result.message || "view sync failed");
+    const views = readWorkViews();
+    views[workKey] = {
+      ...(views[workKey] || {}),
+      title: work.title || views[workKey]?.title || "",
+      type: work.type || views[workKey]?.type || "work",
+      count: result.count,
+      lastViewedAt: result.lastViewedAt || new Date().toISOString(),
+    };
+    localStorage.setItem("yiten-work-views", JSON.stringify(views));
+  } catch (error) {
+    console.warn("Yiten view tracking failed", error);
+  }
+};
+
+const readBookProducts = () => {
+  try {
+    const products = JSON.parse(localStorage.getItem("yiten-book-products") || "{}");
+    return products && typeof products === "object" ? products : {};
+  } catch (_error) {
+    return {};
+  }
+};
+
+const isPublishedProduct = (product) => Boolean(product && (product.status === "published" || product.status === "已发布" || product.published === true));
+const getCoverSrc = (cover) => safePublicClientUrl(
+  typeof cover === "string" ? cover : cover?.url || cover?.src || cover?.preview || cover?.href || "",
+  { allowHash: false }
+);
 
 const escapeHtml = (value) =>
   String(value).replace(/[&<>"']/g, (character) => {
@@ -88,13 +357,314 @@ const escapeHtml = (value) =>
 
 const escapeAttribute = (value) => escapeHtml(value).replace(/`/g, "&#096;");
 
+const safePublicClientUrl = (value, { allowHash = true } = {}) => {
+  const candidate = String(value || "").trim();
+  if (!candidate) return "";
+  if (allowHash && candidate.startsWith("#")) return candidate;
+  if (candidate.startsWith("/") && (candidate.startsWith("//") || candidate.includes("\\"))) return "";
+  try {
+    const url = new URL(candidate, location.origin);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch (_error) {
+    return "";
+  }
+};
+
+const formatPublishedAt = (work) => {
+  const value = work.publishedAt || work.updatedAt || work.createdAt || "";
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const locale = getLang() === "en" ? "en-US" : "zh-CN";
+  const text = date.toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" });
+  return getLang() === "en" ? `Published ${text}` : `发布于 ${text}`;
+};
+
+const normalizeWorkType = (type) => {
+  const value = String(type || "").toLowerCase();
+  if (value.includes("audio") || value.includes("podcast") || value.includes("音频") || value.includes("播客")) return "audio";
+  if (value.includes("note") || value.includes("札记")) return "note";
+  if (value.includes("project") || value.includes("项目")) return "project";
+  return "essay";
+};
+
 const normalizeWork = (work) => {
   const access = work.access || "metered";
   const fallbackPercent = access === "free" ? 100 : access === "member" ? 20 : 35;
   const freePercent = Number.isFinite(Number(work.freePercent))
     ? Math.max(0, Math.min(100, Number(work.freePercent)))
     : fallbackPercent;
-  return { ...work, access, freePercent };
+  return { ...work, url: safePublicClientUrl(work.url) || "#works", access, freePercent };
+};
+
+const stripMarkdownMarks = (value) =>
+  String(value || "")
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .trim();
+
+const normalizeWhitespace = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const bodyLooksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ""));
+
+const htmlToPlainText = (value) => {
+  const template = document.createElement("template");
+  template.innerHTML = String(value || "");
+  return normalizeWhitespace(template.content.textContent || "");
+};
+
+const sanitizePublishedHtml = (html) => {
+  const template = document.createElement("template");
+  template.innerHTML = String(html || "");
+  const allowedTags = new Set(["P", "BR", "STRONG", "B", "EM", "I", "U", "H2", "H3", "H4", "UL", "OL", "LI", "BLOCKQUOTE", "A", "IMG", "SPAN"]);
+  const allowedAttributes = {
+    A: new Set(["href", "target", "rel"]),
+    IMG: new Set(["src", "alt"]),
+    SPAN: new Set(["style"]),
+  };
+  const walk = (node) => {
+    Array.from(node.children).forEach((child) => {
+      if (!allowedTags.has(child.tagName)) {
+        child.replaceWith(document.createTextNode(child.textContent || ""));
+        return;
+      }
+      Array.from(child.attributes).forEach((attribute) => {
+        const allowed = allowedAttributes[child.tagName]?.has(attribute.name);
+        if (!allowed) child.removeAttribute(attribute.name);
+      });
+      if (child.tagName === "A") {
+        const href = child.getAttribute("href") || "";
+        if (!/^https?:\/\//i.test(href) && !href.startsWith("#") && !href.startsWith("mailto:")) child.removeAttribute("href");
+        child.setAttribute("rel", "noreferrer");
+      }
+      if (child.tagName === "IMG") {
+        const src = safePublicClientUrl(child.getAttribute("src"), { allowHash: false });
+        if (src) child.setAttribute("src", src);
+        else child.removeAttribute("src");
+        child.setAttribute("loading", "lazy");
+      }
+      if (child.tagName === "SPAN") {
+        const style = child.getAttribute("style") || "";
+        const fontSize = style.match(/font-size\s*:\s*(\d{1,2}px|[0-2](?:\.\d)?rem)/i)?.[0];
+        if (fontSize) child.setAttribute("style", fontSize);
+        else child.removeAttribute("style");
+      }
+      walk(child);
+    });
+  };
+  walk(template.content);
+  return template.innerHTML;
+};
+
+const formatPublishedBody = (work, rewardUnlocked) => {
+  const rawBody = String(work.body || "");
+  const isHtml = work.bodyFormat === "html" || bodyLooksLikeHtml(rawBody);
+  const body = isHtml ? htmlToPlainText(rawBody) : stripMarkdownMarks(rawBody);
+  if (!body) return "";
+  const shouldPreview = work.access !== "free" && !rewardUnlocked;
+  if (!shouldPreview && isHtml) return sanitizePublishedHtml(rawBody);
+  const visibleLength = shouldPreview
+    ? Math.max(80, Math.round(body.length * (Number(work.freePercent) || 35) / 100))
+    : body.length;
+  const content = body.slice(0, visibleLength);
+  const suffix = shouldPreview && content.length < body.length ? "\n\n……订阅或使用分享奖励后可继续阅读。" : "";
+  return escapeHtml(`${content}${suffix}`).replace(/\n/g, "<br />");
+};
+
+const renderAttachments = (attachments = []) => {
+  const list = Array.isArray(attachments) ? attachments : [];
+  if (!list.length) return "";
+  return `<div class="work-attachments"><span>含 ${list.length} 个配套附件</span></div>`;
+};
+
+const isAudioSource = (value = "") =>
+  /\.(mp3|m4a|wav|aac|ogg|oga|flac)(\?.*)?$/i.test(String(value));
+
+const isLikelyPlayableMediaUrl = (value = "") =>
+  Boolean(safePublicClientUrl(value, { allowHash: false }));
+
+const inferAudioSource = (work) => {
+  const normalizedType = normalizeWorkType(work.type);
+  const direct =
+    work.audioUrl ||
+    work.audio?.url ||
+    work.audio?.src ||
+    work.audio?.dataUrl ||
+    work.audioFile?.url ||
+    work.audioFile?.src ||
+    work.audioFile?.dataUrl ||
+    work.mediaUrl ||
+    work.file?.url ||
+    work.file?.src ||
+    work.file?.dataUrl ||
+    work.sourceUrl;
+  const safeDirect = safePublicClientUrl(direct, { allowHash: false });
+  if (safeDirect && (isAudioSource(safeDirect) || (normalizedType === "audio" && isLikelyPlayableMediaUrl(safeDirect)))) return safeDirect;
+  const attachment = Array.isArray(work.attachments)
+    ? work.attachments.find((item) => isAudioSource(item?.dataUrl || item?.url || item?.src || item?.href || item?.name))
+    : null;
+  const attachmentSrc = safePublicClientUrl(attachment?.url || attachment?.src || attachment?.href, { allowHash: false });
+  if (attachmentSrc && isAudioSource(attachmentSrc)) return attachmentSrc;
+  const safeWorkUrl = safePublicClientUrl(work.url, { allowHash: false });
+  if (normalizedType === "audio" && safeWorkUrl && isLikelyPlayableMediaUrl(safeWorkUrl)) return safeWorkUrl;
+  return "";
+};
+
+const hasPlayableAudioWhenNeeded = (work) =>
+  normalizeWorkType(work.type) !== "audio" || Boolean(inferAudioSource(work));
+
+const renderBookProducts = () => {
+  const products = readBookProducts();
+  const single = isPublishedProduct(products.single) ? products.single : null;
+  const bundle = isPublishedProduct(products.bundle) ? products.bundle : null;
+  const extraList = Array.isArray(products.extraProducts) ? products.extraProducts : [];
+  const extras = [products.extra1, products.extra2, ...extraList].filter((product) => isPublishedProduct(product) && product.title);
+  // extra1 / extra2 现已绑到单品卡 2 / 3，下方网格只放「3 本之外」的动态附加商品。
+  const gridExtras = extraList.filter((product) => isPublishedProduct(product) && product.title);
+  const hasConfiguredProducts = Object.keys(products).length > 0;
+
+  // 用户端只展示 owner 后台「已发布且有标题」的单品；其余整张卡隐藏，绝不露写死占位。
+  const isLiveProduct = (product) => isPublishedProduct(product) && Boolean(product && product.title);
+  const singleSlots = [products.single, products.extra1, products.extra2];
+  document.querySelectorAll(".single-book-grid .single-book-card").forEach((card, index) => {
+    card.hidden = !isLiveProduct(singleSlots[index]);
+  });
+  const singleGrid = document.querySelector(".single-book-grid");
+  if (singleGrid) singleGrid.hidden = !singleSlots.some((product) => isLiveProduct(product));
+  // 没有任何已发布商品时，整个"书籍"区在用户端隐藏，绝不留空壳或写死样例。
+  const booksSection = document.querySelector("#books");
+  if (booksSection) booksSection.hidden = !(isLiveProduct(products.bundle) || singleSlots.some((product) => isLiveProduct(product)));
+
+  const mainProductCard = document.querySelector(".bookstore-combo-card");
+  const bookCover = document.querySelector("[data-book-cover]");
+  const suiteCoverImages = document.querySelectorAll(".suite-cover img");
+  const bookTitle = document.querySelector("[data-book-title]");
+  const bookDescription = document.querySelector("[data-book-description]");
+  const bookPoints = document.querySelector("[data-book-points]");
+  const bookFormats = document.querySelector("[data-book-formats]");
+  const singleNote = document.querySelector("[data-single-note]");
+  const singleCover = document.querySelector("[data-single-cover]");
+  const singleTitle = document.querySelector("[data-single-title]");
+  const singleDescription = document.querySelector("[data-single-description]");
+  const singlePoints = document.querySelector("[data-single-points]");
+  const bundleDescription = document.querySelector("[data-bundle-description]");
+  const bundleStack = document.querySelector("[data-bundle-stack]");
+  const bundleCoverWrap = document.querySelector("[data-bundle-cover-wrap]");
+  const bundleCover = document.querySelector("[data-bundle-cover]");
+  const extraProductGrid = document.querySelector("#extraProductGrid");
+  const singleVisitorPrice = document.querySelector("[data-single-visitor-price]");
+  const singleMemberPrice = document.querySelector("[data-single-member-price]");
+  const bundleVisitorPrice = document.querySelector("[data-bundle-visitor-price]");
+  const bundleMemberPrice = document.querySelector("[data-bundle-member-price]");
+  const formatPrice = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return `$${escapeHtml(value)}`;
+    return `$${numeric.toFixed(numeric % 1 ? 2 : 0)}`;
+  };
+
+  // 单品卡 2 / 3：从后台「单本二 / 单本三」(extra1 / extra2) 数据驱动，
+  // 镜像单品卡 1 的结构；未发布时保留页面默认文案，绝不留空。
+  const bindSingleProductCard = (product, suffix) => {
+    if (!isPublishedProduct(product) || !product.title) return;
+    const pick = (name) => document.querySelector(`[data-single${suffix}-${name}]`);
+    const coverSrc = getCoverSrc(product.cover || product.coverUrl);
+    const coverEl = pick("cover");
+    if (coverSrc && coverEl) coverEl.src = coverSrc;
+    const titleEl = pick("title");
+    if (titleEl) titleEl.textContent = product.title;
+    const descEl = pick("description");
+    if (product.description && descEl) descEl.textContent = product.description;
+    const pointsEl = pick("points");
+    if (pointsEl) {
+      const highlights = String(product.includes || "")
+        .split(/[\n,，、]+/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+      const files = Array.isArray(product.files) ? product.files.map((file) => file.name).filter(Boolean) : [];
+      const fallback = files.length
+        ? Array.from(new Set(files.map((name) => `${name.split(".").pop()?.toUpperCase() || "文件"} 格式已配置`)))
+        : [];
+      const list = highlights.length ? highlights : fallback;
+      if (list.length) pointsEl.innerHTML = list.slice(0, 5).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    }
+    const visitorEl = pick("visitor-price");
+    if (product.visitorPrice && visitorEl) visitorEl.textContent = formatPrice(product.visitorPrice);
+    const memberEl = pick("member-price");
+    if (product.memberPrice && memberEl) memberEl.textContent = formatPrice(product.memberPrice);
+  };
+  bindSingleProductCard(products.extra1, "2");
+  bindSingleProductCard(products.extra2, "3");
+
+  if (mainProductCard) {
+    mainProductCard.hidden = hasConfiguredProducts && !single && !bundle;
+  }
+
+  if (!single && !bundle && !extras.length) return;
+
+  // 纯数据驱动小工具：有真数据才显示，空就清空+隐藏（绝不回退到写死样例）。
+  const setText = (el, value) => { if (el) { el.textContent = value || ""; el.hidden = !value; } };
+  const splitList = (value) => String(value || "").split(/[\n,，、/]+/).map((s) => s.trim()).filter(Boolean);
+  const setList = (el, items) => {
+    if (!el) return;
+    const list = (items || []).slice(0, 8);
+    const tag = el.tagName === "UL" || el.tagName === "OL" ? "li" : "span";
+    el.innerHTML = list.map((item) => `<${tag}>${escapeHtml(item)}</${tag}>`).join("");
+    el.hidden = !list.length;
+  };
+  const fileExts = (files) => Array.isArray(files)
+    ? Array.from(new Set(files.map((f) => (f.name || "").split(".").pop()?.toUpperCase()).filter(Boolean)))
+    : [];
+
+  // —— 套装卡：无套装(无标题)整卡隐藏，其余字段有数据才显示 ——
+  if (mainProductCard) mainProductCard.hidden = !(bundle && bundle.title);
+  const suiteCoverSrc = getCoverSrc(bundle?.cover || bundle?.coverUrl) || getCoverSrc(single?.cover || single?.coverUrl);
+  if (suiteCoverSrc) {
+    if (bookCover) bookCover.src = suiteCoverSrc;
+    suiteCoverImages.forEach((image, index) => { if (index === 0 || !image.dataset.staticCover) image.src = suiteCoverSrc; });
+  }
+  setText(bookTitle, bundle?.title);
+  setText(bundleDescription, bundle?.description);
+  setList(bundleStack, splitList(bundle?.includes));
+  setList(bookFormats, splitList(bundle?.formats).length ? splitList(bundle?.formats) : fileExts(bundle?.files));
+  if (bundleVisitorPrice) bundleVisitorPrice.textContent = bundle?.visitorPrice ? formatPrice(bundle.visitorPrice) : "";
+  if (bundleMemberPrice) bundleMemberPrice.textContent = bundle?.memberPrice ? formatPrice(bundle.memberPrice) : "";
+
+  // —— 单品卡 1（single）：字段有数据才显示 ——
+  const singleCoverSrc = getCoverSrc(single?.cover || single?.coverUrl);
+  if (singleCoverSrc && singleCover) singleCover.src = singleCoverSrc;
+  setText(singleTitle, single?.title);
+  setText(singleDescription, single?.description);
+  setList(singlePoints, splitList(single?.includes));
+  if (singleVisitorPrice) singleVisitorPrice.textContent = single?.visitorPrice ? formatPrice(single.visitorPrice) : "";
+  if (singleMemberPrice) singleMemberPrice.textContent = single?.memberPrice ? formatPrice(single.memberPrice) : "";
+
+  if (extraProductGrid) {
+    extraProductGrid.innerHTML = gridExtras
+      .map((product, index) => {
+        const slot = product.slot === "extra1" || product.slot === "extra2"
+          ? product.slot
+          : `extra-dynamic-${index + 1}`;
+        const files = Array.isArray(product.files) ? product.files.map((file) => file.name).filter(Boolean) : [];
+        const cover = getCoverSrc(product.cover || product.coverUrl) || "./public/ebook-cover.svg";
+        return `
+          <article class="extra-product-card">
+            <figure><img src="${escapeAttribute(cover)}" alt="${escapeAttribute(product.title)} 缩略图" /></figure>
+            <div>
+              <span class="plan-tag quiet">新上架</span>
+              <h3>${escapeHtml(product.title)}</h3>
+              <p>${escapeHtml(product.description || "创作者上架的补充资料包。")}</p>
+              ${files.length ? `<div class="format-pills">${Array.from(new Set(files.map((name) => name.split(".").pop()?.toUpperCase() || "文件"))).slice(0, 4).map((format) => `<span>${escapeHtml(format)}</span>`).join("")}</div>` : ""}
+            </div>
+            <div class="extra-product-actions">
+              <strong>${formatPrice(product.visitorPrice || 29)}</strong>
+              <button class="button primary ebook-button" data-audience="${slot}" type="button">购买</button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
 };
 
 const enhanceWorkForm = () => {
@@ -149,8 +719,19 @@ const buildShareUrl = (platform, work) => {
 const shareWork = async (platform, work) => {
   if (platform === "native" && navigator.share) {
     const normalized = normalizeWork(work);
-    await navigator.share({ title: normalized.title, text: normalized.summary, url: normalized.url });
-    return "已打开系统分享";
+    try {
+      await navigator.share({ title: normalized.title, text: normalized.summary, url: normalized.url });
+      return "已打开系统分享";
+    } catch (error) {
+      if (error?.name === "AbortError") throw error;
+      await copyDistributionText(work);
+      return "系统分享不可用，已复制分发文案";
+    }
+  }
+
+  if (platform === "native") {
+    await copyDistributionText(work);
+    return "已复制分发文案";
   }
 
   if (platform === "copy") {
@@ -178,7 +759,7 @@ const shareWork = async (platform, work) => {
 };
 
 const renderWorks = () => {
-  const works = readWorks().map(normalizeWork);
+  const works = readWorks().map(normalizeWork).filter(hasPlayableAudioWhenNeeded);
   const visibleWorks =
     activeFilter === "all" ? works : works.filter((work) => work.type === activeFilter);
 
@@ -186,41 +767,175 @@ const renderWorks = () => {
     .map((work, index) => {
       const locked = work.access !== "free";
       const progressStyle = `style="--free-percent: ${work.freePercent}%"`;
+      const rewardUnlocked = locked && isRewardUnlocked(work);
+      const shareState = readShareRewards();
+      const unlockCopy = formatUnlockCopy(shareState);
+      const title = translateText(work.title);
+      const summary = translateText(work.summary);
+      const typeLabel = chooseText(labels[work.type]) || chooseText(uiText.fallbackWork);
+      const accessLabel = rewardUnlocked ? chooseText(uiText.rewardUnlocked) : chooseText(accessLabels[work.access]) || chooseText(accessLabels.metered);
+      const originalLabel = getLang() === "en" ? "Original" : "原创";
+      const copyrightLabel = getLang() === "en" ? "Local fingerprint" : "版权指纹";
+      const publishedAt = formatPublishedAt(work);
+      const previewText = formatPreviewText(work, rewardUnlocked);
+      const inlineBody = formatPublishedBody(work, rewardUnlocked);
+      const workKey = createWorkKey(work);
+      const fallbackBody = !inlineBody && summary
+        ? `<p>${escapeHtml(summary)}</p>`
+        : "";
+      const bodyBlock = inlineBody || fallbackBody
+        ? `<details class="published-body work-body-details" id="${escapeAttribute(work.id || workKey)}"><summary>${rewardUnlocked || work.access === "free" ? "展开完整内容" : "展开免费试看"}</summary><div class="published-body-content">${inlineBody || fallbackBody}</div></details>`
+        : "";
+      const audioSource = inferAudioSource(work);
+      const isAudioWork = work.type === "audio";
+      const missingAudioHint = work.audioFile?.name || work.fileName
+        ? "这条旧数据只保存了文件名，没有远程音频 URL；请在后台重新上传一次音频，或补一个可直接播放的音频地址。"
+        : "请在后台上传音频文件，或填写可直接播放的音频地址。";
+      const audioBlock = audioSource
+        ? `<div class="audio-player-shell"><span class="audio-play-label">播放音频</span><audio class="work-audio-player" controls preload="metadata" src="${escapeAttribute(audioSource)}"></audio></div>`
+        : isAudioWork
+          ? `<div class="audio-player-shell audio-missing"><strong>暂无可播放音频</strong><small>${escapeHtml(missingAudioHint)}</small></div>`
+          : "";
+      const hasExpandableContent = Boolean(bodyBlock);
+      const workUrl = hasExpandableContent ? `#${escapeAttribute(work.id || createWorkKey(work))}` : escapeAttribute(work.url);
+      const linkTarget = hasExpandableContent ? "" : ` target="_blank" rel="noreferrer"`;
       return `
-        <article class="work-card${locked ? " gated" : ""}" data-index="${index}">
+        <article class="work-card${isAudioWork ? " audio-work-card" : ""}${locked && !rewardUnlocked ? " gated" : ""}${rewardUnlocked ? " reward-unlocked" : ""}" data-index="${index}" data-work-key="${escapeAttribute(workKey)}">
           <div>
             <div class="work-meta-row">
-              <span class="work-type">${labels[work.type] || "作品"}</span>
-              <span class="access-pill">${accessLabels[work.access] || "部分免费"}</span>
+              <span class="work-type">${escapeHtml(typeLabel)}</span>
+              ${work.original === false ? "" : `<span class="original-pill">${escapeHtml(originalLabel)}</span>`}
+              ${work.copyrightHash ? `<span class="copyright-pill" title="${escapeAttribute(work.copyrightHash)}">${escapeHtml(copyrightLabel)}</span>` : ""}
+              <span class="access-pill">${escapeHtml(accessLabel)}</span>
+              ${publishedAt ? `<time class="work-time" datetime="${escapeAttribute(work.publishedAt || work.updatedAt || work.createdAt)}">${escapeHtml(publishedAt)}</time>` : ""}
             </div>
-            <h3>${escapeHtml(work.title)}</h3>
-            <p>${escapeHtml(work.summary)}</p>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(summary)}</p>
+            ${audioBlock}
             <div class="preview-meter" ${progressStyle}><span></span></div>
-            <small class="preview-copy">${work.access === "free" ? "游客可阅读全文 / 收听完整节目" : `游客可免费试看 ${work.freePercent}%，剩余内容订阅后解锁`}</small>
+            <small class="preview-copy">${escapeHtml(previewText)}</small>
+            ${bodyBlock}
+            ${renderAttachments(work.attachments)}
           </div>
           <div class="work-actions">
-            <a class="work-link" href="${escapeAttribute(work.url)}" target="_blank" rel="noreferrer">${locked ? "免费试看" : "阅读 / 查看"}</a>
-            ${locked ? `<a class="work-link subscribe-link" href="#membership">订阅解锁</a>` : ""}
-            <div class="share-actions" aria-label="分发 ${escapeAttribute(work.title)}">
-              <button type="button" data-share="native">分享</button>
-              <button type="button" data-share="wechat">微信</button>
-              <button type="button" data-share="copy">复制文案</button>
-              <button type="button" data-share="substack">Substack</button>
-              <button type="button" data-share="youtube">YouTube</button>
-              <button type="button" data-share="xiaohongshu">小红书</button>
-              <button type="button" data-share="tiktok">TikTok</button>
-              <button type="button" data-share="x">X</button>
-              <button type="button" data-share="linkedin">LinkedIn</button>
-              <button type="button" data-share="weibo">微博</button>
+            <a class="work-link" href="${workUrl}"${linkTarget}>${locked && !rewardUnlocked ? chooseText(uiText.readPreview) : chooseText(uiText.readFull)}</a>
+            ${locked && !rewardUnlocked ? `<button class="work-link reward-unlock-button" type="button" data-unlock-work ${shareState.availableUnlocks < 1 ? "disabled" : ""}>${escapeHtml(unlockCopy)}</button><a class="work-link subscribe-link" href="#membership">${chooseText(uiText.subscribeUnlock)}</a>` : ""}
+            <div class="share-actions" aria-label="${chooseText(uiText.shareAria)} ${escapeAttribute(title)}">
+              <button type="button" data-share="native">${chooseText(uiText.shareLabel)}</button>
+              <button type="button" data-share="wechat">${chooseText(platformButtonLabels.wechat)}</button>
+              <button type="button" data-share="substack">${chooseText(platformButtonLabels.substack)}</button>
+              <button type="button" data-share="youtube">${chooseText(platformButtonLabels.youtube)}</button>
+              <button type="button" data-share="xiaohongshu">${chooseText(platformButtonLabels.xiaohongshu)}</button>
+              <button type="button" data-share="tiktok">${chooseText(platformButtonLabels.tiktok)}</button>
+              <button type="button" data-share="x">${chooseText(platformButtonLabels.x)}</button>
+              <button type="button" data-share="reddit">${chooseText(platformButtonLabels.reddit)}</button>
+              <button type="button" data-share="facebook">${chooseText(platformButtonLabels.facebook)}</button>
+              <button type="button" data-share="linkedin">${chooseText(platformButtonLabels.linkedin)}</button>
+              <button type="button" data-share="weibo">${chooseText(platformButtonLabels.weibo)}</button>
+            </div>
+            <div class="share-composer" data-share-composer hidden>
+              <label>${chooseText(uiText.shareTextLabel)}
+                <textarea data-share-draft rows="7"></textarea>
+              </label>
+              <small>${chooseText(uiText.shareHint)}</small>
             </div>
           </div>
         </article>
       `;
     })
     .join("");
+
+  workGrid.querySelectorAll(".work-card").forEach((card) => {
+    const work = visibleWorks[Number(card.dataset.index)];
+    if (!work) return;
+    const onView = () => recordWorkView(work);
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.6)) {
+          observer.disconnect();
+          onView();
+        }
+      }, { threshold: [0.6] });
+      observer.observe(card);
+    } else {
+      onView();
+    }
+  });
 };
 
+window.YitenShareRewards = {
+  record(work, platform) {
+    const state = recordShareReward(
+      {
+        key: work?.key || work?.workKey,
+        title: work?.title || "分享内容",
+        type: work?.type || "work",
+        url: work?.url || location.href,
+      },
+      platform || "share"
+    );
+    renderWorks();
+    return state;
+  },
+  read: readShareRewards,
+  refresh() {
+    refreshShareRewardViews();
+  },
+};
+
+window.addEventListener("storage", (event) => {
+  if ([SHARE_REWARD_STORAGE_KEY, "personal-site-works", "yiten-published-works", "yiten-creator-published-works", "personal-site-works-updated-at"].includes(event.key)) {
+    refreshShareRewardViews();
+    renderWorks();
+  }
+});
+window.addEventListener("focus", refreshShareRewardViews);
+window.addEventListener("pageshow", refreshShareRewardViews);
+window.addEventListener("yiten:share-reward-refresh", refreshShareRewardViews);
+window.addEventListener("yiten:share-reward-updated", () => {
+  renderShareRewardPanel();
+});
+window.addEventListener("yiten-sync-updated", (event) => {
+  const keys = event.detail?.keys || [];
+  const shouldRefreshWorks = keys.some((key) =>
+    ["personal-site-works", "personal-site-works-updated-at", "yiten-share-rewards-v1"].includes(key) ||
+    String(key).startsWith("yiten-creator-work:")
+  );
+  const shouldRefreshBooks = keys.some((key) =>
+    ["yiten-book-products", "yiten-book-products-updated-at"].includes(key) ||
+    String(key).startsWith("yiten-creator-books:")
+  );
+  if (shouldRefreshBooks) renderBookProducts();
+  if (shouldRefreshWorks) {
+    refreshShareRewardViews();
+    renderWorks();
+  }
+});
+
 workGrid.addEventListener("click", async (event) => {
+  const unlockButton = event.target.closest("[data-unlock-work]");
+  if (unlockButton) {
+    const card = unlockButton.closest(".work-card");
+    const works = activeFilter === "all" ? readWorks().map(normalizeWork) : readWorks().map(normalizeWork).filter((work) => work.type === activeFilter);
+    const work = works[Number(card.dataset.index)];
+    if (!work) return;
+    const result = unlockWorkWithReward(work);
+    unlockButton.textContent = result.message;
+    renderWorks();
+    return;
+  }
+
+  const inlineWorkLink = event.target.closest(".work-link[href^='#']");
+  if (inlineWorkLink && !inlineWorkLink.classList.contains("subscribe-link")) {
+    const target = document.querySelector(inlineWorkLink.getAttribute("href"));
+    if (target?.matches("details")) {
+      event.preventDefault();
+      target.open = true;
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+  }
+
   const button = event.target.closest("[data-share]");
   if (!button) return;
   const card = button.closest(".work-card");
@@ -229,17 +944,27 @@ workGrid.addEventListener("click", async (event) => {
   if (!work) return;
 
   const previousText = button.textContent;
+  const state = recordShareReward(work, button.dataset.share);
+  const rewardMessage = state.completedShares % SHARE_REWARD_THRESHOLD === 0
+    ? "已获得 1 次完整内容解锁"
+    : formatUnlockCopy(state);
+  button.textContent = rewardMessage;
+  renderWorks();
   try {
     const message = await shareWork(button.dataset.share, work);
-    button.textContent = message;
+    const currentButton = workGrid.querySelector(`.work-card[data-index="${card.dataset.index}"] [data-share="${button.dataset.share}"]`);
+    if (currentButton) currentButton.textContent = message;
     window.setTimeout(() => {
-      button.textContent = previousText;
+      const resetButton = workGrid.querySelector(`.work-card[data-index="${card.dataset.index}"] [data-share="${button.dataset.share}"]`);
+      if (resetButton) resetButton.textContent = previousText;
     }, 1800);
   } catch (error) {
     console.warn("Share failed", error);
-    button.textContent = "分发失败";
+    const currentButton = workGrid.querySelector(`.work-card[data-index="${card.dataset.index}"] [data-share="${button.dataset.share}"]`);
+    if (currentButton) currentButton.textContent = "已记录分享";
     window.setTimeout(() => {
-      button.textContent = previousText;
+      const resetButton = workGrid.querySelector(`.work-card[data-index="${card.dataset.index}"] [data-share="${button.dataset.share}"]`);
+      if (resetButton) resetButton.textContent = previousText;
     }, 1800);
   }
 });
@@ -253,7 +978,83 @@ filterButtons.forEach((button) => {
   });
 });
 
-workForm.addEventListener("submit", (event) => {
+const diagnosticTools = {
+  cashflow: {
+    step: "Step 01",
+    progress: "33%",
+    title: "家庭财务体检表",
+    checkupTitle: "最新作品：免费家庭财务体检",
+    copy: "填写收入、必要支出、债务、现金和保障数据，系统会先帮你看见家庭财务结构里最脆弱的地方。",
+    checkupDescription: "填写几个基础数据，系统会给出一个简版风险等级。这个测评不能替代专业财务建议，但能帮助你快速发现家庭财务结构里的薄弱环节。",
+    questions: ["月度净现金流是否为正", "债务还款是否压缩生活", "应急金能否支撑 6 个月"],
+    signal: "即时反馈：完成数据后会生成风险等级和三条修复建议。",
+    feedback: "当前入口：家庭财务体检表。点击“进入诊断”后从第一组问题开始。",
+  },
+  windfall: {
+    step: "Step 02",
+    progress: "66%",
+    title: "50万财富守恒测评",
+    checkupTitle: "最新作品：50万财富守恒测评",
+    copy: "同样一组家庭数据，会切换到“第一笔大钱”场景：收入突然增加、奖金到账或卖出资产后，哪些结构最容易让钱重新流走。",
+    checkupDescription: "用现金流、债务、人情支出和消费行为判断：拿到第一笔大钱后，你是否存在 18-36 个月返贫风险。",
+    questions: ["收入上涨后消费是否同步上涨", "资产负债率是否放大波动", "亲友借钱是否侵蚀安全垫"],
+    signal: "即时反馈：系统会把结果解释成守财能力，而不只是财务分数。",
+    feedback: "已切换到 50 万财富守恒视角。先用同一组家庭数据检查返贫风险。",
+  },
+  map: {
+    step: "Step 03",
+    progress: "100%",
+    title: "家庭防坠落风险地图",
+    checkupTitle: "最新作品：家庭防坠落风险地图",
+    copy: "把家庭风险从钱扩展到人：老人、孩子、健康、婚姻、关系、人情和黑天鹅事件，都会影响财富是否能守住。",
+    checkupDescription: "这个视角会把测评结果解释成家庭防线地图，帮助你定位最先要修补的现金流、保障、关系和黑天鹅风险。",
+    questions: ["家庭是否依赖单一收入", "医保和现金储备是否明确", "关系支出是否有边界"],
+    signal: "即时反馈：完成后会优先给出三条最该修补的防线。",
+    feedback: "已切换到家庭防坠落风险地图。测评结果会帮你定位最先要修补的防线。",
+  },
+};
+
+const updateDiagnosticTool = (tool = "cashflow", shouldDispatch = true) => {
+  const active = diagnosticTools[tool] || diagnosticTools.cashflow;
+  document.querySelectorAll("[data-tool-card]").forEach((card) => {
+    card.classList.toggle("active", card.dataset.toolCard === tool);
+  });
+  const progress = document.querySelector(".diagnostic-progress span");
+  const label = document.querySelector("#diagnosticLabel");
+  const title = document.querySelector("#diagnosticTitle");
+  const copy = document.querySelector("#diagnosticCopy");
+  const questions = document.querySelector("#diagnosticQuestions");
+  const signal = document.querySelector("#diagnosticSignal");
+  const cta = document.querySelector(".diagnostic-signal [data-tool-start]");
+  const feedback = document.querySelector("#toolFeedback");
+  const checkupTitle = document.querySelector("#checkupTitle");
+  const checkupDescription = document.querySelector("#checkupDescription");
+
+  if (progress) progress.style.width = active.progress;
+  if (label) label.textContent = active.step;
+  if (title) title.textContent = active.title;
+  if (copy) copy.textContent = active.copy;
+  if (questions) questions.innerHTML = active.questions.map((item) => `<span>${escapeHtml(item)}</span>`).join("");
+  if (signal) signal.textContent = active.signal;
+  if (cta) {
+    cta.dataset.toolStart = tool;
+    cta.textContent = `进入${active.title}`;
+  }
+  if (feedback) feedback.textContent = active.feedback;
+  if (checkupTitle) checkupTitle.textContent = active.checkupTitle;
+  if (checkupDescription) checkupDescription.textContent = active.checkupDescription;
+  if (shouldDispatch) window.dispatchEvent(new CustomEvent("yiten:tool-start", { detail: { tool } }));
+};
+
+document.querySelectorAll("[data-tool-start]").forEach((link) => {
+  link.addEventListener("click", () => {
+    updateDiagnosticTool(link.dataset.toolStart || "cashflow", true);
+  });
+});
+
+updateDiagnosticTool("cashflow", false);
+
+workForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(workForm);
   const access = formData.get("access") || "metered";
@@ -288,11 +1089,11 @@ subscribeForm.addEventListener("submit", (event) => {
     localStorage.setItem("personal-site-subscribers", JSON.stringify(subscribers));
   }
 
-  subscribeMessage.textContent = "已订阅。正式上线后这里会接入邮件服务。";
+  subscribeMessage.textContent = "已订阅。后续更新会发送到你的邮箱。";
   subscribeForm.reset();
 });
 
-resetDemo.addEventListener("click", () => {
+resetDemo?.addEventListener("click", () => {
   localStorage.removeItem("personal-site-works");
   activeFilter = "all";
   filterButtons.forEach((item) => {
@@ -301,7 +1102,137 @@ resetDemo.addEventListener("click", () => {
   renderWorks();
 });
 
+window.addEventListener("yiten:languagechange", () => {
+  renderShareRewardPanel();
+  renderBookProducts();
+  renderWorks();
+});
+window.addEventListener("storage", (event) => {
+  if (event.key === "yiten-book-products" || event.key === "yiten-book-products-updated-at") {
+    renderBookProducts();
+  }
+});
+
+let worksSnapshot = [
+  localStorage.getItem("personal-site-works") || "",
+  localStorage.getItem("yiten-published-works") || "",
+  localStorage.getItem("yiten-creator-published-works") || "",
+  localStorage.getItem("personal-site-works-updated-at") || "",
+].join("|");
+
+const refreshWorksIfChanged = () => {
+  const nextSnapshot = [
+    localStorage.getItem("personal-site-works") || "",
+    localStorage.getItem("yiten-published-works") || "",
+    localStorage.getItem("yiten-creator-published-works") || "",
+    localStorage.getItem("personal-site-works-updated-at") || "",
+  ].join("|");
+  if (nextSnapshot === worksSnapshot) return;
+  worksSnapshot = nextSnapshot;
+  refreshShareRewardViews();
+  renderWorks();
+};
+
+window.addEventListener("focus", refreshWorksIfChanged);
+window.addEventListener("pageshow", refreshWorksIfChanged);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshWorksIfChanged();
+});
+window.setInterval(refreshWorksIfChanged, 2500);
+
+// ---- 联系客服悬浮入口 ----
+const readContactConfig = () => {
+  try {
+    const cfg = JSON.parse(localStorage.getItem("yiten-contact-config") || "{}");
+    return cfg && typeof cfg === "object" ? cfg : {};
+  } catch (_error) {
+    return {};
+  }
+};
+
+const renderContactWidget = () => {
+  const widget = document.querySelector("[data-contact-widget]");
+  if (!widget) return;
+  const cfg = readContactConfig();
+  const wechatId = String(cfg.wechatId || "").trim();
+  const wechatQr = safePublicClientUrl(cfg.wechatQr?.url || (typeof cfg.wechatQr === "string" ? cfg.wechatQr : ""), { allowHash: false });
+  const whatsapp = String(cfg.whatsapp || "").trim();
+  const hasWechat = Boolean(wechatId || wechatQr);
+  const hasWhatsapp = Boolean(whatsapp);
+  const enabled = cfg.enabled === true && (hasWechat || hasWhatsapp);
+  widget.hidden = !enabled;
+  if (!enabled) return;
+
+  const wechatBlock = widget.querySelector("[data-contact-wechat]");
+  if (wechatBlock) {
+    wechatBlock.hidden = !hasWechat;
+    const qr = widget.querySelector("[data-contact-wechat-qr]");
+    if (qr) {
+      if (wechatQr) { qr.src = wechatQr; qr.hidden = false; } else { qr.hidden = true; qr.removeAttribute("src"); }
+    }
+    const idRow = widget.querySelector("[data-contact-wechat-id-row]");
+    const idEl = widget.querySelector("[data-contact-wechat-id]");
+    if (idRow && idEl) {
+      if (wechatId) { idEl.textContent = wechatId; idRow.hidden = false; } else { idRow.hidden = true; }
+    }
+    const note = widget.querySelector("[data-contact-wechat-note]");
+    if (note) { note.textContent = cfg.wechatNote || ""; note.hidden = !cfg.wechatNote; }
+  }
+
+  const waLink = widget.querySelector("[data-contact-whatsapp]");
+  if (waLink) {
+    waLink.hidden = !hasWhatsapp;
+    if (hasWhatsapp) {
+      const digits = whatsapp.replace(/[^0-9]/g, "");
+      waLink.href = `https://wa.me/${digits}`;
+      const note = waLink.querySelector("[data-contact-whatsapp-note]");
+      if (note) { note.textContent = cfg.whatsappNote || ""; note.hidden = !cfg.whatsappNote; }
+    }
+  }
+};
+
+const setupContactWidget = () => {
+  const widget = document.querySelector("[data-contact-widget]");
+  if (!widget || widget.dataset.bound) return;
+  widget.dataset.bound = "1";
+  const panel = widget.querySelector("[data-contact-panel]");
+  const openBtn = widget.querySelector("[data-contact-open]");
+  const toggle = (show) => {
+    if (panel) panel.hidden = !show;
+    openBtn?.setAttribute("aria-expanded", String(show));
+  };
+  openBtn?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggle(panel?.hidden);
+  });
+  widget.querySelector("[data-contact-close]")?.addEventListener("click", () => toggle(false));
+  document.addEventListener("click", (event) => {
+    if (!widget.contains(event.target)) toggle(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") toggle(false);
+  });
+  widget.querySelector("[data-contact-wechat-copy]")?.addEventListener("click", async () => {
+    const button = widget.querySelector("[data-contact-wechat-copy]");
+    const id = widget.querySelector("[data-contact-wechat-id]")?.textContent || "";
+    try {
+      await navigator.clipboard.writeText(id);
+      const original = button.textContent;
+      button.textContent = "已复制";
+      window.setTimeout(() => { button.textContent = original; }, 1500);
+    } catch (_error) { /* 剪贴板不可用时忽略 */ }
+  });
+};
+
+window.addEventListener("yiten-sync-updated", (event) => {
+  if ((event.detail?.keys || []).includes("yiten-contact-config")) renderContactWidget();
+});
+
 injectResponsiveStyles();
+renderShareRewardPanel();
 enhanceWorkForm();
 year.textContent = new Date().getFullYear();
+renderBookProducts();
 renderWorks();
+setupContactWidget();
+renderContactWidget();

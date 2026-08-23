@@ -3,29 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Yiten Huang 的个人网站：作品、播客、电子书和付费订阅。" />
+    <meta name="description" content="Yiten Huang 的《只富一次》财富守恒系统：免费家庭财务体检、书籍、工具包和 Newsletter。" />
     <meta name="theme-color" content="#1f5e4d" />
+    <meta property="og:title" content="Yiten Huang | 只富一次财富守恒系统" />
+    <meta property="og:description" content="用免费家庭财务体检先看清现金流、债务、应急金和家庭风险，再决定是否深入阅读书籍和工具包。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yitenhuang.com/" />
+    <meta property="og:image" content="https://yitenhuang.com/public/hero-desk.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://yitenhuang.com/" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Yiten" />
-    <title>Yiten Huang | Essays, Podcast, Books, Membership</title>
+    <title>Yiten Huang | 只富一次财富守恒系统</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./public/hero-desk.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./assets/styles.css" />
-    <link rel="stylesheet" href="./assets/launch.css" />
+    <link rel="stylesheet" href="./assets/styles.css?v=20260602-audio-publish-guard" />
+    <link rel="stylesheet" href="./assets/launch.css?v=20260602-audio-publish-guard" />
   </head>
   <body>
     <header class="site-header" aria-label="主导航">
       <a class="brand" href="#top">Yiten Huang</a>
       <nav class="nav-links">
-        <a href="#works">作品</a>
-        <a href="#podcast">播客</a>
-        <a href="#books">电子书</a>
-        <a href="#membership">订阅</a>
-        <a href="#studio">上传</a>
-        <a href="./admin.html">后台</a>
+        <a href="#works">免费测评</a>
+        <a href="#tools">工具包</a>
+        <a href="#books">书籍</a>
+        <a href="#subscribe">Newsletter</a>
+        <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">EN</button>
       </nav>
     </header>
 
@@ -34,96 +40,593 @@
         <img class="hero-image" src="./public/hero-desk.svg" alt="极简创作桌面" />
         <div class="hero-shade"></div>
         <div class="hero-content">
-          <p class="eyebrow">Essays / Podcast / Books / Membership</p>
-          <h1>把长期思考，变成一个可以被订阅的个人宇宙。</h1>
-          <p class="hero-copy">这里发布文章、作品、播客、电子书、研究札记和项目更新。读者可以单独购买书籍，也可以付费订阅后获得会员价。</p>
+          <p class="eyebrow">只富一次 / 家庭财富守恒系统</p>
+          <h1>你不是不会赚钱，<br />你是还没有一套防止返贫的家庭系统。</h1>
+          <p class="hero-copy">用 3 分钟完成一次家庭财务体检，快速看清你的现金流、债务、应急金和家庭风险等级。先看见问题，再谈守住财富。</p>
           <div class="hero-actions">
-            <a class="button primary" href="#books">购买电子书</a>
-            <a class="button ghost" href="#membership">付费订阅</a>
+            <a class="button primary" href="#works">开始免费体检</a>
+            <a class="button ghost" href="#books">了解《只富一次》三部曲</a>
+          </div>
+          <div class="hero-tags" aria-label="免费体检特点">
+            <span>3分钟完成</span>
+            <span>无需注册</span>
+            <span>立即生成风险建议</span>
           </div>
         </div>
       </section>
 
       <section class="intro band">
         <div class="intro-text">
-          <p class="section-kicker">About</p>
-          <h2>一个清醒、克制、耐读的个人主页。</h2>
+          <p class="section-kicker">Start Here</p>
+          <h2>从一次免费体检开始。</h2>
         </div>
-        <p>内容优先，信息清楚，适合作为你的文章、项目、播客、电子书和会员订阅入口。</p>
+        <p>《只富一次》帮助普通家庭看清现金流、债务、消费、人情、健康和黑天鹅风险。先用 3 分钟找到薄弱点，再决定是否继续深入。</p>
       </section>
 
-      <section id="podcast" class="podcast band">
+      <section id="risks" class="risk-section band">
         <div class="section-head">
-          <div><p class="section-kicker">Podcast</p><h2>音频播客</h2></div>
-          <p class="muted">已接入 Himalaya / 喜马拉雅课程链接。点击节目或全集入口可进入喜马拉雅资源页；站内播放依赖喜马拉雅开放平台审核和接口返回。</p>
+          <div><p class="section-kicker">Risk Map</p><h2>很多家庭不是没有努力，而是没有防线。</h2></div>
+          <p class="muted">真正危险的往往不是单次错误，而是现金流、债务、关系支出和突发事件连在一起后形成的系统性下坠。</p>
         </div>
-        <div class="podcast-shell">
-          <div class="player-panel">
-            <p class="episode-label" id="episodeLabel">Himalaya 课程</p>
-            <h3 id="episodeTitle">正在加载喜马拉雅节目</h3>
-            <p id="episodeSummary">节目列表会在这里显示。点击右侧声音即可收听。</p>
-            <audio id="episodePlayer" controls preload="metadata"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" /></audio>
+        <div class="pain-grid">
+          <article><h3>现金流一断，生活立刻失控</h3><p>没有足够应急金时，一次失业、停工或业务波动就会逼迫家庭借债。</p></article>
+          <article><h3>收入上涨后，消费也跟着失控</h3><p>当生活方式先升级，真正能留下来的现金反而越来越少。</p></article>
+          <article><h3>亲友借钱、人情支出吞掉安全垫</h3><p>关系压力如果没有边界，会把本来用来保护家庭的现金消耗掉。</p></article>
+          <article><h3>买错资产，把积蓄变成长期负担</h3><p>不理解流动性、杠杆和持有成本时，资产也可能变成压力源。</p></article>
+          <article><h3>一次疾病、失业、离婚，击穿多年积累</h3><p>家庭系统没有保险、现金和决策预案时，黑天鹅会放大损失。</p></article>
+          <article><h3>第一次有钱后，把好运误判成能力</h3><p>好运带来的钱最容易被高估，真正要补的是守住财富的系统。</p></article>
+        </div>
+      </section>
+
+      <section id="works" class="works checkup-section band">
+        <div class="section-head">
+          <div><p class="section-kicker">Latest Work</p><h2 id="checkupTitle">最新作品：免费家庭财务体检</h2></div>
+          <p id="checkupDescription" class="muted">填写几个基础数据，系统会给出一个简版风险等级。这个测评不能替代专业财务建议，但能帮助你快速发现家庭财务结构里的薄弱环节。</p>
+        </div>
+        <article class="checkup-card" aria-label="免费家庭财务体检">
+          <form id="financeCheckupForm" class="checkup-form">
+            <label>家庭月收入
+              <input name="income" type="number" min="0" step="1" placeholder="例如 30000" required />
+            </label>
+            <label>每月必要支出
+              <input name="expenses" type="number" min="0" step="1" placeholder="例如 18000" required />
+            </label>
+            <label>每月债务还款
+              <input name="debtPayment" type="number" min="0" step="1" placeholder="例如 6000" required />
+            </label>
+            <label>现有可动用现金
+              <input name="cash" type="number" min="0" step="1" placeholder="例如 80000" required />
+            </label>
+            <label>家庭总资产
+              <input name="assets" type="number" min="0" step="1" placeholder="例如 1200000" required />
+            </label>
+            <label>家庭总负债
+              <input name="liabilities" type="number" min="0" step="1" placeholder="例如 500000" required />
+            </label>
+            <label>家庭主要收入来源数量
+              <select name="incomeSources" required>
+                <option value="1">1个</option>
+                <option value="2">2个</option>
+                <option value="3">3个及以上</option>
+              </select>
+            </label>
+            <label>是否已有基础医保
+              <select name="medical" required>
+                <option value="yes">有</option>
+                <option value="no">没有</option>
+                <option value="unknown">不确定</option>
+              </select>
+            </label>
+            <label>是否有 6 个月以上应急金
+              <select name="emergencyReady" required>
+                <option value="yes">有</option>
+                <option value="no">没有</option>
+                <option value="unknown">不确定</option>
+              </select>
+            </label>
+            <label>过去一年是否有明显冲动消费
+              <select name="impulse" required>
+                <option value="often">经常</option>
+                <option value="sometimes">偶尔</option>
+                <option value="rarely">很少</option>
+              </select>
+            </label>
+            <label>亲友借钱时是否难以拒绝
+              <select name="lendPressure" required>
+                <option value="often">经常</option>
+                <option value="sometimes">偶尔</option>
+                <option value="rarely">很少</option>
+              </select>
+            </label>
+            <label>如果收入中断，家庭能撑多久
+              <select name="incomeBreak" required>
+                <option value="lt1">不到1个月</option>
+                <option value="1to3">1-3个月</option>
+                <option value="3to6">3-6个月</option>
+                <option value="gt6">6个月以上</option>
+              </select>
+            </label>
+            <button class="button primary wide" type="submit">生成我的风险结果</button>
+          </form>
+          <div id="checkupResult" class="checkup-result" hidden></div>
+        </article>
+        <div class="result-conversion">
+          <p>完成简版体检后，你可以继续领取工具包、阅读三部曲，或者订阅 Newsletter 获取免费清单。</p>
+          <div class="conversion-actions">
+            <a class="button secondary" href="#tools">获取完整版工具包</a>
+            <a class="button secondary" href="#books">阅读《只富一次》三部曲</a>
+            <a class="button secondary" href="#subscribe">订阅 Newsletter</a>
           </div>
-          <div id="episodeList" class="episode-list" aria-label="播客节目列表"></div>
         </div>
-      </section>
-
-      <section id="works" class="works band">
-        <div class="section-head">
-          <div><p class="section-kicker">Library</p><h2>最新作品</h2></div>
-          <div class="filters" aria-label="作品筛选">
-            <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="essay">文章</button><button class="filter" data-filter="project">项目</button><button class="filter" data-filter="note">札记</button>
+        <div class="more-works">
+          <div class="section-head compact-head">
+            <div><p class="section-kicker">Wall</p><h2>更多文章与札记</h2></div>
+            <div class="filters" aria-label="作品筛选">
+              <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="essay">文章</button><button class="filter" data-filter="project">项目</button><button class="filter" data-filter="note">札记</button>
+            </div>
           </div>
+          <div id="workGrid" class="work-grid" aria-live="polite"></div>
         </div>
-        <div id="workGrid" class="work-grid" aria-live="polite"></div>
+
+        <section id="subscribe" class="subscribe newsletter-inline">
+          <div><p class="section-kicker">Newsletter</p><h2>免费接收更新</h2><p>留下邮箱，接收新文章、播客、电子书上架和会员内容提醒。</p></div>
+          <form id="subscribeForm" class="subscribe-form"><label for="email">邮箱</label><div class="form-row"><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required /><button class="button primary" type="submit">订阅</button></div><p id="subscribeMessage" class="form-message" role="status"></p></form>
+        </section>
       </section>
 
-      <section id="books" class="books band">
+      <section id="tools" class="tools-section diagnostic-section band">
         <div class="section-head">
-          <div><p class="section-kicker">Bookstore</p><h2>电子书商店</h2></div>
-          <p class="muted">任何游客均可购买电子书。订阅会员可使用会员折扣价购买；支付成功后的下载交付页会在下一步接入。</p>
+          <div><p class="section-kicker">Free Tools</p><h2>三步诊断路径。</h2></div>
+          <p class="muted">先选择一个入口，再进入体检。系统会按不同视角切换问题重点、即时反馈和结果建议。</p>
         </div>
-        <div class="membership-grid">
-          <article class="plan-card featured ebook-card"><div><span class="plan-tag">电子书</span><h3>长期思考与个人系统</h3><p>一本面向独立创作者的电子书：把长期主义、内容资产、订阅关系和个人操作系统串起来。</p></div><div><p class="price">$29 <span>/ 游客价</span></p><button class="button primary ebook-button" data-audience="visitor" type="button">游客购买电子书</button></div></article>
-          <article class="plan-card ebook-card"><div><span class="plan-tag quiet">会员折扣</span><h3>订阅会员专属价</h3><p>已经订阅会员的读者可用折扣价购买电子书。正式会员识别会在登录系统接入后自动校验。</p></div><div><p class="price">$19 <span>/ 会员价</span></p><button class="button secondary ebook-button" data-audience="member" type="button">会员价购买</button></div></article>
+        <div class="diagnostic-shell">
+          <div class="diagnostic-path" role="list" aria-label="免费诊断路径">
+            <button class="diagnostic-step-card active" data-tool-card="cashflow" data-tool-start="cashflow" type="button" role="listitem">
+              <span>01</span>
+              <strong>家庭财务体检表</strong>
+              <small>先看现金流、负债和应急金。</small>
+            </button>
+            <button class="diagnostic-step-card" data-tool-card="windfall" data-tool-start="windfall" type="button" role="listitem">
+              <span>02</span>
+              <strong>50万财富守恒测评</strong>
+              <small>判断第一笔大钱后的返贫风险。</small>
+            </button>
+            <button class="diagnostic-step-card" data-tool-card="map" data-tool-start="map" type="button" role="listitem">
+              <span>03</span>
+              <strong>家庭防坠落风险地图</strong>
+              <small>定位健康、关系、老人孩子和黑天鹅风险。</small>
+            </button>
+          </div>
+          <article class="diagnostic-live-panel">
+            <div class="diagnostic-progress" aria-label="当前诊断进度"><span style="width: 33%"></span></div>
+            <p class="section-kicker" id="diagnosticLabel">Step 01</p>
+            <h3 id="diagnosticTitle">家庭财务体检表</h3>
+            <p id="diagnosticCopy">填写收入、必要支出、债务、现金和保障数据，系统会先帮你看见家庭财务结构里最脆弱的地方。</p>
+            <div class="diagnostic-question-set" id="diagnosticQuestions">
+              <span>月度净现金流是否为正</span>
+              <span>债务还款是否压缩生活</span>
+              <span>应急金能否支撑 6 个月</span>
+            </div>
+            <div class="diagnostic-signal">
+              <strong id="diagnosticSignal">即时反馈：完成数据后会生成风险等级和三条修复建议。</strong>
+              <a class="button primary" href="#works" data-tool-start="cashflow">进入诊断</a>
+            </div>
+          </article>
         </div>
+        <p id="toolFeedback" class="tool-feedback" role="status">当前入口：家庭财务体检表。点击“进入诊断”后从第一组问题开始。</p>
       </section>
 
-      <section id="subscribe" class="subscribe band">
-        <div><p class="section-kicker">Newsletter</p><h2>免费接收更新</h2><p>输入邮箱后会保存到本地演示列表。正式上线时可以接入邮件服务。</p></div>
-        <form id="subscribeForm" class="subscribe-form"><label for="email">邮箱</label><div class="form-row"><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required /><button class="button primary" type="submit">订阅</button></div><p id="subscribeMessage" class="form-message" role="status"></p></form>
+      <section id="books" class="books books-luxury band">
+        <div class="section-head book-luxury-head">
+          <div><p class="section-kicker">Books</p><h2>《只富一次》家庭财富守恒系统</h2></div>
+          <p class="muted">它不是一套暴富教程，而是一套普通家庭可反复使用的现金流、债务、关系、健康和黑天鹅防线。</p>
+        </div>
+        <div class="bookstore-grid">
+          <article class="book-suite-card bookstore-combo-card">
+            <div class="suite-cover-stack" aria-label="三部曲封面叠放图">
+              <figure class="suite-cover suite-cover-main"><img data-book-cover src="./public/ebook-cover.svg" alt="套装封面" /></figure>
+              <figure class="suite-cover suite-cover-second"><img src="./public/ebook-cover.svg" alt="套装封面" /></figure>
+              <figure class="suite-cover suite-cover-third"><img src="./public/ebook-cover.svg" alt="套装封面" /></figure>
+            </div>
+            <div class="suite-copy">
+              <span class="book-eyebrow">套装</span>
+              <h3 data-book-title></h3>
+              <p data-bundle-description></p>
+              <ul class="suite-benefits" data-bundle-stack></ul>
+              <div class="format-pills suite-format-pills" data-book-formats></div>
+              <div class="suite-price">
+                <div><span data-bundle-visitor-price></span><small>套装价</small></div>
+                <div><span data-bundle-member-price></span><small>会员价</small></div>
+              </div>
+              <div class="suite-actions">
+                <button class="button primary ebook-button" data-audience="bundle" type="button">购买套装</button>
+                <button class="button secondary ebook-button" data-audience="member-bundle" type="button">会员价购买</button>
+              </div>
+            </div>
+          </article>
+          <div class="single-book-grid" aria-label="三本独立电子书">
+            <article class="single-book-card">
+              <figure class="single-book-cover"><img data-single-cover src="./public/ebook-cover.svg" alt="单本电子书封面" /></figure>
+              <span class="book-chip">Series 01</span>
+              <h3 data-single-title></h3>
+              <p data-single-description></p>
+              <ul data-single-points></ul>
+              <div class="single-price-row"><span><strong data-single-visitor-price></strong><small>原价</small></span><span><strong data-single-member-price></strong><small>会员价</small></span></div>
+              <button class="button primary ebook-button" data-audience="book1" type="button">购买第一册</button>
+              <a class="member-price-link" href="#membership">订阅后享会员价</a>
+            </article>
+            <article class="single-book-card">
+              <figure class="single-book-cover"><img data-single2-cover src="./public/ebook-cover.svg" alt="单本电子书封面" /></figure>
+              <span class="book-chip">Series 02</span>
+              <h3 data-single2-title></h3>
+              <p data-single2-description></p>
+              <ul data-single2-points></ul>
+              <div class="single-price-row"><span><strong data-single2-visitor-price></strong><small>原价</small></span><span><strong data-single2-member-price></strong><small>会员价</small></span></div>
+              <button class="button primary ebook-button" data-audience="book2" type="button">购买第二册</button>
+              <a class="member-price-link" href="#membership">订阅后享会员价</a>
+            </article>
+            <article class="single-book-card">
+              <figure class="single-book-cover"><img data-single3-cover src="./public/ebook-cover.svg" alt="单本电子书封面" /></figure>
+              <span class="book-chip">Series 03</span>
+              <h3 data-single3-title></h3>
+              <p data-single3-description></p>
+              <ul data-single3-points></ul>
+              <div class="single-price-row"><span><strong data-single3-visitor-price></strong><small>原价</small></span><span><strong data-single3-member-price></strong><small>会员价</small></span></div>
+              <button class="button primary ebook-button" data-audience="book3" type="button">购买第三册</button>
+              <a class="member-price-link" href="#membership">订阅后享会员价</a>
+            </article>
+          </div>
+          <div id="extraProductGrid" class="extra-product-grid" aria-live="polite"></div>
+        </div>
       </section>
 
       <section id="membership" class="membership band">
         <div class="section-head">
-          <div><p class="section-kicker">Checkout</p><h2>付费订阅与商品结账</h2></div>
-          <p class="muted">当前支持 PayPal 与 Stripe 银行卡/信用卡正式收银台。微信/支付宝已预留接口，等待 Stripe 审批通过后启用。</p>
+          <div><p class="section-kicker">Membership</p><h2>订阅与支付</h2></div>
+          <p class="muted">一个卡片完成方案选择和支付。PayPal 与银行卡可用，更多本地支付方式会陆续开放。</p>
         </div>
-        <div class="membership-grid">
-          <article class="plan-card featured"><div><span class="plan-tag">推荐</span><h3>年度会员</h3><p>完整文章、会员播客、每月闭门笔记、项目更新和电子书会员价。</p></div><div><p class="price">$99 <span>/ 年</span></p><button class="button primary plan-button" data-plan="yearly" type="button">开通年度会员</button></div></article>
-          <article class="plan-card"><div><span class="plan-tag quiet">灵活</span><h3>月度会员</h3><p>适合先体验内容节奏，随时升级到年度会员。</p></div><div><p class="price">$12 <span>/ 月</span></p><button class="button secondary plan-button" data-plan="monthly" type="button">开通月度会员</button></div></article>
-        </div>
-        <div class="checkout-panel" aria-live="polite">
-          <div><p class="section-kicker">Payment</p><h3 id="selectedPlanTitle">选择一个订阅方案或电子书</h3><p id="selectedPlanSummary" class="muted">选择方案后，可以用 PayPal 或银行卡/信用卡完成真实支付测试；微信/支付宝审批通过后会自动走同一套 Stripe Checkout。</p></div>
+        <article id="checkout" class="checkout-panel membership-checkout-card" aria-live="polite">
+          <div class="membership-card-head">
+            <div>
+              <span class="plan-tag">会员权益</span>
+              <h3>解锁文章、播客、电子书折扣和喜马拉雅会员资源</h3>
+              <p id="selectedPlanSummary" class="muted">选择月度、季度或年度会员后，使用下方支付方式完成订阅。</p>
+            </div>
+            <div class="selected-price"><p>当前应付</p><strong id="selectedPlanPrice">$99</strong><span id="selectedPlanCycle">/ 年</span><small id="selectedPlanTitle">年度会员</small></div>
+          </div>
+          <div class="plan-options" aria-label="会员方案">
+            <button class="plan-option plan-button" data-plan="monthly" type="button"><span>月度会员</span><strong>$12</strong><small>按月体验</small></button>
+            <button class="plan-option plan-button" data-plan="quarterly" type="button"><span>季度会员</span><strong>$29</strong><small>适合深度试用</small></button>
+            <button class="plan-option plan-button active" data-plan="yearly" type="button"><span>年度会员</span><strong>$99</strong><small>推荐，会员权益完整</small></button>
+          </div>
+          <div class="member-benefits" aria-label="会员权益">
+            <span>完整内容解锁</span><span>喜马拉雅授权内容入口</span><span>会员播客</span><span>电子书会员价</span>
+          </div>
           <div class="payment-methods" aria-label="支付方式"><button class="payment-method" data-method="paypal" type="button">PayPal</button><button class="payment-method active" data-method="card" type="button">银行卡</button><button class="payment-method" data-method="wechat" type="button">微信支付</button><button class="payment-method" data-method="alipay" type="button">支付宝</button></div>
           <div id="paypalButtons" class="paypal-box" hidden></div>
-          <div id="offlinePayment" class="offline-payment"><p id="offlinePaymentText"></p><a id="offlinePaymentLink" class="button primary" href="#" target="_blank" rel="noreferrer">前往付款</a></div>
+          <div id="offlinePayment" class="offline-payment"><p id="offlinePaymentText"></p><a id="offlinePaymentLink" class="button primary" href="#" target="_blank" rel="noreferrer">创建支付链接</a></div>
           <p id="paymentStatus" class="form-message" role="status"></p>
-        </div>
+        </article>
       </section>
 
-      <section id="studio" class="studio band">
-        <div class="section-head"><div><p class="section-kicker">Studio</p><h2>上传你的作品</h2></div><p class="muted">当前为本地演示：你添加的作品会存进这个浏览器。作品卡片已支持一键分发到多个社交平台。</p></div>
-        <form id="workForm" class="work-form"><label>标题 <input name="title" type="text" placeholder="例如：AI 时代的个人杠杆" required /></label><label>类型 <select name="type"><option value="essay">文章</option><option value="project">项目</option><option value="note">札记</option><option value="audio">音频</option></select></label><label>链接 <input name="url" type="url" placeholder="https://..." required /></label><label class="wide">摘要 <textarea name="summary" rows="4" placeholder="用两三句话说明这个作品。" required></textarea></label><button class="button primary" type="submit">发布到作品墙</button><button class="button secondary" id="resetDemo" type="button">恢复示例</button></form>
-      </section>
     </main>
 
-    <footer class="footer"><p>© <span id="year"></span> Yiten Huang. Built for independent work.</p><a href="./admin.html">网站后台</a></footer>
+    <footer class="footer"><p>© <span id="year"></span> Yiten Huang. Built for independent work.</p><p><a href="./privacy.html">隐私政策</a> · <a href="./terms.html">用户协议</a> · <a href="./cookies.html">Cookie 声明</a></p></footer>
 
-    <script src="./assets/app.js"></script>
-    <script src="./assets/smart-share.js"></script>
-    <script src="./assets/payments.js"></script>
-    <script src="./assets/ximalaya.js"></script>
-    <script src="./assets/install.js"></script>
+    <script>
+      (() => {
+        const form = document.querySelector("#financeCheckupForm");
+        const result = document.querySelector("#checkupResult");
+        if (!form || !result) return;
+        let activeDiagnosticTool = "cashflow";
+        const diagnosticAdvice = {
+          cashflow: ["先把月度净现金流做成正数，并留下固定储蓄比例。", "把所有债务按利率和还款压力重新排序。", "用现金储备覆盖至少 3-6 个月必要支出。"],
+          windfall: ["把奖金、卖房款或第一笔大钱先隔离 90 天，不急着升级消费。", "先补现金、医保和债务结构，再考虑投资回报。", "给亲友借款设置上限，避免好运被关系支出快速消耗。"],
+          map: ["列出家庭收入、健康、老人孩子和婚姻关系四类风险。", "给每类风险设置现金、保险或沟通预案。", "每季度复盘一次家庭防线，避免局部风险击穿整体系统。"],
+        };
+
+        const setupCheckupSteps = () => {
+          if (form.dataset.stepsReady === "true") return null;
+          const labels = Array.from(form.querySelectorAll(":scope > label"));
+          const submitButton = form.querySelector("button[type='submit']");
+          if (!labels.length || !submitButton) return null;
+
+          form.dataset.stepsReady = "true";
+          form.classList.add("enhanced-checkup");
+
+          const stepNames = ["现金流", "资产负债", "保障能力", "行为风险"];
+          const groups = [
+            labels.slice(0, 4),
+            labels.slice(4, 6),
+            labels.slice(6, 9),
+            labels.slice(9),
+          ];
+
+          const progress = document.createElement("div");
+          progress.className = "checkup-progress";
+          progress.setAttribute("aria-label", "体检进度");
+          progress.innerHTML = stepNames.map((name, index) => `<span>${index + 1}. ${name}</span>`).join("");
+
+          const stepsWrap = document.createElement("div");
+          stepsWrap.className = "checkup-steps";
+
+          const steps = groups.map((group, index) => {
+            const step = document.createElement("div");
+            step.className = "checkup-step";
+            step.dataset.step = String(index);
+            step.innerHTML = `<div class="step-heading"><span>Step ${index + 1} / ${groups.length}</span><strong>${stepNames[index]}</strong></div>`;
+            group.forEach((label) => step.appendChild(label));
+            stepsWrap.appendChild(step);
+            return step;
+          });
+
+          steps[steps.length - 1].appendChild(submitButton);
+
+          const nav = document.createElement("div");
+          nav.className = "checkup-step-actions";
+          nav.innerHTML = `<button class="button secondary" type="button" data-step-back>上一步</button><button class="button primary" type="button" data-step-next>下一步</button>`;
+          const backButton = nav.querySelector("[data-step-back]");
+          const nextButton = nav.querySelector("[data-step-next]");
+          const liveFeedback = document.createElement("p");
+          liveFeedback.className = "checkup-live-feedback";
+          liveFeedback.setAttribute("role", "status");
+
+          form.prepend(progress);
+          form.appendChild(stepsWrap);
+          form.appendChild(liveFeedback);
+          form.appendChild(nav);
+
+          let currentStep = 0;
+          const stepTips = [
+            "先填现金流数据，系统会即时判断每月是否还在漏水。",
+            "继续填资产和负债，看看家庭是不是被杠杆压住。",
+            "补齐保障能力，确认医保和应急金能不能挡住意外。",
+            "最后看行为风险，消费和人情边界会影响守财能力。",
+          ];
+          const updateLiveFeedback = () => {
+            const fields = Array.from(steps[currentStep].querySelectorAll("input, select, textarea"));
+            const completed = fields.filter((field) => field.checkValidity() && String(field.value || "").trim() !== "").length;
+            const total = fields.length;
+            liveFeedback.textContent = `${stepTips[currentStep]} 当前步骤已完成 ${completed}/${total} 项。`;
+          };
+          const validateCurrentStep = () => {
+            const fields = Array.from(steps[currentStep].querySelectorAll("input, select, textarea"));
+            const invalid = fields.find((field) => !field.checkValidity());
+            if (invalid) {
+              liveFeedback.textContent = `请先完成「${stepNames[currentStep]}」这一组问题，再进入下一步。`;
+              invalid.reportValidity();
+              return false;
+            }
+            return true;
+          };
+
+          const renderStep = () => {
+            steps.forEach((step, index) => {
+              step.hidden = index !== currentStep;
+            });
+            progress.querySelectorAll("span").forEach((item, index) => {
+              item.classList.toggle("active", index === currentStep);
+              item.classList.toggle("complete", index < currentStep);
+            });
+            backButton.disabled = currentStep === 0;
+            nextButton.hidden = currentStep === steps.length - 1;
+            submitButton.hidden = currentStep !== steps.length - 1;
+            updateLiveFeedback();
+          };
+
+          backButton.addEventListener("click", () => {
+            currentStep = Math.max(0, currentStep - 1);
+            renderStep();
+          });
+
+          nextButton.addEventListener("click", () => {
+            if (!validateCurrentStep()) return;
+            currentStep = Math.min(steps.length - 1, currentStep + 1);
+            renderStep();
+          });
+          form.addEventListener("input", updateLiveFeedback);
+          form.addEventListener("change", updateLiveFeedback);
+
+          window.addEventListener("yiten:tool-start", (event) => {
+            activeDiagnosticTool = event.detail?.tool || "cashflow";
+            currentStep = 0;
+            renderStep();
+            form.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+
+          renderStep();
+          return { validateCurrentStep };
+        };
+
+        const stepController = setupCheckupSteps();
+
+        const money = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+        const percent = (value) => `${Math.round(value * 100)}%`;
+        const safeRatio = (numerator, denominator) => (denominator > 0 ? numerator / denominator : numerator > 0 ? 1 : 0);
+
+        const levelCopy = (score) => {
+          if (score >= 80) {
+            return {
+              level: "低风险家庭",
+              advice: "你已经有一定防线，但仍需要建立资产、关系、健康和黑天鹅风险地图，避免局部风险击穿整体家庭系统。",
+              firstStep: "继续补齐家庭风险地图，把已有现金流、保障和资产结构做成可复查的年度清单。",
+            };
+          }
+          if (score >= 60) {
+            return {
+              level: "中风险家庭",
+              advice: "你不是马上危险，但家庭财务结构已经存在薄弱点。建议优先修复现金流、应急金和债务结构。",
+              firstStep: "先把每月净现金流稳定到收入的 20% 左右，再建立 3-6 个月应急金。",
+            };
+          }
+          if (score >= 40) {
+            return {
+              level: "高风险家庭",
+              advice: "你的家庭抗风险能力偏弱。收入中断、疾病、亲友借款或一次错误投资，都可能让现金流快速恶化。",
+              firstStep: "先暂停非必要大额支出，列出债务清单和现金流缺口，优先处理高息债务与现金储备。",
+            };
+          }
+          return {
+            level: "坠落预警家庭",
+            advice: "你现在最重要的任务不是投资，而是止血。先控制债务、保住现金流、补齐基础保障，再谈资产增长。",
+            firstStep: "立即做一次家庭现金流止血：压缩支出、暂停高风险投资、重新谈判债务，并保留最基本生活现金。",
+          };
+        };
+
+        const addRisk = (risks, points, name, detail) => {
+          risks.push({ points, name, detail });
+          return points;
+        };
+
+        const readNumber = (formData, name) => Number(formData.get(name) || 0);
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          if (stepController && !stepController.validateCurrentStep()) return;
+          const data = new FormData(form);
+          const income = readNumber(data, "income");
+          const expenses = readNumber(data, "expenses");
+          const debtPayment = readNumber(data, "debtPayment");
+          const cash = readNumber(data, "cash");
+          const assets = readNumber(data, "assets");
+          const liabilities = readNumber(data, "liabilities");
+
+          const monthlyCashflow = income - expenses - debtPayment;
+          const savingsRate = safeRatio(monthlyCashflow, income);
+          const debtIncomeRatio = safeRatio(debtPayment, income);
+          const assetDebtRatio = safeRatio(liabilities, assets);
+          const emergencyMonths = safeRatio(cash, expenses);
+          const risks = [];
+          let deduction = 0;
+
+          if (monthlyCashflow < 0) {
+            deduction += addRisk(risks, 25, "现金流为负", "每月收入无法覆盖必要支出和债务还款，家庭会被迫消耗储蓄或继续借债。");
+          } else if (savingsRate < 0.1) {
+            deduction += addRisk(risks, 15, "储蓄率低于 10%", "收入留下来的安全垫太薄，遇到波动时缺少缓冲。");
+          } else if (savingsRate < 0.2) {
+            deduction += addRisk(risks, 8, "储蓄率在 10%-20%", "现金流基本可控，但距离稳定建立家庭防线还有差距。");
+          }
+
+          if (debtIncomeRatio > 0.4) {
+            deduction += addRisk(risks, 20, "债务收入比超过 40%", "每月还款压力偏高，收入一波动就会直接挤压生活现金流。");
+          } else if (debtIncomeRatio >= 0.25) {
+            deduction += addRisk(risks, 10, "债务收入比在 25%-40%", "债务压力已经需要管理，继续加杠杆会削弱家庭安全感。");
+          }
+
+          if (assetDebtRatio > 0.7) {
+            deduction += addRisk(risks, 15, "资产负债率超过 70%", "资产中有太多由负债支撑，价格或收入波动都会放大风险。");
+          } else if (assetDebtRatio >= 0.4) {
+            deduction += addRisk(risks, 8, "资产负债率在 40%-70%", "负债比例不算低，需要持续监控资产流动性和还款能力。");
+          }
+
+          if (emergencyMonths < 1) {
+            deduction += addRisk(risks, 20, "应急金不足 1 个月", "收入中断时几乎没有缓冲，家庭会很快进入被动状态。");
+          } else if (emergencyMonths < 3) {
+            deduction += addRisk(risks, 15, "应急金只有 1-3 个月", "短期波动还能撑住，但失业、疾病或大额支出会形成压力。");
+          } else if (emergencyMonths < 6) {
+            deduction += addRisk(risks, 8, "应急金只有 3-6 个月", "已有基础缓冲，但还不足以覆盖更长周期的不确定性。");
+          }
+
+          const incomeSources = data.get("incomeSources");
+          if (incomeSources === "1") deduction += addRisk(risks, 10, "收入来源单一", "家庭高度依赖一个收入来源，抗失业和抗行业波动能力偏弱。");
+          if (incomeSources === "2") deduction += addRisk(risks, 4, "收入来源仍需加强", "已有第二收入来源，但还需要继续提高稳定性。");
+
+          const medical = data.get("medical");
+          if (medical === "no") deduction += addRisk(risks, 10, "基础医保缺失", "医疗风险可能直接转化为财务风险。");
+          if (medical === "unknown") deduction += addRisk(risks, 6, "医保状态不清楚", "不清楚保障边界，本身就是家庭风险管理漏洞。");
+
+          const impulse = data.get("impulse");
+          if (impulse === "often") deduction += addRisk(risks, 10, "冲动消费频繁", "收入上涨后容易被消费升级吞掉，现金流难以沉淀。");
+          if (impulse === "sometimes") deduction += addRisk(risks, 5, "偶尔冲动消费", "消费边界还需要更清晰，避免压力时期继续放大支出。");
+
+          const lendPressure = data.get("lendPressure");
+          if (lendPressure === "often") deduction += addRisk(risks, 10, "亲友借钱难以拒绝", "人情支出缺少边界，会侵蚀家庭安全垫。");
+          if (lendPressure === "sometimes") deduction += addRisk(risks, 5, "偶尔难拒亲友借款", "关系风险已经存在，需要提前设置可承受额度。");
+
+          const incomeBreak = data.get("incomeBreak");
+          if (incomeBreak === "lt1") deduction += addRisk(risks, 15, "收入中断只能撑不到 1 个月", "家庭对收入中断非常敏感，需要先补现金缓冲。");
+          if (incomeBreak === "1to3") deduction += addRisk(risks, 10, "收入中断只能撑 1-3 个月", "短期风险可控，但遇到较长恢复周期会吃紧。");
+          if (incomeBreak === "3to6") deduction += addRisk(risks, 5, "收入中断只能撑 3-6 个月", "已有缓冲，但仍要为更长周期的不确定性做准备。");
+
+          const score = Math.max(0, 100 - deduction);
+          const copy = levelCopy(score);
+          const topRisks = risks.sort((a, b) => b.points - a.points).slice(0, 3);
+          const resultAdvice = diagnosticAdvice[activeDiagnosticTool] || diagnosticAdvice.cashflow;
+
+          result.hidden = false;
+          result.innerHTML = `
+            <div class="result-headline">
+              <div class="score-badge">${score}<span>总分</span></div>
+              <div>
+                <p class="section-kicker">Result</p>
+                <h3>${copy.level}</h3>
+                <p class="muted">${copy.advice}</p>
+              </div>
+            </div>
+            <div class="metric-list" aria-label="核心指标">
+              <div><span>月度净现金流</span><strong>${money.format(monthlyCashflow)}</strong></div>
+              <div><span>储蓄率</span><strong>${percent(savingsRate)}</strong></div>
+              <div><span>债务收入比</span><strong>${percent(debtIncomeRatio)}</strong></div>
+              <div><span>资产负债率</span><strong>${percent(assetDebtRatio)}</strong></div>
+              <div><span>应急金可支撑</span><strong>${emergencyMonths.toFixed(1)} 月</strong></div>
+            </div>
+            <div>
+              <h3>最危险的 3 个问题</h3>
+              <div class="risk-list">
+                ${(topRisks.length ? topRisks : [{ points: 0, name: "暂无明显高危项", detail: "继续保持现金流、债务和保障的定期复盘。" }])
+                  .map((risk) => `<div><span>扣 ${risk.points} 分</span><strong>${risk.name}</strong><p>${risk.detail}</p></div>`)
+                  .join("")}
+              </div>
+            </div>
+            <div class="checkup-next-step">
+              <strong>第一步修复建议</strong>
+              <p>${copy.firstStep}</p>
+            </div>
+            <div class="diagnostic-result-cta">
+              <strong>接下来可以做的三件事</strong>
+              <ul>${resultAdvice.map((item) => `<li>${item}</li>`).join("")}</ul>
+              <a class="button primary" href="#books">用三部曲继续修复家庭系统</a>
+            </div>
+          `;
+          result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      })();
+    </script>
+    <!-- 联系客服悬浮入口（内容由 app.js 从同步配置填充，未配置时整体隐藏） -->
+    <div class="contact-widget" data-contact-widget hidden>
+      <div class="contact-panel" data-contact-panel role="dialog" aria-label="联系客服" hidden>
+        <div class="contact-panel-head">
+          <strong>联系客服</strong>
+          <button class="contact-close" type="button" data-contact-close aria-label="关闭">×</button>
+        </div>
+        <p class="contact-intro">关于书籍、订阅或订单的任何问题，欢迎通过以下方式联系我们：</p>
+        <div class="contact-methods">
+          <div class="contact-method" data-contact-wechat hidden>
+            <div class="contact-method-head"><span class="contact-badge wechat">微信</span><span>WeChat</span></div>
+            <img class="contact-qr" data-contact-wechat-qr alt="微信二维码" hidden />
+            <div class="contact-id-row" data-contact-wechat-id-row hidden>
+              <span>微信号：<strong data-contact-wechat-id></strong></span>
+              <button type="button" class="contact-copy" data-contact-wechat-copy>复制</button>
+            </div>
+            <p class="contact-note" data-contact-wechat-note></p>
+          </div>
+          <a class="contact-method contact-method-link" data-contact-whatsapp href="#" target="_blank" rel="noreferrer" hidden>
+            <div class="contact-method-head"><span class="contact-badge whatsapp">WA</span><span>WhatsApp</span></div>
+            <span class="contact-action">点击直接对话 →</span>
+            <p class="contact-note" data-contact-whatsapp-note></p>
+          </a>
+        </div>
+      </div>
+      <button class="contact-fab" type="button" data-contact-open aria-haspopup="dialog" aria-expanded="false">
+        <span class="contact-fab-icon" aria-hidden="true">💬</span><span class="contact-fab-text">联系客服</span>
+      </button>
+    </div>
+    <script src="./assets/sync.js?v=20260804-security" data-sync-scope="public"></script>
+    <script src="./assets/app.js?v=20260602-audio-publish-guard"></script>
+    <script src="./assets/smart-share.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/payments.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/ximalaya.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/install.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/i18n.js?v=20260602-blob-audio-sync"></script>
   </body>
 </html>

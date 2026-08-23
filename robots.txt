@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /creator
+Disallow: /creator.html
+
+Sitemap: https://yitenhuang.com/sitemap.xml

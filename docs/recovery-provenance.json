@@ -1,0 +1,11 @@
+{
+  "source": "vercel-production-recovery-snapshot",
+  "project": "project-a4ft0",
+  "deploymentId": "dpl_8tbvPVmRQdttaz9Hmdp1BbWu65SK",
+  "deploymentCreatedAt": "2026-07-16T16:07:45.863Z",
+  "snapshotDirectory": "/Users/yitenhua/Documents/个人网站恢复/yiten-site-vercel-2026-07-16",
+  "snapshotManifestSha256": "41d1017312e8fa27faf173fabf1cfdf0c22a59530a6a59200be3832284879365",
+  "copiedAt": "2026-08-04",
+  "deploymentPerformed": false,
+  "remotePushPerformed": false
+}

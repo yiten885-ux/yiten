@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="manifest" href="/manifest-owner.webmanifest">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Yiten 后台">
+    <link rel="apple-touch-icon" href="/assets/owner-icon.svg">
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Yiten Huang | 手机 Owner 后台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --paper: #fbf7ef;
+        --card: #fffdf7;
+        --ink: #171814;
+        --muted: #6f6a61;
+        --line: #ddd5c8;
+        --accent: #1f6653;
+        --accent-dark: #164a3d;
+        --gold: #b38a3b;
+        --danger: #9f3426;
+        --shadow: 0 18px 50px rgba(31, 27, 20, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      body.locked { overflow: hidden; }
+      a { color: inherit; text-decoration: none; }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+
+      .owner-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 99;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: rgba(23, 24, 20, 0.78);
+      }
+
+      .gate-card {
+        width: min(100%, 440px);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 28px 22px;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .kicker {
+        margin: 0 0 10px;
+        color: #a54b35;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1, h2, h3 { margin: 0; }
+      h1, h2 { font-family: "Noto Serif SC", serif; letter-spacing: -0.02em; }
+      .gate-card h1 { font-size: clamp(38px, 12vw, 56px); line-height: 0.98; }
+      .muted { color: var(--muted); line-height: 1.7; }
+
+      label { display: grid; gap: 8px; color: #59534b; font-size: 14px; font-weight: 800; }
+      input, select, textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 13px;
+        background: #fffaf1;
+        color: var(--ink);
+        outline: none;
+      }
+      textarea { resize: vertical; min-height: 112px; }
+      input:focus, select:focus, textarea:focus { border-color: rgba(31, 102, 83, 0.72); box-shadow: 0 0 0 3px rgba(31, 102, 83, 0.12); }
+
+      .button {
+        min-height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 0 16px;
+        background: #fffaf1;
+        color: var(--accent);
+        font-weight: 900;
+      }
+      .button.primary { border-color: var(--accent); background: var(--accent); color: white; }
+      .button.danger { border-color: rgba(159, 52, 38, 0.32); color: var(--danger); }
+      .button:disabled { opacity: 0.62; cursor: wait; }
+
+      .form-message {
+        min-height: 24px;
+        margin: 12px 0 0;
+        color: var(--accent);
+        font-weight: 900;
+        line-height: 1.5;
+      }
+
+      .owner-app { display: none; min-height: 100vh; padding-bottom: 96px; }
+      body.unlocked .owner-app { display: block; }
+      body.unlocked .owner-gate { display: none !important; }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: calc(12px + env(safe-area-inset-top)) 14px 12px;
+        border-bottom: 1px solid rgba(221, 213, 200, 0.86);
+        background: rgba(251, 247, 239, 0.92);
+        backdrop-filter: blur(16px);
+      }
+      .brand { font-weight: 900; letter-spacing: -0.02em; }
+      .top-actions { display: flex; align-items: center; gap: 8px; }
+      .top-actions a, .top-actions button {
+        min-height: 36px;
+        border-radius: 999px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      main { width: min(100% - 24px, 740px); margin: 0 auto; }
+      .hero {
+        padding: 28px 4px 20px;
+      }
+      .hero h1 { max-width: 10ch; font-size: clamp(42px, 13vw, 72px); line-height: 0.96; }
+      .hero p { margin: 16px 0 0; font-size: 16px; }
+
+      .quick-nav {
+        position: sticky;
+        top: calc(61px + env(safe-area-inset-top));
+        z-index: 18;
+        display: flex;
+        gap: 8px;
+        margin: 0 -12px 14px;
+        padding: 10px 12px;
+        overflow-x: auto;
+        background: linear-gradient(180deg, rgba(251, 247, 239, 0.96), rgba(251, 247, 239, 0.82));
+        scrollbar-width: none;
+      }
+      .quick-nav::-webkit-scrollbar { display: none; }
+      .quick-nav a {
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 10px 13px;
+        background: var(--card);
+        color: var(--accent);
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .section {
+        margin: 14px 0;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        background: var(--card);
+        box-shadow: 0 10px 26px rgba(31, 27, 20, 0.05);
+      }
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .section h2 { font-size: 28px; line-height: 1.1; }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .metric {
+        border: 1px solid rgba(31, 102, 83, 0.16);
+        border-radius: 18px;
+        padding: 14px;
+        background: #f5f7f0;
+      }
+      .metric span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
+      .metric strong { display: block; margin-top: 4px; color: var(--accent); font-size: 28px; line-height: 1; }
+
+      .mobile-form { display: grid; gap: 13px; }
+      .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .file-note { color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.5; }
+      .action-row { display: grid; gap: 10px; }
+
+      .list { display: grid; gap: 10px; }
+      .list-card {
+        border: 1px solid rgba(31, 102, 83, 0.16);
+        border-radius: 18px;
+        padding: 14px;
+        background: #fffaf1;
+      }
+      .list-card h3 { font-size: 17px; line-height: 1.35; }
+      .list-card p { margin: 8px 0 0; }
+      .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border: 1px solid rgba(31, 102, 83, 0.2);
+        border-radius: 999px;
+        padding: 0 10px;
+        background: #eef4ef;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .pill.gold { border-color: rgba(179, 138, 59, 0.34); background: #f8efdc; color: #866020; }
+      .review-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        color: var(--muted);
+        line-height: 1.7;
+        background: #fffaf1;
+      }
+
+      .bottom-tabs {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 25;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+        padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--line);
+        background: rgba(251, 247, 239, 0.94);
+        backdrop-filter: blur(16px);
+      }
+      .bottom-tabs a {
+        min-height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .bottom-tabs a:first-child { background: #eef4ef; }
+
+      @media (min-width: 680px) {
+        .action-row { grid-template-columns: 1fr 1fr; }
+        .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      @media (max-width: 420px) {
+        main { width: min(100% - 18px, 740px); }
+        .section { padding: 15px; border-radius: 18px; }
+        .row-2 { grid-template-columns: 1fr; }
+        .hero h1 { font-size: clamp(38px, 12vw, 54px); }
+      }
+
+      /* --- 添加到桌面 (PWA 安装) --- */
+      .install-overlay { display:none; position:fixed; inset:0; z-index:10000; background:rgba(23,24,20,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; }
+      .install-overlay.show { display:flex; }
+      .install-modal { background:var(--card); border-radius:20px 20px 0 0; width:100%; max-width:480px; max-height:85vh; overflow-y:auto; padding:24px 28px 40px; box-shadow:0 -8px 40px rgba(0,0,0,.15); animation:slideUp .35s ease-out; }
+      @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+      .install-modal-close { background:none; border:none; font-size:24px; color:var(--muted); cursor:pointer; line-height:1; padding:4px; align-self:flex-start; }
+      .install-modal-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:20px; }
+      .install-modal-header .icon { width:48px; height:48px; border-radius:12px; background:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+      .install-modal-header .icon svg { width:28px; height:28px; fill:#fff; }
+      .install-modal-header h3 { margin:0; font-size:18px; color:var(--ink); font-weight:700; }
+      .install-modal-header p { margin:2px 0 0; font-size:13px; color:var(--muted); }
+      .install-step { display:flex; gap:14px; margin-bottom:16px; align-items:flex-start; }
+      .install-step-num { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+      .install-step-text { font-size:14px; line-height:1.6; color:var(--ink); }
+      .install-step-text strong { font-weight:600; }
+      .install-button { width:100%; padding:14px; border-radius:12px; background:var(--accent); color:#fff; border:none; font-size:16px; font-weight:700; cursor:pointer; margin-top:8px; transition:background .2s; }
+      .install-button:active { background:var(--accent-dark); }
+      .install-footnote { text-align:center; font-size:12px; color:var(--muted); margin-top:14px; }
+      .install-fab {
+        position:fixed; bottom:24px; right:24px; z-index:9999;
+        width:56px; height:56px; border-radius:50%;
+        background:var(--accent); color:#fff; border:none;
+        box-shadow:0 4px 16px rgba(31,102,83,.35);
+        display:flex; align-items:center; justify-content:center;
+        cursor:pointer; font-size:24px; line-height:1;
+        transition:transform .2s,box-shadow .2s;
+      }
+      .install-fab:active { transform:scale(.92); }
+      .install-fab svg { width:28px; height:28px; fill:currentColor; }
+      @supports (padding-bottom:env(safe-area-inset-bottom)) {
+        .install-fab { bottom:calc(24px + env(safe-area-inset-bottom)); }
+        .install-modal { padding-bottom:calc(40px + env(safe-area-inset-bottom)); }
+      }
+    </style>
+  </head>
+  <body class="locked">
+    <div id="ownerGate" class="owner-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+      <form id="ownerGateForm" class="gate-card">
+        <p class="kicker">Owner Mobile</p>
+        <h1 id="gateTitle">手机后台</h1>
+        <p class="muted">输入一次 owner 口令后，本设备会保持长期登录。不要在别人的手机或公共浏览器使用。</p>
+        <label>Owner 口令
+          <input id="ownerPassword" type="password" autocomplete="current-password" placeholder="输入后台口令" required />
+        </label>
+        <button class="button primary" type="submit">进入手机后台</button>
+        <p id="ownerGateMessage" class="form-message" role="status"></p>
+      </form>
+    </div>
+
+    <div class="owner-app">
+      <header class="topbar">
+        <a class="brand" href="./index.html">Yiten Huang</a>
+        <div class="top-actions">
+          <a href="./admin.html">完整后台</a>
+          <button id="ownerLogout" type="button">退出</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <p class="kicker">Owner Console</p>
+          <h1>移动端管理台</h1>
+          <p class="muted">手机上处理发布、审核、商品状态和核心数据。复杂商品文件上传仍建议回到完整后台。</p>
+        </section>
+
+        <nav class="quick-nav" aria-label="手机后台快速导航">
+          <a href="#overview">概览</a>
+          <a href="#publish">发布</a>
+          <a href="#reviews">审核</a>
+          <a href="#products">商品</a>
+          <a href="#support">客服</a>
+        </nav>
+
+        <section id="overview" class="section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Overview</p>
+              <h2>今日状态</h2>
+            </div>
+            <button id="refreshOwnerData" class="button" type="button">刷新</button>
+          </div>
+          <div class="metrics">
+            <article class="metric"><span>已发布作品</span><strong id="workCount">0</strong></article>
+            <article class="metric"><span>浏览总量</span><strong id="viewCount">0</strong></article>
+            <article class="metric"><span>待审核</span><strong id="reviewCount">0</strong></article>
+            <article class="metric"><span>已上架商品</span><strong id="productCount">0</strong></article>
+          </div>
+        </section>
+
+        <section id="publish" class="section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Publish</p>
+              <h2>手机发布</h2>
+            </div>
+          </div>
+          <form id="mobilePublishForm" class="mobile-form">
+            <label>标题 <input name="title" type="text" placeholder="例如：今天的札记" required /></label>
+            <div class="row-2">
+              <label>类型
+                <select name="type">
+                  <option value="note">札记</option>
+                  <option value="essay">文章</option>
+                  <option value="audio">播客</option>
+                  <option value="project">项目</option>
+                </select>
+              </label>
+              <label>可见范围
+                <select name="access">
+                  <option value="free">完全免费</option>
+                  <option value="metered">部分免费</option>
+                  <option value="member">会员专属</option>
+                </select>
+              </label>
+            </div>
+            <label>摘要 <textarea name="summary" rows="3" placeholder="写给用户看的简短摘要。"></textarea></label>
+            <label>正文 <textarea name="body" rows="8" placeholder="手机上先发文字；复杂排版回完整后台编辑。"></textarea></label>
+            <label>音频 URL（播客可填）
+              <input name="sourceUrl" type="url" placeholder="https://...mp3 / m4a / wav" />
+            </label>
+            <label>上传音频（可选）
+              <input name="audioFile" type="file" accept=".mp3,.m4a,.wav,audio/*" />
+              <span class="file-note">需要 Vercel Blob 已配置。上传成功后会生成可播放 URL。</span>
+            </label>
+            <label>上传封面图（可选）
+              <input name="coverFile" type="file" accept=".jpg,.jpeg,.png,.webp,.svg,image/*" />
+            </label>
+            <div class="action-row">
+              <button id="mobilePublishButton" class="button primary" type="submit">立即发布到用户端</button>
+              <a class="button" href="./admin.html#editor">去完整编辑器</a>
+            </div>
+            <p id="mobilePublishMessage" class="form-message" role="status"></p>
+          </form>
+        </section>
+
+        <section id="reviews" class="section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Review</p>
+              <h2>待审核</h2>
+            </div>
+            <a class="button" href="./admin.html#creators">完整审核</a>
+          </div>
+          <div id="reviewList" class="list"></div>
+        </section>
+
+        <section id="products" class="section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Books</p>
+              <h2>商品状态</h2>
+            </div>
+            <a class="button" href="./admin.html#books-admin">管理商品</a>
+          </div>
+          <div id="productList" class="list products-grid"></div>
+        </section>
+
+        <section id="recent" class="section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Content</p>
+              <h2>最新作品</h2>
+            </div>
+            <a class="button" href="./index.html#works">前台查看</a>
+          </div>
+          <div id="recentWorks" class="list"></div>
+        </section>
+
+        <section id="support" class="section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Support</p>
+              <h2>客服入口</h2>
+            </div>
+            <a class="button" href="./admin.html#contact-admin">完整设置</a>
+          </div>
+          <form id="mobileContactForm" class="mobile-form">
+            <label>微信号 <input name="wechatId" type="text" placeholder="例如：yiten_service" /></label>
+            <label>WhatsApp <input name="whatsapp" type="text" placeholder="例如：+1 415 555 0123" /></label>
+            <label>说明 <textarea name="wechatNote" rows="3" placeholder="例如：添加时请备注来自官网。"></textarea></label>
+            <button class="button primary" type="submit">保存客服信息</button>
+            <p id="mobileContactMessage" class="form-message" role="status"></p>
+          </form>
+        </section>
+      </main>
+
+      <nav class="bottom-tabs" aria-label="底部导航">
+        <a href="#overview">概览</a>
+        <a href="#publish">发布</a>
+        <a href="#reviews">审核</a>
+        <a href="#products">商品</a>
+        <a href="#support">客服</a>
+      </nav>
+    </div>
+
+    <script src="./assets/sync.js?v=20260804-security" data-sync-scope="admin"></script>
+    <script>
+      const gate = document.querySelector("#ownerGate");
+      const gateForm = document.querySelector("#ownerGateForm");
+      const gateMessage = document.querySelector("#ownerGateMessage");
+      const passwordInput = document.querySelector("#ownerPassword");
+      const logoutButton = document.querySelector("#ownerLogout");
+      const body = document.body;
+
+      const keys = {
+        works: "personal-site-works",
+        products: "yiten-book-products",
+        views: "yiten-work-views",
+        profileReviews: "yiten-creator-review-queue",
+        contentReviews: "yiten-creator-content-review-queue",
+        accounts: "yiten-creator-accounts",
+        contact: "yiten-contact-config",
+      };
+
+      const readJson = (key, fallback) => {
+        try {
+          const value = JSON.parse(localStorage.getItem(key) || "");
+          return value ?? fallback;
+        } catch (_error) {
+          return fallback;
+        }
+      };
+      const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+      const nowIso = () => new Date().toISOString();
+      const escapeHtml = (value) => String(value || "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+      const textFromHtml = (value) => String(value || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const simpleHash = (value) => {
+        const source = String(value || "").toLowerCase();
+        let hash = 2166136261;
+        for (let index = 0; index < source.length; index += 1) {
+          hash ^= source.charCodeAt(index);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(16);
+      };
+      const normalizeWorkType = (type) => {
+        const map = { essay: "essay", audio: "audio", project: "project", note: "note", 文章: "essay", 播客: "audio", 音频: "audio", 项目: "project", 札记: "note" };
+        return map[String(type || "").trim()] || "note";
+      };
+      const isPublished = (item) => item && item.status === "published" && !item.hidden;
+      const createWorkId = (title, type) => `owner-mobile-${Date.now()}-${simpleHash(`${type}:${title}`).slice(0, 8)}`;
+      const formatDate = (value) => {
+        if (!value) return "未记录时间";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "未记录时间";
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      };
+
+      const unlock = () => {
+        body.classList.remove("locked");
+        body.classList.add("unlocked");
+        gate.hidden = true;
+        gate.style.setProperty("display", "none", "important");
+        Promise.resolve(window.YitenSync?.start?.()).finally(renderAll);
+      };
+      const lock = () => {
+        try { window.YitenSync?.stop?.({ clearPrivate: true }); } catch (_error) {}
+        body.classList.add("locked");
+        body.classList.remove("unlocked");
+        gate.hidden = false;
+        gate.style.removeProperty("display");
+        setTimeout(() => passwordInput.focus(), 80);
+      };
+      const checkSession = async () => {
+        try {
+          const response = await fetch("/api/auth/status", { credentials: "include", cache: "no-store" });
+          const data = await response.json();
+          data.authenticated ? unlock() : lock();
+        } catch (_error) {
+          gateMessage.textContent = "登录服务暂时不可用，请刷新后重试。";
+          lock();
+        }
+      };
+
+      gateForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = gateForm.querySelector("button[type='submit']");
+        button.disabled = true;
+        gateMessage.textContent = "正在验证。";
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ password: passwordInput.value.trim() }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.ok) throw new Error(data.message || "口令不正确。");
+          passwordInput.value = "";
+          gateMessage.textContent = "";
+          unlock();
+        } catch (error) {
+          gateMessage.textContent = error.message || "登录失败。";
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      logoutButton.addEventListener("click", async () => {
+        try {
+          await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        } catch (_error) {
+          // Local private state is cleared in lock() even if the network is unavailable.
+        } finally {
+          lock();
+        }
+      });
+
+      const renderMetrics = () => {
+        const works = readJson(keys.works, []).filter(isPublished);
+        const products = readJson(keys.products, {});
+        const views = readJson(keys.views, {});
+        const publishedProducts = ["bundle", "single", "extra1", "extra2"]
+          .map((slot) => products[slot])
+          .filter((product) => product?.status === "published" && (product.title || product.description));
+        const profileReviews = readJson(keys.profileReviews, []).filter((item) => (item.status || "待审核") === "待审核");
+        const contentReviews = readJson(keys.contentReviews, []).filter((item) => (item.status || "待审核") === "待审核");
+        const totalViews = Object.values(views || {}).reduce((sum, item) => sum + Number(item?.count || 0), 0);
+        document.querySelector("#workCount").textContent = String(works.length);
+        document.querySelector("#viewCount").textContent = String(totalViews);
+        document.querySelector("#reviewCount").textContent = String(profileReviews.length + contentReviews.length);
+        document.querySelector("#productCount").textContent = String(publishedProducts.length);
+      };
+
+      const renderProducts = () => {
+        const container = document.querySelector("#productList");
+        const products = readJson(keys.products, {});
+        const labels = { bundle: "套装", single: "单本一", extra1: "单本二", extra2: "单本三" };
+        const rows = ["bundle", "single", "extra1", "extra2"].map((slot) => ({ slot, ...(products[slot] || {}) }));
+        const visible = rows.filter((item) => item.title || item.description || item.status);
+        if (!visible.length) {
+          container.innerHTML = `<div class="empty">还没有商品数据。去完整后台上传封面、文件和说明后，用户端才会显示。</div>`;
+          return;
+        }
+        container.innerHTML = visible.map((item) => `
+          <article class="list-card">
+            <div class="pills">
+              <span class="pill ${item.slot === "bundle" ? "gold" : ""}">${labels[item.slot]}</span>
+              <span class="pill">${item.status === "published" ? "已上架" : item.status === "hidden" ? "已隐藏" : "草稿"}</span>
+            </div>
+            <h3>${escapeHtml(item.title || "未命名商品")}</h3>
+            <p class="muted">${escapeHtml(item.description || "暂无产品说明。")}</p>
+            <p><strong>游客价 ${escapeHtml(item.visitorPrice || "-")}</strong> <span class="muted">/ 会员价 ${escapeHtml(item.memberPrice || "-")}</span></p>
+          </article>
+        `).join("");
+      };
+
+      const renderRecentWorks = () => {
+        const container = document.querySelector("#recentWorks");
+        const works = readJson(keys.works, []).filter(isPublished).slice(0, 8);
+        if (!works.length) {
+          container.innerHTML = `<div class="empty">前台还没有已发布作品。可以用手机发布一条札记测试同步。</div>`;
+          return;
+        }
+        container.innerHTML = works.map((work) => `
+          <article class="list-card">
+            <div class="pills">
+              <span class="pill">${work.type === "audio" ? "音频" : work.type === "essay" ? "文章" : work.type === "project" ? "项目" : "札记"}</span>
+              <span class="pill gold">原创</span>
+              <span class="pill">${formatDate(work.publishedAt || work.createdAt)}</span>
+            </div>
+            <h3>${escapeHtml(work.title || "未命名作品")}</h3>
+            <p class="muted">${escapeHtml(work.summary || textFromHtml(work.body).slice(0, 90) || "暂无摘要。")}</p>
+          </article>
+        `).join("");
+      };
+
+      const creatorScopedKey = (prefix, email) => `${prefix}:${String(email || "").trim().toLowerCase()}`;
+      const updateCreatorAccountStatus = (email, status) => {
+        const accounts = readJson(keys.accounts, []);
+        const normalizedEmail = String(email || "").trim().toLowerCase();
+        const index = accounts.findIndex((item) => String(item.email || "").trim().toLowerCase() === normalizedEmail);
+        if (index >= 0) {
+          accounts[index] = { ...accounts[index], status, approvedAt: status === "已通过" ? nowIso() : accounts[index].approvedAt, rejectedAt: status === "不通过" ? nowIso() : accounts[index].rejectedAt };
+        } else {
+          accounts.push({ email: normalizedEmail, displayName: normalizedEmail, status, share: 70, approvedAt: status === "已通过" ? nowIso() : "", rejectedAt: status === "不通过" ? nowIso() : "" });
+        }
+        writeJson(keys.accounts, accounts);
+        const queue = readJson(keys.profileReviews, []).map((item) =>
+          String(item.creatorEmail || item.email || "").trim().toLowerCase() === normalizedEmail ? { ...item, status, reviewedAt: nowIso() } : item
+        );
+        writeJson(keys.profileReviews, queue);
+        localStorage.setItem("yiten-review-updated-at", String(Date.now()));
+      };
+
+      const publishReviewedWork = (review) => {
+        const snapshot = review.snapshot || review;
+        const works = readJson(keys.works, []);
+        const title = snapshot.title || review.title || "创作者作品";
+        const type = normalizeWorkType(snapshot.type || review.type);
+        const id = snapshot.id || review.itemId || createWorkId(title, type);
+        const nextWork = {
+          id,
+          source: "creator",
+          sourceId: id,
+          title,
+          type,
+          author: review.creatorName || snapshot.author || review.creatorEmail || "创作者",
+          summary: snapshot.summary || review.summary || "",
+          body: snapshot.body || "",
+          bodyFormat: snapshot.bodyFormat || "html",
+          audioUrl: snapshot.audioUrl || snapshot.url || "",
+          url: snapshot.url || "#works",
+          access: snapshot.access === "free" ? "free" : snapshot.access === "member" ? "member" : "metered",
+          freePercent: snapshot.access === "free" ? 100 : Number(snapshot.freePercent || 35),
+          original: true,
+          copyrightStatus: "local-fingerprint-ok",
+          status: "published",
+          hidden: false,
+          createdAt: snapshot.createdAt || nowIso(),
+          publishedAt: nowIso(),
+        };
+        writeJson(keys.works, [nextWork, ...works.filter((work) => work.id !== id && work.sourceId !== id)]);
+      };
+
+      const updateContentReviewStatus = (review, status) => {
+        const queue = readJson(keys.contentReviews, []).map((item) =>
+          item.sourceKey === review.sourceKey && item.itemId === review.itemId ? { ...item, status, reviewedAt: nowIso() } : item
+        );
+        writeJson(keys.contentReviews, queue);
+        if (review.sourceKey) {
+          const list = readJson(review.sourceKey, []);
+          const index = list.findIndex((item) => item.id === review.itemId);
+          if (index >= 0) {
+            list[index] = { ...list[index], status, reviewedAt: nowIso(), hidden: status === "不通过" };
+            writeJson(review.sourceKey, list);
+          }
+        }
+        if (status === "已发布" && String(review.sourceKey || "").includes("yiten-creator-work")) publishReviewedWork(review);
+        localStorage.setItem("yiten-review-updated-at", String(Date.now()));
+      };
+
+      const renderReviews = () => {
+        const container = document.querySelector("#reviewList");
+        const profiles = readJson(keys.profileReviews, []).filter((item) => (item.status || "待审核") === "待审核").map((item) => ({ ...item, reviewKind: "creator" }));
+        const contents = readJson(keys.contentReviews, []).filter((item) => (item.status || "待审核") === "待审核").map((item) => ({ ...item, reviewKind: "content" }));
+        const rows = [...profiles, ...contents];
+        if (!rows.length) {
+          container.innerHTML = `<div class="empty">暂无待审核创作者或作品。收到申请后会显示在这里。</div>`;
+          return;
+        }
+        container.innerHTML = rows.map((item, index) => `
+          <article class="list-card" data-review-index="${index}">
+            <div class="pills">
+              <span class="pill">${item.reviewKind === "creator" ? "创作者申请" : "作品/商品审核"}</span>
+              <span class="pill gold">待审核</span>
+            </div>
+            <h3>${escapeHtml(item.displayName || item.title || item.snapshot?.title || item.creatorEmail || "待审核项目")}</h3>
+            <p class="muted">${escapeHtml(item.email || item.creatorEmail || item.summary || item.snapshot?.summary || "无补充说明。")}</p>
+            <div class="review-actions">
+              <button class="button primary" type="button" data-approve="yes">通过</button>
+              <button class="button danger" type="button" data-approve="no">不通过</button>
+            </div>
+          </article>
+        `).join("");
+        const activeRows = rows;
+        container.querySelectorAll("[data-approve]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const card = button.closest("[data-review-index]");
+            const item = activeRows[Number(card.dataset.reviewIndex)];
+            const status = button.dataset.approve === "yes" ? (item.reviewKind === "creator" ? "已通过" : "已发布") : "不通过";
+            if (item.reviewKind === "creator") updateCreatorAccountStatus(item.creatorEmail || item.email, status);
+            else updateContentReviewStatus(item, status);
+            await window.YitenSync?.pushPending?.();
+            renderAll();
+          });
+        });
+      };
+
+      const renderContact = () => {
+        const config = readJson(keys.contact, {});
+        const form = document.querySelector("#mobileContactForm");
+        form.elements.wechatId.value = config.wechatId || "";
+        form.elements.whatsapp.value = config.whatsapp || "";
+        form.elements.wechatNote.value = config.wechatNote || config.whatsappNote || "";
+      };
+
+      const renderAll = () => {
+        renderMetrics();
+        renderProducts();
+        renderRecentWorks();
+        renderReviews();
+        renderContact();
+      };
+
+      document.querySelector("#refreshOwnerData").addEventListener("click", async () => {
+        await window.YitenSync?.pull?.();
+        renderAll();
+      });
+
+      document.querySelector("#mobilePublishForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const button = document.querySelector("#mobilePublishButton");
+        const message = document.querySelector("#mobilePublishMessage");
+        const data = Object.fromEntries(new FormData(form).entries());
+        const type = normalizeWorkType(data.type);
+        button.disabled = true;
+        message.textContent = "正在发布并同步到线上。";
+        try {
+          let audioUrl = type === "audio" ? String(data.sourceUrl || "").trim() : "";
+          let cover = null;
+          const audioFile = form.elements.audioFile.files[0];
+          const coverFile = form.elements.coverFile.files[0];
+          if (audioFile) {
+            const uploaded = await window.YitenSync?.uploadFile?.(audioFile, "audio");
+            audioUrl = uploaded?.url || uploaded?.downloadUrl || audioUrl;
+          }
+          if (coverFile) {
+            const uploadedCover = await window.YitenSync?.uploadFile?.(coverFile, "works/covers");
+            cover = uploadedCover ? { url: uploadedCover.url || uploadedCover.downloadUrl, name: coverFile.name, type: coverFile.type } : null;
+          }
+          if (type === "audio" && !audioUrl) throw new Error("播客需要填写可播放音频 URL，或上传音频文件。");
+          const works = readJson(keys.works, []);
+          const id = createWorkId(data.title, type);
+          const bodyHtml = `<p>${escapeHtml(data.body || data.summary || "")}</p>`;
+          const work = {
+            id,
+            source: "owner-mobile",
+            title: data.title || "未命名作品",
+            type,
+            author: "Yiten Huang",
+            summary: data.summary || textFromHtml(data.body).slice(0, 120),
+            body: bodyHtml,
+            bodyFormat: "html",
+            url: type === "audio" ? "#works" : "#works",
+            audioUrl,
+            cover,
+            access: data.access || "free",
+            freePercent: data.access === "free" ? 100 : 35,
+            original: true,
+            copyrightStatus: "local-fingerprint-ok",
+            status: "published",
+            hidden: false,
+            createdAt: nowIso(),
+            publishedAt: nowIso(),
+          };
+          writeJson(keys.works, [work, ...works]);
+          localStorage.setItem("personal-site-works-updated-at", String(Date.now()));
+          await window.YitenSync?.pushPending?.();
+          form.reset();
+          message.textContent = "发布成功，已同步到用户端。";
+          renderAll();
+        } catch (error) {
+          message.textContent = error.message || "发布失败。";
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#mobileContactForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+        const config = readJson(keys.contact, {});
+        writeJson(keys.contact, { ...config, ...data, enabled: true, updatedAt: nowIso() });
+        await window.YitenSync?.pushPending?.();
+        document.querySelector("#mobileContactMessage").textContent = "客服信息已保存并同步到用户端。";
+      });
+
+      window.addEventListener("yiten-sync-updated", renderAll);
+      window.addEventListener("storage", renderAll);
+      window.setInterval(renderAll, 5000);
+      checkSession();
+    </script>
+
+    <!-- 安装弹窗 -->
+    <div id="installOverlay" class="install-overlay">
+      <div class="install-modal" style="position:relative">
+        <button class="install-modal-close" style="position:absolute;top:16px;right:20px" onclick="closeInstallOverlay()">&times;</button>
+        <div class="install-modal-header" style="margin-top:8px">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M11 14.59V3h2v11.59l3.3-3.3 1.4 1.42L12 18.41l-5.7-5.7 1.4-1.42L11 14.59zM3 20v-5h2v3h14v-3h2v5H3z"/></svg></div>
+          <div>
+            <h3>添加到手机桌面</h3>
+            <p>一键直达后台，不需要每次打开浏览器</p>
+          </div>
+        </div>
+        <div id="installSteps"></div>
+        <button id="installActionBtn" class="install-button" onclick="handleInstallAction()">安装到桌面</button>
+        <p class="install-footnote">关闭后可在右下角绿色按钮重新打开</p>
+      </div>
+    </div>
+
+    <!-- 悬浮添加到桌面按钮 -->
+    <button id="installFab" class="install-fab" aria-label="添加到桌面">
+      <svg viewBox="0 0 24 24"><path d="M11 14.59V3h2v11.59l3.3-3.3 1.4 1.42L12 18.41l-5.7-5.7 1.4-1.42L11 14.59zM3 20v-5h2v3h14v-3h2v5H3z"/></svg>
+    </button>
+
+    <script>
+      let deferredPrompt = null;
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        closeInstallOverlay();
+      });
+
+      const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isAndroid = /android/i.test(navigator.userAgent);
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+      function closeInstallOverlay() { document.getElementById('installOverlay').classList.remove('show'); }
+
+      function openInstallOverlay() {
+        document.getElementById('installOverlay').classList.add('show');
+        renderInstallSteps();
+      }
+
+      function handleInstallAction() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function(r) {
+            if (r.outcome === 'accepted') { closeInstallOverlay(); }
+            deferredPrompt = null;
+          });
+        } else {
+          document.getElementById('installSteps').scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+      }
+
+      function renderInstallSteps() {
+        var c = document.getElementById('installSteps');
+        var btn = document.getElementById('installActionBtn');
+        if (isStandalone) {
+          c.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--accent);font-weight:600;font-size:15px">\u2713 已添加到桌面，可以直接使用</div>';
+          btn.style.display = 'none'; return;
+        }
+        btn.style.display = 'block';
+        if (isiOS) {
+          c.innerHTML = '<div class="install-step"><span class="install-step-num">1</span><div class="install-step-text">在 Safari 底部菜单栏，点击 <strong>分享按钮</strong> \u2191</div></div><div class="install-step"><span class="install-step-num">2</span><div class="install-step-text">向下滑动，选择 <strong>"添加到主屏幕"</strong></div></div><div class="install-step"><span class="install-step-num">3</span><div class="install-step-text">点击右上角 <strong>"添加"</strong></div></div><div class="install-step"><span class="install-step-num">4</span><div class="install-step-text" style="color:var(--accent);font-weight:600">完成！以后点桌面图标直接进入后台</div></div>';
+          btn.textContent = '查看操作步骤';
+        } else if (deferredPrompt) {
+          c.innerHTML = '<div class="install-step"><span class="install-step-num">1</span><div class="install-step-text">点击下方 <strong>安装到桌面</strong> 按钮</div></div><div class="install-step"><span class="install-step-num">2</span><div class="install-step-text">在弹出的系统弹窗中点击 <strong>"安装"</strong></div></div><div class="install-step" style="color:var(--accent);font-weight:600;margin-top:2px">只需两步，以后从桌面图标一键进入后台</div>';
+          btn.textContent = '安装到桌面';
+        } else if (isAndroid) {
+          c.innerHTML = '<div class="install-step"><span class="install-step-num">1</span><div class="install-step-text">打开 Chrome 浏览器 <strong>三点菜单</strong></div></div><div class="install-step"><span class="install-step-num">2</span><div class="install-step-text">点击 <strong>"添加到主屏幕"</strong></div></div><div class="install-step"><span class="install-step-num">3</span><div class="install-step-text">点击 <strong>"添加"</strong> 完成</div></div>';
+          btn.textContent = '查看操作步骤';
+        } else {
+          c.innerHTML = '<div class="install-step" style="margin-bottom:0"><span class="install-step-num">i</span><div class="install-step-text">请在手机上打开此页面，使用 "添加到桌面" 功能。</div></div>';
+          btn.textContent = '我知道了';
+          btn.onclick = closeInstallOverlay;
+        }
+      }
+
+      document.getElementById('installFab').addEventListener('click', openInstallOverlay);
+      document.getElementById('installOverlay').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeInstallOverlay(); });
+    </script>
+  </body>
+</html>

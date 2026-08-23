@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yiten Huang 创作者入驻、实名验证和独立创作者后台。" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Yiten Huang | Creator Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/styles.css?v=20260602-audio-publish-guard" />
+    <link rel="stylesheet" href="./assets/launch.css?v=20260602-audio-publish-guard" />
+  </head>
+  <body class="admin-body creator-body">
+    <header class="admin-topbar">
+      <a class="brand" href="./index.html">Yiten Huang</a>
+      <nav class="admin-nav" aria-label="创作者导航">
+        <a href="#creator-verify">入驻注册</a>
+        <a href="#creator-auth">登录</a>
+        <a href="#creator-dashboard">创作者后台</a>
+        <a href="#creator-products">电子书商品</a>
+        <button id="creatorLogout" class="admin-link-button" type="button">退出创作者后台</button>
+      </nav>
+    </header>
+
+    <main class="admin-shell">
+      <section class="admin-hero creator-portal-hero">
+        <div>
+          <p class="section-kicker">Creator Portal</p>
+          <h1>我的创作者后台</h1>
+        </div>
+      </section>
+
+      <section id="creator-security-hold" class="admin-section">
+        <div class="admin-section-head">
+          <div><p class="section-kicker">Security Upgrade</p><h2>创作者入口暂时关闭</h2><p class="muted">原流程只在浏览器中验证账号、邀请和验证码，不能作为安全的身份系统。完成服务端账号、租户隔离和一次性邀请验证前，注册、登录、上传与发布均保持关闭。请勿在此页面填写个人或收款资料。</p></div>
+        </div>
+      </section>
+
+      <section id="creator-verify" class="admin-section" hidden>
+        <div class="admin-section-head">
+          <div><p class="section-kicker">Register</p><h2>创作者入驻注册</h2><p class="muted">先设置创作者账号、登录密码和手机号，再提交实名资料。通过审核后即可发布作品、售卖电子书和创建活动。</p></div>
+        </div>
+        <form id="creatorVerifyForm" class="work-form creator-verify-form">
+          <label>创作者显示名 <input name="displayName" type="text" placeholder="例如：张三的认知实验室" required /></label>
+          <label>登录邮箱 <input name="email" type="email" placeholder="creator@example.com" required /></label>
+          <label>手机号 <input name="phone" type="tel" inputmode="tel" placeholder="+852 1234 5678" required /></label>
+          <label>登录密码 <input name="password" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 位，设置创作者后台密码" required /></label>
+          <label>确认密码 <input name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="再次输入密码" required /></label>
+          <label>真实姓名 <input name="legalName" type="text" placeholder="证件上的姓名" required /></label>
+          <label>证件地区 <input name="region" type="text" placeholder="中国香港 / 中国大陆 / 美国等" required /></label>
+          <label>证件类型 <select name="documentType"><option>身份证</option><option>香港身份证</option><option>护照</option><option>驾驶证</option></select></label>
+          <label>证件号码后四位 <input name="documentLast4" type="text" maxlength="8" placeholder="仅先记录后四位" required /></label>
+          <label>收款方式 <select name="payoutType"><option>Stripe Connect</option><option>PayPal</option><option>银行账户</option><option>其他</option></select></label>
+          <label class="wide">收款账户备注 <textarea name="payoutAccount" rows="3" placeholder="填写 PayPal 邮箱、银行账户尾号、Stripe 账号备注等。" required></textarea></label>
+          <label class="wide">创作者简介 <textarea name="bio" rows="4" placeholder="告诉读者你是谁、你写什么、为什么值得订阅。" required></textarea></label>
+          <label class="wide checkbox-line"><input name="agreement" type="checkbox" required /> 我确认资料真实，并同意发布内容、售卖商品、活动和分账需遵守平台规则。</label>
+          <div class="wide admin-action-row"><button class="button primary" type="submit">提交资料并进入创作者后台</button></div>
+        </form>
+        <p id="creatorVerifyMessage" class="form-message" role="status"></p>
+      </section>
+
+      <section id="creator-auth" class="admin-section creator-auth-section" hidden>
+        <div class="admin-section-head">
+          <div><p class="section-kicker">Sign In</p><h2>创作者登录与找回密码</h2><p class="muted">创作者可用邮箱密码登录，也可以用手机号验证码登录。真实短信发送需要接入 SMS 服务商；当前版本先完成账号流程和验证码逻辑。</p></div>
+        </div>
+        <div class="creator-auth-grid">
+          <form id="creatorLoginForm" class="work-form creator-auth-card">
+            <h3>邮箱密码登录</h3>
+            <label>登录邮箱 <input name="email" type="email" placeholder="creator@example.com" required /></label>
+            <label>密码 <input name="password" type="password" autocomplete="current-password" required /></label>
+            <button class="button primary" type="submit">进入创作者后台</button>
+            <p id="creatorLoginMessage" class="form-message" role="status"></p>
+          </form>
+
+          <form id="creatorPhoneLoginForm" class="work-form creator-auth-card">
+            <h3>手机号验证码登录</h3>
+            <label>手机号 <input name="phone" type="tel" inputmode="tel" placeholder="+852 1234 5678" required /></label>
+            <label>验证码 <input name="code" type="text" inputmode="numeric" maxlength="6" placeholder="6 位验证码" required /></label>
+            <div class="admin-action-row"><button id="sendPhoneCode" class="button secondary" type="button">发送验证码</button><button class="button primary" type="submit">验证码登录</button></div>
+            <p id="creatorPhoneMessage" class="form-message" role="status"></p>
+          </form>
+
+          <form id="creatorResetForm" class="work-form creator-auth-card">
+            <h3>找回密码</h3>
+            <label>注册邮箱 <input name="email" type="email" placeholder="creator@example.com" required /></label>
+            <label>手机号 <input name="phone" type="tel" inputmode="tel" placeholder="+852 1234 5678" required /></label>
+            <label>验证码 <input name="code" type="text" inputmode="numeric" maxlength="6" placeholder="6 位验证码" required /></label>
+            <label>新密码 <input name="newPassword" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 位" required /></label>
+            <div class="admin-action-row"><button id="sendResetCode" class="button secondary" type="button">发送重置码</button><button class="button primary" type="submit">更新密码</button></div>
+            <p id="creatorResetMessage" class="form-message" role="status"></p>
+          </form>
+        </div>
+      </section>
+
+      <section id="creator-dashboard" class="admin-section creator-dashboard" hidden>
+        <div class="admin-section-head">
+          <div><p class="section-kicker">Creator Workspace</p><h2>我的创作者后台</h2></div>
+        </div>
+        <div class="metric-grid">
+          <article class="metric-card"><span>我的作品</span><strong id="creatorWorkCount">0</strong><small>文章、音频、项目</small></article>
+          <article class="metric-card"><span>电子书商品</span><strong id="creatorBookCount">0</strong><small>单本与套装</small></article>
+          <article class="metric-card"><span>审核状态</span><strong id="creatorReviewStatus">待审核</strong><small>通过后正式展示</small></article>
+          <article class="metric-card"><span>营销权限</span><strong>可用</strong><small>活动引流、捆绑销售</small></article>
+        </div>
+
+        <div class="creator-dashboard-grid">
+          <section class="editor-preview">
+            <p class="section-kicker">Publish</p>
+            <h3>发布文章 / 音频 / 作品</h3>
+            <form id="creatorWorkForm" class="work-form creator-compact-form">
+              <label>作品标题 <input name="title" type="text" placeholder="例如：我如何做一门音频课" required /></label>
+              <label>作品类型 <select name="type"><option>文章</option><option>札记</option><option>音频</option><option>播客</option><option>项目</option></select></label>
+              <label>可见性 <select name="access"><option>免费试看</option><option>会员专属</option><option>付费单篇</option></select></label>
+              <label>上传文件 <input name="asset" type="file" accept=".doc,.docx,.md,.txt,.mp3,.m4a,.wav,.pdf,.epub,.mobi,.jpg,.jpeg,.png,.webp" /></label>
+              <label>音频直链 <input name="url" type="url" placeholder="https://...mp3 / m4a / wav，可选" /></label>
+              <label class="wide">摘要 <textarea name="summary" rows="4" placeholder="自动生成分享文案前，会优先读取这里的亮点。"></textarea></label>
+              <label class="wide">正文编辑器
+                <div class="rich-toolbar" data-rich-toolbar="creator">
+                  <button type="button" data-rich-command="bold">加粗</button>
+                  <button type="button" data-rich-command="italic">斜体</button>
+                  <button type="button" data-rich-command="underline">下划线</button>
+                  <select data-rich-size aria-label="字体大小">
+                    <option value="">字体大小</option>
+                    <option value="16px">16</option>
+                    <option value="18px">18</option>
+                    <option value="22px">22</option>
+                    <option value="28px">28</option>
+                  </select>
+                  <button type="button" data-rich-image>插入图片/照片</button>
+                </div>
+                <div id="creatorRichEditor" class="rich-editor" contenteditable="true" role="textbox" aria-label="正文编辑器"></div>
+                <small class="muted">写札记时可直接插入照片；图片会随正文一起展示在用户端。</small>
+                <textarea name="body" rows="12" hidden></textarea>
+              </label>
+              <button class="button primary" type="submit">提交作品审核</button>
+            </form>
+            <p id="creatorWorkMessage" class="form-message" role="status"></p>
+          </section>
+
+          <section id="creator-products" class="editor-preview">
+            <p class="section-kicker">Products</p>
+            <h3>售卖电子书 / 套装</h3>
+            <form id="creatorBookForm" class="work-form creator-compact-form">
+              <label>商品标题 <input name="title" type="text" placeholder="例如：我的第一本电子书" required /></label>
+              <label>商品类型 <select name="kind"><option>单本电子书</option><option>多本套装</option><option>电子书 + 音频</option><option>模板资料包</option></select></label>
+              <label>封面/缩略图 <input name="cover" type="file" accept=".jpg,.jpeg,.png,.webp,.svg" /></label>
+              <label>游客价 USD <input name="price" type="number" value="29" min="1" required /></label>
+              <label>会员价 USD <input name="memberPrice" type="number" value="19" min="1" required /></label>
+              <label class="wide">商品文件 <input name="files" type="file" multiple accept=".pdf,.epub,.mobi,.azw3,.mp3,.m4a,.zip,.jpg,.png,.webp" /></label>
+              <label class="wide">产品说明 <textarea name="description" rows="4" placeholder="告诉读者这本书解决什么问题、适合谁、包含哪些内容。"></textarea></label>
+              <button class="button primary" type="submit">保存商品并提交审核</button>
+            </form>
+            <p id="creatorBookMessage" class="form-message" role="status"></p>
+          </section>
+
+          <section id="creator-offers" class="editor-preview">
+            <p class="section-kicker">Campaigns</p>
+            <h3>活动引流 / 捆绑销售</h3>
+            <form id="creatorOfferForm" class="work-form creator-compact-form">
+              <label>活动名称 <input name="title" type="text" placeholder="例如：新书上线早鸟礼" required /></label>
+              <label>活动类型 <select name="kind"><option>限时折扣</option><option>买书赠课</option><option>多本捆绑</option><option>分享返利</option></select></label>
+              <label>优惠码 <input name="code" type="text" placeholder="例如：CREATOR20" /></label>
+              <label>活动价 USD <input name="price" type="number" value="19" min="1" required /></label>
+              <label>开始日期 <input name="start" type="date" /></label>
+              <label>结束日期 <input name="end" type="date" /></label>
+              <label class="wide">捆绑内容 / 活动说明 <textarea name="description" rows="4" placeholder="写清楚包含哪些作品、电子书、音频或资料包，以及活动规则。"></textarea></label>
+              <button class="button primary" type="submit">保存活动并提交审核</button>
+            </form>
+            <p id="creatorOfferMessage" class="form-message" role="status"></p>
+          </section>
+        </div>
+
+        <section class="admin-section nested-section">
+          <div class="admin-section-head"><div><p class="section-kicker">My Queue</p><h2>我的待审核内容</h2></div></div>
+          <div id="creatorQueue" class="admin-table creator-queue-table" role="table" aria-label="创作者待审核内容"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./assets/sync.js?v=20260804-security" data-sync-scope="disabled"></script>
+    <script src="./assets/vendor/mammoth.browser.min.js?v=20260602-blob-audio-sync"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
+    <script>
+      const CREATOR_PORTAL_ENABLED = false;
+      if (CREATOR_PORTAL_ENABLED) {
+      const params = new URLSearchParams(location.search);
+      const invite = {
+        token: params.get("invite") || "",
+        role: params.get("role") || "签约创作者",
+        share: params.get("share") || "70",
+        email: params.get("email") || "",
+      };
+      const accountKey = "yiten-creator-accounts";
+      const sessionKey = "yiten-creator-session";
+      const phoneCodeKey = "yiten-creator-phone-code";
+      const resetCodeKey = "yiten-creator-reset-code";
+      const profileReviewKey = "yiten-creator-review-queue";
+      const contentReviewKey = "yiten-creator-content-review-queue";
+
+      const verifyForm = document.querySelector("#creatorVerifyForm");
+      const dashboard = document.querySelector("#creator-dashboard");
+      const verifyMessage = document.querySelector("#creatorVerifyMessage");
+      const queue = document.querySelector("#creatorQueue");
+      const loginForm = document.querySelector("#creatorLoginForm");
+      const phoneLoginForm = document.querySelector("#creatorPhoneLoginForm");
+      const resetForm = document.querySelector("#creatorResetForm");
+      const loginMessage = document.querySelector("#creatorLoginMessage");
+      const phoneMessage = document.querySelector("#creatorPhoneMessage");
+      const resetMessage = document.querySelector("#creatorResetMessage");
+      const reviewStatus = document.querySelector("#creatorReviewStatus");
+      if (invite.email) verifyForm.elements.email.value = invite.email;
+
+      const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+      const normalizePhone = (value) => String(value || "").replace(/[^\d+]/g, "");
+      const readList = (key) => JSON.parse(localStorage.getItem(key) || "[]");
+      const writeList = (key, list) => localStorage.setItem(key, JSON.stringify(list));
+      const appendReviewItem = (key, item) => {
+        const list = readList(key);
+        const submittedAt = item.submittedAt || new Date().toISOString();
+        const reviewId = item.id || makeId("review");
+        const next = [
+          { ...item, id: reviewId, submittedAt },
+          ...list.filter((entry) => !(entry.sourceKey === item.sourceKey && entry.itemId === item.itemId) && entry.id !== reviewId),
+        ];
+        writeList(key, next.slice(0, 120));
+        localStorage.setItem("yiten-review-updated-at", String(Date.now()));
+      };
+      const htmlEscapeMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+      const escapeHtml = (value) => String(value || "").replace(/[&<>"']/g, (char) => htmlEscapeMap[char]);
+      const escapeAttribute = (value) => escapeHtml(value).replace(/`/g, "&#096;");
+      const makeId = (prefix) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+      const getExtension = (fileName = "") => {
+        const index = String(fileName).lastIndexOf(".");
+        return index >= 0 ? String(fileName).slice(index).toLowerCase() : "";
+      };
+      const baseFileName = (fileName = "") => String(fileName).replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+      const fileMeta = (files = []) => Array.from(files || []).map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type || getExtension(file.name).slice(1),
+        lastModified: file.lastModified ? new Date(file.lastModified).toISOString() : "",
+      }));
+      const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error || new Error("文件读取失败"));
+        reader.readAsDataURL(file);
+      });
+      const isAudioFile = (file) => Boolean(file && (/^audio\//.test(file.type || "") || /\.(mp3|m4a|wav|aac|ogg|flac)$/i.test(file.name || "")));
+      const isPlayableAudioUrl = (value = "") => /^(https?:|blob:|data:audio\/)/i.test(String(value).trim());
+      const uploadFileForPlayback = async (file, folder = "audio") => {
+        if (!file || !window.YitenSync?.uploadFile) return null;
+        try {
+          return await window.YitenSync.uploadFile(file, folder);
+        } catch (error) {
+          console.warn("Remote media upload failed", error);
+          return { error };
+        }
+      };
+      const buildRemoteFileMeta = (file, uploaded) => ({
+        name: file?.name || "",
+        size: file?.size || 0,
+        type: file?.type || getExtension(file?.name || "").slice(1),
+        lastModified: file?.lastModified ? new Date(file.lastModified).toISOString() : "",
+        url: uploaded?.url || "",
+        downloadUrl: uploaded?.downloadUrl || "",
+        pathname: uploaded?.pathname || "",
+      });
+      const uploadFileStrict = async (file, folder) => {
+        if (!file) return null;
+        if (!window.YitenSync?.uploadFile) throw new Error("上传服务还没有加载，请刷新页面后重试。");
+        const uploaded = await window.YitenSync.uploadFile(file, folder);
+        if (!uploaded?.url) throw new Error(`${file.name || "文件"} 没有生成长期 URL。`);
+        return uploaded;
+      };
+      const uploadFilesAsRemoteMeta = async (files, folder) => {
+        const uploaded = [];
+        for (const file of Array.from(files || [])) {
+          uploaded.push(buildRemoteFileMeta(file, await uploadFileStrict(file, folder)));
+        }
+        return uploaded;
+      };
+      const uploadCoverAsRemoteMeta = async (files, folder) => {
+        const file = Array.from(files || [])[0];
+        if (!file) return null;
+        return buildRemoteFileMeta(file, await uploadFileStrict(file, folder));
+      };
+      const creatorRichEditor = document.querySelector("#creatorRichEditor");
+      const creatorRichImageInput = document.createElement("input");
+      creatorRichImageInput.type = "file";
+      creatorRichImageInput.accept = ".jpg,.jpeg,.png,.webp,.gif";
+      creatorRichImageInput.hidden = true;
+      document.body.appendChild(creatorRichImageInput);
+      const fileMetaWithPreview = async (files = []) => Promise.all(Array.from(files || []).map(async (file) => {
+        const meta = fileMeta([file])[0] || {};
+        if (file.type?.startsWith("image/") || /\.(svg|png|jpe?g|webp)$/i.test(file.name)) {
+          meta.dataUrl = await readFileAsDataUrl(file);
+        }
+        return meta;
+      }));
+      const richHtmlToText = (html) => {
+        const container = document.createElement("div");
+        container.innerHTML = String(html || "");
+        return normalizeArticleText(container.textContent || "");
+      };
+      const plainTextToRichHtml = (text) => normalizeArticleText(text)
+        .split(/\n{2,}/)
+        .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`)
+        .join("");
+      const bodyLooksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ""));
+      const syncCreatorRichToField = () => {
+        if (creatorRichEditor && document.querySelector("#creatorWorkForm")) {
+          document.querySelector("#creatorWorkForm").elements.body.value = creatorRichEditor.innerHTML.trim();
+        }
+      };
+      const setCreatorRichHtml = (html) => {
+        if (!creatorRichEditor) return;
+        creatorRichEditor.innerHTML = html || "";
+        syncCreatorRichToField();
+      };
+      const setupCreatorRichToolbar = () => {
+        const toolbar = document.querySelector("[data-rich-toolbar='creator']");
+        toolbar?.addEventListener("click", (event) => {
+          const commandButton = event.target.closest("[data-rich-command]");
+          if (commandButton) {
+            document.execCommand(commandButton.dataset.richCommand, false, null);
+            syncCreatorRichToField();
+          }
+          if (event.target.closest("[data-rich-image]")) creatorRichImageInput.click();
+        });
+        toolbar?.querySelector("[data-rich-size]")?.addEventListener("change", (event) => {
+          const size = event.target.value;
+          if (!size) return;
+          document.execCommand("fontSize", false, "4");
+          creatorRichEditor.querySelectorAll("font[size='4']").forEach((node) => {
+            const span = document.createElement("span");
+            span.style.fontSize = size;
+            span.innerHTML = node.innerHTML;
+            node.replaceWith(span);
+          });
+          event.target.value = "";
+          syncCreatorRichToField();
+        });
+        creatorRichImageInput.addEventListener("change", async () => {
+          const file = creatorRichImageInput.files[0];
+          if (!file) return;
+          const message = document.querySelector("#creatorWorkMessage");
+          try {
+            message.textContent = "正在上传图片，生成跨设备可显示的地址。";
+            const uploaded = await uploadFileStrict(file, "images");
+            document.execCommand("insertImage", false, uploaded.url);
+            message.textContent = "图片已插入正文。";
+            creatorRichImageInput.value = "";
+            syncCreatorRichToField();
+          } catch (error) {
+            message.textContent = `图片上传失败：${error.message || "请稍后重试。"}`;
+          }
+        });
+        creatorRichEditor?.addEventListener("input", syncCreatorRichToField);
+      };
+      const normalizeArticleText = (text) => String(text || "")
+        .replace(/\r/g, "")
+        .replace(/\t/g, " ")
+        .replace(/[ \u00a0]{2,}/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+      const extractTitle = (text, fileName) => {
+        const firstLine = normalizeArticleText(text).split("\n").map((line) => line.replace(/^#+\s*/, "").trim()).find(Boolean);
+        return (firstLine || baseFileName(fileName) || "未命名作品").slice(0, 80);
+      };
+      const extractSummary = (text) => {
+        const clean = normalizeArticleText(text).replace(/^#+\s*/gm, "").replace(/\s+/g, " ");
+        if (!clean) return "";
+        const sentences = clean.match(/[^。！？.!?]+[。！？.!?]?/g) || [clean];
+        return sentences.slice(0, 3).join("").trim().slice(0, 220);
+      };
+      const extractPdfTextFallback = async (file) => {
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        let binary = "";
+        const chunkSize = 8192;
+        for (let index = 0; index < bytes.length; index += chunkSize) {
+          binary += String.fromCharCode(...bytes.slice(index, index + chunkSize));
+        }
+        const decodeUtf8ByteString = (value) => {
+          const byteValues = Array.from(value).map((char) => char.charCodeAt(0));
+          if (!byteValues.length || byteValues.some((byte) => byte > 255)) return value;
+          try {
+            const decoded = new TextDecoder("utf-8", { fatal: false }).decode(new Uint8Array(byteValues));
+            return /[\u4e00-\u9fff]/.test(decoded) || decoded.length >= value.length * 0.6 ? decoded : value;
+          } catch (_error) {
+            return value;
+          }
+        };
+        const decodeLiteral = (value) => value
+          .replace(/\\([nrtbf()\\])/g, (_match, char) => ({ n: "\n", r: "\r", t: "\t", b: "", f: "", "(": "(", ")": ")", "\\": "\\" }[char] || char))
+          .replace(/\\([0-7]{1,3})/g, (_match, octal) => String.fromCharCode(parseInt(octal, 8)));
+        const snippets = [];
+        binary.replace(/\((?:\\.|[^\\)]){2,}\)\s*Tj/g, (match) => {
+          snippets.push(decodeUtf8ByteString(decodeLiteral(match.replace(/\)\s*Tj$/, "").slice(1))));
+          return match;
+        });
+        binary.replace(/\[((?:\s*\((?:\\.|[^\\)])*\)\s*)+)\]\s*TJ/g, (_match, group) => {
+          const parts = [];
+          group.replace(/\((?:\\.|[^\\)])*\)/g, (literal) => {
+            parts.push(decodeUtf8ByteString(decodeLiteral(literal.slice(1, -1))));
+            return literal;
+          });
+          if (parts.length) snippets.push(parts.join(""));
+          return _match;
+        });
+        return normalizeArticleText(snippets.join("\n"));
+      };
+      const extractPdfText = async (file) => {
+        const arrayBuffer = await file.arrayBuffer();
+        if (window.pdfjsLib?.getDocument) {
+          try {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+            const parsedText = await Promise.race([
+              (async () => {
+                const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+                const pages = [];
+                for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+                  const page = await pdf.getPage(pageNumber);
+                  const content = await page.getTextContent();
+                  pages.push(content.items.map((item) => item.str || "").join(" "));
+                }
+                return normalizeArticleText(pages.join("\n\n"));
+              })(),
+              new Promise((_, reject) => window.setTimeout(() => reject(new Error("PDF 解析超时")), 2200)),
+            ]);
+            return parsedText;
+          } catch (_error) {
+            return extractPdfTextFallback(file);
+          }
+        }
+        return extractPdfTextFallback(file);
+      };
+      const readArticleFile = async (file) => {
+        if (!file) return "";
+        const extension = getExtension(file.name);
+        if (extension === ".txt" || extension === ".md") return normalizeArticleText(await file.text());
+        if (extension === ".docx") {
+          if (!window.mammoth?.extractRawText) throw new Error("DOCX 解析器还在加载，请等 2 秒后重新选择文件。");
+          const result = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+          return normalizeArticleText(result.value);
+        }
+        if (extension === ".pdf") return extractPdfText(file);
+        if (extension === ".doc") throw new Error("旧版 .doc 暂不支持自动解析，请先另存为 .docx 后上传。");
+        return "";
+      };
+      const readArticleFileFormatted = async (file) => {
+        if (!file) return { text: "", html: "" };
+        const extension = getExtension(file.name);
+        if (extension === ".docx") {
+          if (!window.mammoth?.convertToHtml) throw new Error("DOCX 解析器还在加载，请等 2 秒后重新选择文件。");
+          const result = await window.mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
+          const html = result.value || "";
+          const text = richHtmlToText(html);
+          return { text, html: html || plainTextToRichHtml(text) };
+        }
+        const text = await readArticleFile(file);
+        return { text, html: plainTextToRichHtml(text) };
+      };
+      const makeContentHash = (value) => {
+        const source = String(value || "").toLowerCase().replace(/\s+/g, "");
+        let hash = 2166136261;
+        for (let index = 0; index < source.length; index += 1) {
+          hash ^= source.charCodeAt(index);
+          hash = Math.imul(hash, 16777619);
+        }
+        return `yc-${(hash >>> 0).toString(16)}`;
+      };
+      const readAccounts = () => JSON.parse(localStorage.getItem(accountKey) || "[]");
+      const writeAccounts = (accounts) => localStorage.setItem(accountKey, JSON.stringify(accounts));
+      const digestPassword = async (password) => {
+        const bytes = new TextEncoder().encode(password);
+        const hash = await crypto.subtle.digest("SHA-256", bytes);
+        return Array.from(new Uint8Array(hash)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+      };
+      const findAccount = ({ email, phone }) => {
+        const normalizedEmail = normalizeEmail(email);
+        const normalizedPhone = normalizePhone(phone);
+        return readAccounts().find((account) =>
+          (normalizedEmail && account.email === normalizedEmail) ||
+          (normalizedPhone && account.phone === normalizedPhone)
+        );
+      };
+      const setCurrentAccount = (email) => sessionStorage.setItem(sessionKey, normalizeEmail(email));
+      const getCurrentAccount = () => {
+        const email = sessionStorage.getItem(sessionKey);
+        return email ? findAccount({ email }) : null;
+      };
+      const isApprovedCreator = (profile = getCurrentAccount()) =>
+        Boolean(profile && (profile.createdByOwner || ["已通过", "已开通", "approved"].includes(profile.status)));
+      const getSubmissionStatus = () => isApprovedCreator() ? "已发布" : "待审核";
+      const scopedKey = (base) => `${base}:${getCurrentAccount()?.email || "guest"}`;
+      const publicWorksKey = "personal-site-works";
+      const publicBooksKey = "yiten-book-products";
+      const readJsonObject = (key) => {
+        try {
+          return JSON.parse(localStorage.getItem(key) || "{}") || {};
+        } catch (_error) {
+          return {};
+        }
+      };
+      const readJsonArray = (key) => {
+        try {
+          const value = JSON.parse(localStorage.getItem(key) || "[]");
+          return Array.isArray(value) ? value : [];
+        } catch (_error) {
+          return [];
+        }
+      };
+      const normalizePublicType = (type) => {
+        const value = String(type || "").trim();
+        const map = { 文章: "essay", 播客: "audio", 音频: "audio", 项目: "project", 札记: "note" };
+        return map[value] || value || "essay";
+      };
+      const mapPublicAccess = (access) => {
+        if (String(access || "").includes("会员")) return "member";
+        if (String(access || "").includes("免费")) return "free";
+        return "metered";
+      };
+      const publishCreatorWorkToPublic = (item) => {
+        const profile = getCurrentAccount();
+        const works = readJsonArray(publicWorksKey).filter((work) => work.sourceId !== item.id);
+        const access = mapPublicAccess(item.access);
+        works.unshift({
+          id: item.id,
+          source: "creator",
+          sourceId: item.id,
+          title: item.title || "未命名作品",
+          type: normalizePublicType(item.type),
+          author: profile?.displayName || item.author || profile?.email || "创作者",
+          url: item.url || "#works",
+          summary: item.summary || extractSummary(item.body),
+          body: item.body || "",
+          bodyFormat: item.bodyFormat || (bodyLooksLikeHtml(item.body) ? "html" : "text"),
+          audioUrl: item.audioUrl || "",
+          audioFile: item.audioFile || null,
+          original: true,
+          copyrightHash: item.copyrightHash || makeContentHash(`${item.title}:${item.summary}:${richHtmlToText(item.body || "")}`),
+          copyrightStatus: item.copyrightStatus || "local-fingerprint-ok",
+          access,
+          freePercent: access === "free" ? 100 : Number(item.freePercent || 35),
+          status: "published",
+          hidden: false,
+          createdAt: item.createdAt || new Date().toISOString(),
+          publishedAt: item.publishedAt || new Date().toISOString(),
+        });
+        localStorage.setItem(publicWorksKey, JSON.stringify(works));
+        localStorage.setItem("personal-site-works-updated-at", String(Date.now()));
+      };
+      const publishCreatorBookToPublic = (item) => {
+        const products = readJsonObject(publicBooksKey);
+        const product = {
+          kind: String(item.kind || "").includes("套装") ? "bundle" : "extra",
+          slot: "extra",
+          creatorItemId: item.id,
+          creatorEmail: getCurrentAccount()?.email || "",
+          creatorName: getCurrentAccount()?.displayName || "",
+          title: item.title || "创作者电子书",
+          visitorPrice: item.price || "29",
+          memberPrice: item.memberPrice || "",
+          description: item.description || "",
+          cover: item.cover || null,
+          files: Array.isArray(item.files) ? item.files : [],
+          status: "published",
+          publishedAt: item.publishedAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        if (!products.extra1?.title || products.extra1?.creatorItemId === item.id) {
+          products.extra1 = { ...product, slot: "extra1" };
+        } else if (!products.extra2?.title || products.extra2?.creatorItemId === item.id) {
+          products.extra2 = { ...product, slot: "extra2" };
+        } else {
+          const extras = Array.isArray(products.extraProducts) ? products.extraProducts : [];
+          products.extraProducts = [product, ...extras.filter((entry) => entry.creatorItemId !== item.id)].slice(0, 12);
+        }
+        localStorage.setItem(publicBooksKey, JSON.stringify(products));
+      };
+      const generateCode = () => String(Math.floor(100000 + Math.random() * 900000));
+      const saveCode = (key, phone, email = "") => {
+        const code = generateCode();
+        sessionStorage.setItem(key, JSON.stringify({ code, phone: normalizePhone(phone), email: normalizeEmail(email), expiresAt: Date.now() + 10 * 60 * 1000 }));
+        return code;
+      };
+      const verifyCode = (key, code, phone, email = "") => {
+        const saved = JSON.parse(sessionStorage.getItem(key) || "null");
+        if (!saved || saved.expiresAt < Date.now()) return false;
+        const phoneOk = saved.phone === normalizePhone(phone);
+        const emailOk = !saved.email || saved.email === normalizeEmail(email);
+        return phoneOk && emailOk && saved.code === String(code || "").trim();
+      };
+      const showDashboard = () => {
+        const profile = getCurrentAccount();
+        if (!profile) return false;
+        verifyForm.closest(".admin-section").hidden = true;
+        document.querySelector("#creator-auth").hidden = true;
+        dashboard.hidden = false;
+        reviewStatus.textContent = profile.status || "待审核";
+        reviewStatus.className = isApprovedCreator(profile) ? "approved" : "";
+        document.querySelector("#creatorWorkCount").textContent = readList(scopedKey("yiten-creator-work")).length;
+        document.querySelector("#creatorBookCount").textContent = readList(scopedKey("yiten-creator-books")).length;
+        renderQueue();
+        return true;
+      };
+      const creatorDataSources = () => [
+        { key: scopedKey("yiten-creator-work"), prefix: "work", category: "作品" },
+        { key: scopedKey("yiten-creator-books"), prefix: "book", category: "商品" },
+        { key: scopedKey("yiten-creator-offers"), prefix: "offer", category: "活动" },
+      ];
+      const readCreatorList = (source) => {
+        const list = readList(source.key);
+        let changed = false;
+        list.forEach((item) => {
+          if (!item.id) {
+            item.id = makeId(source.prefix);
+            changed = true;
+          }
+          if (!item.status) {
+            item.status = "待审核";
+            changed = true;
+          }
+        });
+        if (changed) writeList(source.key, list);
+        return list;
+      };
+      const getShareCopy = (item) => {
+        const title = item.title || "新作品";
+        const summary = item.summary || item.description || extractSummary(item.body || "") || "这是一份刚发布的创作者内容。";
+        const link = `${location.origin}/index.html#${item.id || "works"}`;
+        return `原创新作｜${title}\n\n${summary}\n\n阅读/收听：${link}`;
+      };
+      const distributeItem = async (item) => {
+        const text = getShareCopy(item);
+        const url = `${location.origin}/index.html#${item.id || "works"}`;
+        if (navigator.share) {
+          await navigator.share({ title: item.title || "创作者作品", text, url });
+        } else if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+        }
+        return text;
+      };
+      const renderQueue = () => {
+        const items = creatorDataSources()
+          .flatMap((source) => readCreatorList(source).map((item) => ({ ...item, sourceKey: source.key, category: source.category })))
+          .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+        if (!items.length) {
+          queue.innerHTML = `<div role="row"><span>暂无内容。提交作品或电子书商品后会出现在这里。</span></div>`;
+          return;
+        }
+        queue.innerHTML = [
+          `<div role="row" class="table-head"><span>类型</span><span>标题</span><span>状态</span><span>价格/权限</span><span>操作</span></div>`,
+          ...items.map((item) => {
+            const status = item.hidden ? "已隐藏" : item.status || "待审核";
+            const price = item.price ? `USD ${escapeHtml(item.price)}${item.memberPrice ? ` / 会员 ${escapeHtml(item.memberPrice)}` : ""}` : escapeHtml(item.access || "待定");
+            return `<div role="row" data-source-key="${escapeAttribute(item.sourceKey)}" data-id="${escapeAttribute(item.id)}">
+              <span>${escapeHtml(item.category)}</span>
+              <span>${escapeHtml(item.title || "未命名")}</span>
+              <span><span class="kyc-status">${escapeHtml(status)}</span></span>
+              <span>${price}</span>
+              <span class="row-actions">
+                <button type="button" data-queue-action="share">分发</button>
+                <button type="button" data-queue-action="toggle">${item.hidden ? "恢复" : "隐藏"}</button>
+                <button type="button" data-queue-action="delete">删除</button>
+              </span>
+            </div>`;
+          }),
+        ].join("");
+      };
+
+      queue.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-queue-action]");
+        if (!button) return;
+        const row = button.closest("[data-source-key]");
+        const sourceKey = row?.dataset.sourceKey;
+        const id = row?.dataset.id;
+        if (!sourceKey || !id) return;
+        const list = readList(sourceKey);
+        const index = list.findIndex((item) => item.id === id);
+        if (index < 0) return;
+        const action = button.dataset.queueAction;
+        const item = list[index];
+        if (action === "share") {
+          try {
+            await distributeItem(item);
+            document.querySelector("#creatorWorkMessage").textContent = "已生成一键分发文案，并复制/打开系统分享面板。";
+          } catch (error) {
+            document.querySelector("#creatorWorkMessage").textContent = `分发文案生成失败：${error.message}`;
+          }
+          return;
+        }
+        if (action === "toggle") {
+          if (item.hidden) {
+            item.hidden = false;
+            item.status = item.previousStatus || "待审核";
+          } else {
+            item.previousStatus = item.status || "待审核";
+            item.hidden = true;
+            item.status = "已隐藏";
+          }
+          list[index] = item;
+          writeList(sourceKey, list);
+          renderQueue();
+          return;
+        }
+        if (action === "delete" && confirm("确定删除这条内容吗？删除后当前浏览器内不会再显示。")) {
+          list.splice(index, 1);
+          writeList(sourceKey, list);
+          renderQueue();
+          showDashboard();
+        }
+      });
+
+      verifyForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(verifyForm).entries());
+        const email = normalizeEmail(data.email);
+        const phone = normalizePhone(data.phone);
+        if (data.password !== data.passwordConfirm) {
+          verifyMessage.textContent = "两次输入的密码不一致。";
+          return;
+        }
+        if (findAccount({ email }) || findAccount({ phone })) {
+          verifyMessage.textContent = "这个邮箱或手机号已经注册，请直接登录或找回密码。";
+          return;
+        }
+        const profile = {
+          ...data,
+          email,
+          phone,
+          passwordHash: await digestPassword(data.password),
+          password: undefined,
+          passwordConfirm: undefined,
+          inviteToken: invite.token,
+          role: invite.role,
+          share: invite.share,
+          status: "待审核",
+          submittedAt: new Date().toISOString(),
+        };
+        const accounts = readAccounts();
+        accounts.push(profile);
+        writeAccounts(accounts);
+        appendReviewItem(profileReviewKey, {
+          type: "creator-profile",
+          creatorEmail: email,
+          email,
+          displayName: profile.displayName,
+          legalName: profile.legalName,
+          phone: profile.phone,
+          region: profile.region,
+          documentType: profile.documentType,
+          inviteToken: profile.inviteToken,
+          role: profile.role,
+          share: profile.share,
+          snapshot: profile,
+          status: "待审核",
+          submittedAt: profile.submittedAt,
+        });
+        setCurrentAccount(email);
+        verifyMessage.textContent = "资料已提交。你已进入创作者后台，内容发布和商品售卖需审核后正式展示。";
+        showDashboard();
+        location.hash = "#creator-dashboard";
+      });
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(loginForm).entries());
+        const account = findAccount({ email: data.email });
+        if (!account || account.passwordHash !== await digestPassword(data.password)) {
+          loginMessage.textContent = "邮箱或密码不正确。";
+          return;
+        }
+        setCurrentAccount(account.email);
+        loginMessage.textContent = "登录成功。";
+        showDashboard();
+        location.hash = "#creator-dashboard";
+      });
+
+      document.querySelector("#sendPhoneCode").addEventListener("click", () => {
+        const phone = phoneLoginForm.elements.phone.value;
+        const account = findAccount({ phone });
+        if (!account) {
+          phoneMessage.textContent = "这个手机号还没有注册。";
+          return;
+        }
+        const code = saveCode(phoneCodeKey, phone);
+        phoneMessage.textContent = `验证码已生成。测试阶段验证码：${code}。接入短信服务后会发送到手机。`;
+      });
+
+      phoneLoginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(phoneLoginForm).entries());
+        const account = findAccount({ phone: data.phone });
+        if (!account || !verifyCode(phoneCodeKey, data.code, data.phone)) {
+          phoneMessage.textContent = "手机号或验证码不正确。";
+          return;
+        }
+        setCurrentAccount(account.email);
+        phoneMessage.textContent = "验证码登录成功。";
+        showDashboard();
+        location.hash = "#creator-dashboard";
+      });
+
+      document.querySelector("#sendResetCode").addEventListener("click", () => {
+        const email = resetForm.elements.email.value;
+        const phone = resetForm.elements.phone.value;
+        const account = findAccount({ email });
+        if (!account || account.phone !== normalizePhone(phone)) {
+          resetMessage.textContent = "邮箱和手机号不匹配。";
+          return;
+        }
+        const code = saveCode(resetCodeKey, phone, email);
+        resetMessage.textContent = `重置验证码已生成。测试阶段验证码：${code}。接入短信服务后会发送到手机。`;
+      });
+
+      resetForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(resetForm).entries());
+        if (!verifyCode(resetCodeKey, data.code, data.phone, data.email)) {
+          resetMessage.textContent = "重置验证码不正确或已过期。";
+          return;
+        }
+        const accounts = readAccounts();
+        const email = normalizeEmail(data.email);
+        const accountIndex = accounts.findIndex((account) => account.email === email);
+        if (accountIndex < 0) {
+          resetMessage.textContent = "没有找到这个创作者账号。";
+          return;
+        }
+        accounts[accountIndex].passwordHash = await digestPassword(data.newPassword);
+        accounts[accountIndex].passwordUpdatedAt = new Date().toISOString();
+        writeAccounts(accounts);
+        resetMessage.textContent = "密码已更新，可以用新密码登录。";
+      });
+
+      const creatorWorkForm = document.querySelector("#creatorWorkForm");
+      const creatorBookForm = document.querySelector("#creatorBookForm");
+      const creatorOfferForm = document.querySelector("#creatorOfferForm");
+      setupCreatorRichToolbar();
+
+      creatorWorkForm.elements.asset.addEventListener("change", async () => {
+        const file = creatorWorkForm.elements.asset.files[0];
+        if (!file) return;
+        const message = document.querySelector("#creatorWorkMessage");
+        const extension = getExtension(file.name);
+        if (isAudioFile(file)) {
+          message.textContent = "已选择音频文件。提交后前台会显示播放器；大文件后续建议接对象存储/CDN。";
+          return;
+        }
+        if (![".docx", ".doc", ".md", ".txt", ".pdf"].includes(extension)) {
+          message.textContent = "已选择媒体/资料文件。文章正文自动提取支持 .docx、.pdf、.md、.txt。";
+          return;
+        }
+        message.textContent = "正在解析文件内容，稍等一下。";
+        try {
+          const { text, html } = await readArticleFileFormatted(file);
+          if (!text) {
+            message.textContent = "没有从文件中提取到可编辑正文，请手动粘贴内容。";
+            return;
+          }
+          if (!creatorWorkForm.elements.title.value.trim()) creatorWorkForm.elements.title.value = extractTitle(text, file.name);
+          if (!creatorWorkForm.elements.summary.value.trim()) creatorWorkForm.elements.summary.value = extractSummary(text);
+          if (!creatorWorkForm.elements.body.value.trim()) setCreatorRichHtml(html);
+          message.textContent = "已从文件提取标题、摘要和正文，可以继续编辑后提交审核。";
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      });
+
+      creatorWorkForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        syncCreatorRichToField();
+        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+        const file = event.currentTarget.elements.asset.files[0];
+        const list = readList(scopedKey("yiten-creator-work"));
+        const body = String(data.body || "").trim();
+        const bodyText = richHtmlToText(body);
+        const summary = String(data.summary || "").trim() || extractSummary(bodyText);
+        const status = getSubmissionStatus();
+        const message = document.querySelector("#creatorWorkMessage");
+        const normalizedType = normalizePublicType(data.type);
+        const sourceUrl = String(data.url || "").trim();
+        const isAudioAsset = isAudioFile(file);
+        if (normalizedType === "audio" && !isAudioAsset && !sourceUrl) {
+          message.textContent = "音频/播客作品必须上传音频文件，或填写 mp3/m4a/wav 等可直接播放的音频地址。不能发布没有播放器来源的播客。";
+          return;
+        }
+        if (normalizedType === "audio" && sourceUrl && !isPlayableAudioUrl(sourceUrl)) {
+          message.textContent = "音频地址必须是可直接播放的完整链接，例如 https://...mp3、https://...m4a 或 https://...wav。";
+          return;
+        }
+        let uploadedAudio = null;
+        if (isAudioAsset) {
+          message.textContent = "正在上传音频，生成手机和电脑都能播放的地址。";
+          uploadedAudio = await uploadFileForPlayback(file, "audio");
+        }
+        if (isAudioAsset && uploadedAudio?.error) {
+          message.textContent = "音频没有生成可播放地址。请联系 owner 配置 Vercel 的 BLOB_READ_WRITE_TOKEN，或先填写可直接播放的音频链接。";
+          return;
+        }
+        const uploadedAudioUrl = uploadedAudio?.url || "";
+        if (isAudioAsset && !uploadedAudioUrl && !sourceUrl) {
+          message.textContent = "音频没有生成可播放地址。请稍后重试，或先填写可直接播放的音频链接。";
+          return;
+        }
+        const audioUrl = uploadedAudioUrl || (normalizedType === "audio" ? sourceUrl : "");
+        const copyrightHash = makeContentHash(`${data.title}:${summary}:${bodyText}`);
+        const duplicate = readJsonArray(publicWorksKey).find((work) => work.copyrightHash === copyrightHash);
+        const item = {
+          id: makeId("work"),
+          ...data,
+          title: String(data.title || "").trim() || extractTitle(bodyText, file?.name || ""),
+          summary,
+          body,
+          bodyFormat: bodyLooksLikeHtml(body) ? "html" : "text",
+          fileName: file?.name || "",
+          file: fileMeta(file ? [file] : [])[0] || null,
+          audioUrl,
+          audioFile: isAudioAsset ? buildRemoteFileMeta(file, uploadedAudio) : null,
+          original: true,
+          copyrightHash,
+          copyrightStatus: duplicate ? "duplicate-warning" : "local-fingerprint-ok",
+          status,
+          hidden: false,
+          createdAt: new Date().toISOString(),
+          publishedAt: status === "已发布" ? new Date().toISOString() : "",
+        };
+        list.push(item);
+        writeList(scopedKey("yiten-creator-work"), list);
+        if (isApprovedCreator()) {
+          publishCreatorWorkToPublic(item);
+        } else {
+          appendReviewItem(contentReviewKey, {
+            type: "work",
+            category: "作品",
+            sourceKey: scopedKey("yiten-creator-work"),
+            itemId: item.id,
+            creatorEmail: getCurrentAccount()?.email,
+            creatorName: getCurrentAccount()?.displayName,
+            title: item.title,
+            summary: item.summary,
+            snapshot: item,
+            status: "待审核",
+          });
+        }
+        await window.YitenSync?.pushPending?.();
+        event.currentTarget.reset();
+        setCreatorRichHtml("");
+        document.querySelector("#creatorWorkMessage").textContent = isApprovedCreator()
+          ? `作品已发布；队列里可以一键分发、隐藏或删除。${duplicate ? " 注意：站内检测到相似版权指纹，请复核是否重复发布。" : ""}`
+          : `作品已提交 owner 审核；通过后才会正式展示。${duplicate ? " 注意：站内检测到相似版权指纹，owner 审核时会复核。" : ""}`;
+        showDashboard();
+      });
+
+      creatorBookForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+        const message = document.querySelector("#creatorBookMessage");
+        message.textContent = "正在上传商品文件，生成跨设备可用的交付地址。";
+        let files = [];
+        let cover = null;
+        try {
+          files = await uploadFilesAsRemoteMeta(event.currentTarget.elements.files.files, "creator-products/files");
+          cover = await uploadCoverAsRemoteMeta(event.currentTarget.elements.cover.files, "creator-products/covers");
+        } catch (error) {
+          message.textContent = `商品文件上传失败：${error.message || "请稍后重试。"}`;
+          return;
+        }
+        const list = readList(scopedKey("yiten-creator-books"));
+        const status = getSubmissionStatus();
+        const item = {
+          id: makeId("book"),
+          ...data,
+          files,
+          cover,
+          status,
+          hidden: false,
+          createdAt: new Date().toISOString(),
+          publishedAt: status === "已发布" ? new Date().toISOString() : "",
+        };
+        list.push(item);
+        writeList(scopedKey("yiten-creator-books"), list);
+        if (isApprovedCreator()) {
+          publishCreatorBookToPublic(item);
+        } else {
+          appendReviewItem(contentReviewKey, {
+            type: "book",
+            category: "商品",
+            sourceKey: scopedKey("yiten-creator-books"),
+            itemId: item.id,
+            creatorEmail: getCurrentAccount()?.email,
+            creatorName: getCurrentAccount()?.displayName,
+            title: item.title,
+            description: item.description,
+            snapshot: item,
+            status: "待审核",
+          });
+        }
+        await window.YitenSync?.pushPending?.();
+        event.currentTarget.reset();
+        message.textContent = isApprovedCreator()
+          ? `电子书商品已发布并同步；已上传 ${files.length} 个商品文件${cover ? "和 1 张封面" : ""}。`
+          : `电子书商品已保存并提交 owner 审核；已上传 ${files.length} 个商品文件${cover ? "和 1 张封面" : ""}。`;
+        showDashboard();
+      });
+
+      creatorOfferForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+        const list = readList(scopedKey("yiten-creator-offers"));
+        const item = { id: makeId("offer"), ...data, status: getSubmissionStatus(), hidden: false, createdAt: new Date().toISOString() };
+        list.push(item);
+        writeList(scopedKey("yiten-creator-offers"), list);
+        if (!isApprovedCreator()) {
+          appendReviewItem(contentReviewKey, {
+            type: "offer",
+            category: "活动",
+            sourceKey: scopedKey("yiten-creator-offers"),
+            itemId: item.id,
+            creatorEmail: getCurrentAccount()?.email,
+            creatorName: getCurrentAccount()?.displayName,
+            title: item.title,
+            description: item.description,
+            snapshot: item,
+            status: "待审核",
+          });
+        }
+        event.currentTarget.reset();
+        document.querySelector("#creatorOfferMessage").textContent = isApprovedCreator()
+          ? "活动已发布，可用于引流、优惠和捆绑销售。"
+          : "活动已保存并提交 owner 审核。通过后可用于引流、优惠和捆绑销售。";
+        renderQueue();
+      });
+
+      document.querySelector("#creatorLogout").addEventListener("click", () => {
+        sessionStorage.removeItem(sessionKey);
+        dashboard.hidden = true;
+        document.querySelector("#creator-auth").hidden = false;
+        verifyForm.closest(".admin-section").hidden = false;
+        verifyMessage.textContent = "";
+        loginMessage.textContent = "已退出创作者后台。";
+        location.hash = "#creator-auth";
+      });
+
+      showDashboard();
+      }
+    </script>
+  </body>
+</html>

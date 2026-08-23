@@ -1,5 +1,9 @@
-# Object file
-*.o
-
-# Ada Library Information
-*.ali
+node_modules/
+.vercel/
+private-assets/
+coverage/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log

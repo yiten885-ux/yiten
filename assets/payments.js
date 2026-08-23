@@ -1,23 +1,82 @@
 (() => {
   const checkoutEndpoint = "/api/payments/create-checkout-session";
+  const fulfillCheckoutEndpoint = "/api/payments/fulfill-checkout";
   const paypalConfigEndpoint = "/api/paypal/client-config";
   const paypalCreateOrderEndpoint = "/api/paypal/create-order";
   const paypalCaptureOrderEndpoint = "/api/paypal/capture-order";
+  const deliveryLogsKey = "yiten-delivery-logs";
   const catalog = {
     membership: {
-      monthly: { title: "月度会员", amount: "12.00", currency: "USD" },
-      yearly: { title: "年度会员", amount: "99.00", currency: "USD" },
+      monthly: { title: "月度会员", amount: "12.00", currency: "USD", cycle: "/ 月" },
+      quarterly: { title: "季度会员", amount: "29.00", currency: "USD", cycle: "/ 季" },
+      yearly: { title: "年度会员", amount: "99.00", currency: "USD", cycle: "/ 年" },
     },
     ebook: {
-      visitor: { title: "电子书：长期思考与个人系统", amount: "29.00", currency: "USD" },
-      member: { title: "电子书：长期思考与个人系统（会员价）", amount: "19.00", currency: "USD" },
+      visitor: { title: "电子书：《只富一次》三部曲单本", amount: "29.00", currency: "USD" },
+      member: { title: "电子书：《只富一次》三部曲单本（会员价）", amount: "19.00", currency: "USD" },
+      book1: { title: "《只富一次：普通人的财富守恒法则》", amount: "29.00", currency: "USD" },
+      book2: { title: "《守住财富：消费陷阱与资产配置》", amount: "29.00", currency: "USD" },
+      book3: { title: "《永不返贫：家庭防坠落系统》", amount: "29.00", currency: "USD" },
+      bundle: { title: "《只富一次》三部曲套装与工具包", amount: "59.00", currency: "USD" },
+      "member-bundle": { title: "《只富一次》三部曲套装与工具包（会员价）", amount: "39.00", currency: "USD" },
+      extra1: { title: "补充资料包 1", amount: "29.00", currency: "USD" },
+      extra2: { title: "补充资料包 2", amount: "29.00", currency: "USD" },
     },
   };
+
+  const formatCatalogAmount = (value, fallback = "29.00") => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric.toFixed(2) : fallback;
+  };
+  const isPublishedProduct = (product) => Boolean(product && (product.status === "published" || product.status === "已发布" || product.published === true));
+
+  const hydrateExtraProductCatalog = () => {
+    try {
+      const products = JSON.parse(localStorage.getItem("yiten-book-products") || "{}");
+      const single = isPublishedProduct(products?.single) ? products.single : null;
+      const bundle = isPublishedProduct(products?.bundle) ? products.bundle : null;
+      if (single?.title) {
+        const visitorAmount = formatCatalogAmount(single.visitorPrice);
+        const memberAmount = formatCatalogAmount(single.memberPrice, visitorAmount);
+        catalog.ebook.visitor = { title: single.title, amount: visitorAmount, currency: "USD" };
+        catalog.ebook.member = { title: `${single.title}（会员价）`, amount: memberAmount, currency: "USD" };
+        catalog.ebook.book1 = { title: single.title, amount: visitorAmount, currency: "USD" };
+      }
+      if (bundle?.title) {
+        const visitorAmount = formatCatalogAmount(bundle.visitorPrice, "59.00");
+        const memberAmount = formatCatalogAmount(bundle.memberPrice, "39.00");
+        catalog.ebook.bundle = { title: bundle.title, amount: visitorAmount, currency: "USD" };
+        catalog.ebook["member-bundle"] = { title: `${bundle.title}（会员价）`, amount: memberAmount, currency: "USD" };
+      }
+      ["extra1", "extra2"].forEach((slot) => {
+        const product = products?.[slot];
+        if (!isPublishedProduct(product) || !product.title) return;
+        catalog.ebook[slot] = {
+          title: product.title,
+          amount: formatCatalogAmount(product.visitorPrice),
+          currency: "USD",
+        };
+      });
+      if (Array.isArray(products?.extraProducts)) {
+        products.extraProducts.forEach((product, index) => {
+          if (!isPublishedProduct(product) || !product.title) return;
+          catalog.ebook[`extra-dynamic-${index + 1}`] = {
+            title: product.title,
+            amount: formatCatalogAmount(product.visitorPrice),
+            currency: "USD",
+          };
+        });
+      }
+    } catch (_error) {
+      // Keep static fallback catalog when local product data is unavailable.
+    }
+  };
+  hydrateExtraProductCatalog();
   const providerCopy = {
-    paypal: "PayPal 将通过 PayPal 官方收银台收款。适合海外用户和已有 PayPal 账户的用户。",
-    card: "银行卡/信用卡将通过 Stripe Checkout 收款。这是当前可以先跑通支付闭环的正式通道。",
-    wechat: "微信支付将通过 Stripe Checkout 创建支付会话；当前 Stripe 后台显示待批准，批准后即可使用。",
-    alipay: "支付宝将通过 Stripe Checkout 创建支付会话；当前 Stripe 后台显示待批准，批准后即可使用。",
+    paypal: "PayPal 官方收银台，适合海外用户和 PayPal 账户。",
+    card: "银行卡/信用卡安全支付。",
+    wechat: "微信支付。",
+    alipay: "支付宝支付。",
   };
   const methodLabels = {
     paypal: "PayPal",
@@ -37,20 +96,75 @@
   const paymentStatus = document.querySelector("#paymentStatus");
   const selectedPlanTitle = document.querySelector("#selectedPlanTitle");
   const selectedPlanSummary = document.querySelector("#selectedPlanSummary");
+  const selectedPlanPrice = document.querySelector("#selectedPlanPrice");
+  const selectedPlanCycle = document.querySelector("#selectedPlanCycle");
 
   if (!offlinePayment || !offlinePaymentText || !offlinePaymentLink || !paymentStatus || !paypalButtons) return;
 
   const getSelectedItem = () => catalog[selectedCheckout.type]?.[selectedCheckout.id];
 
   const getPayload = () => {
+    const item = getSelectedItem();
     if (selectedCheckout.type === "ebook") {
-      return { product: "ebook", audience: selectedCheckout.id, method: selectedMethod };
+      return {
+        product: "ebook",
+        audience: selectedCheckout.id,
+        method: selectedMethod,
+        item: item
+          ? { title: item.title, amount: item.amount, currency: item.currency || "USD" }
+          : null,
+      };
     }
     return { plan: selectedCheckout.id, method: selectedMethod };
   };
 
   const setMessage = (message) => {
     paymentStatus.textContent = message;
+  };
+
+  const readDeliveryLogs = () => {
+    try {
+      const logs = JSON.parse(localStorage.getItem(deliveryLogsKey) || "[]");
+      return Array.isArray(logs) ? logs : [];
+    } catch (_error) {
+      return [];
+    }
+  };
+
+  const recordDelivery = (delivery) => {
+    if (!delivery?.orderId) return;
+    const logs = readDeliveryLogs().filter((item) => item.orderId !== delivery.orderId);
+    logs.unshift({
+      orderId: delivery.orderId,
+      provider: delivery.provider || "",
+      itemTitle: delivery.itemTitle || getSelectedItem()?.title || "",
+      deliveryEmailId: delivery.deliveryEmailId || "",
+      to: delivery.to || "",
+      deliveredAt: delivery.deliveredAt || new Date().toISOString(),
+    });
+    localStorage.setItem(deliveryLogsKey, JSON.stringify(logs.slice(0, 50)));
+  };
+
+  const fulfillStripeCheckout = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    if (params.get("payment") !== "success" || !sessionId) return;
+    const markerKey = `yiten-delivered-session-${sessionId}`;
+    if (localStorage.getItem(markerKey)) {
+      setMessage("支付成功。交付邮件此前已发送，如未收到请检查垃圾邮件或联系我。");
+      return;
+    }
+    setMessage("支付成功，正在发送交付邮件...");
+    try {
+      const response = await fetch(`${fulfillCheckoutEndpoint}?session_id=${encodeURIComponent(sessionId)}`);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "交付邮件发送失败");
+      localStorage.setItem(markerKey, "yes");
+      recordDelivery(result);
+      setMessage(`支付成功，交付邮件已发送到 ${result.to || "你的邮箱"}。`);
+    } catch (error) {
+      setMessage(`${error.message}。付款已完成，请联系我手动补发资料。`);
+    }
   };
 
   const loadScript = (src) =>
@@ -95,11 +209,14 @@
           const response = await fetch(paypalCaptureOrderEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: data.orderID }),
+            body: JSON.stringify({ orderId: data.orderID, ...getPayload() }),
           });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || "PayPal 收款确认失败");
-          setMessage(`PayPal 支付完成：${result.status || "COMPLETED"}`);
+          recordDelivery(result);
+          setMessage(result.emailSent
+            ? `PayPal 支付完成，交付邮件已发送到 ${result.to || "你的 PayPal 邮箱"}。`
+            : `PayPal 支付完成：${result.status || "COMPLETED"}`);
         },
         onCancel: () => setMessage("PayPal 支付已取消。"),
         onError: (error) => setMessage(error.message || "PayPal 支付失败。"),
@@ -123,12 +240,14 @@
     const item = getSelectedItem();
     if (!item) return;
     if (selectedPlanTitle) selectedPlanTitle.textContent = item.title;
+    if (selectedPlanPrice) selectedPlanPrice.textContent = `$${Number(item.amount).toFixed(Number(item.amount) % 1 ? 2 : 0)}`;
+    if (selectedPlanCycle) selectedPlanCycle.textContent = item.cycle || "";
     if (selectedPlanSummary) {
       selectedPlanSummary.textContent = selectedCheckout.type === "ebook"
-        ? "这是一次性电子书购买，游客可原价购买，订阅会员可用会员价购买。"
-        : "选择方案后，可以用 PayPal 或银行卡/信用卡完成真实支付测试；微信/支付宝审批通过后会自动走同一套 Stripe Checkout。";
+        ? "一次性购买电子书或套装。会员可使用专属折扣价。"
+        : "选择会员方案和支付方式后，即可进入安全收银台完成订阅。";
     }
-    offlinePaymentText.textContent = `${providerCopy[selectedMethod]} 当前商品：${item.title} ${item.currency} ${item.amount}。`;
+    offlinePaymentText.textContent = `你正在购买：${item.title}，金额 ${item.currency} ${item.amount}。支付方式：${providerCopy[selectedMethod]}`;
 
     if (selectedMethod === "paypal") {
       offlinePayment.hidden = true;
@@ -144,28 +263,60 @@
     offlinePaymentLink.classList.remove("disabled");
     offlinePaymentLink.textContent = `创建${methodLabels[selectedMethod]}链接`;
     if (selectedMethod === "card") {
-      setMessage("银行卡通道已接入 Stripe，可用于真实测试支付；到账到银行仍取决于 Stripe 提现状态。电子书交付页下一步接入。 ");
+      setMessage("点击按钮后将进入安全收银台。");
     } else {
-      setMessage("微信/支付宝已在代码中接入，等待 Stripe 支付方式审批通过后才能真实付款。 ");
+      setMessage("如果当前支付方式暂不可用，请先选择 PayPal 或银行卡。");
     }
+  };
+
+  const createStripeCheckout = async () => {
+    const item = getSelectedItem();
+    setMessage(`正在打开 ${item?.title || "商品"} 的安全支付页...`);
+    const response = await fetch(checkoutEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(getPayload()),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "创建支付会话失败");
+    if (!result.url) throw new Error("支付平台没有返回收银台地址");
+    window.location.href = result.url;
   };
 
   document.querySelectorAll(".plan-button").forEach((button) => {
     button.addEventListener("click", () => {
       selectedCheckout = { type: "membership", id: button.dataset.plan || "yearly" };
+      document.querySelectorAll(".plan-button").forEach((item) => item.classList.toggle("active", item === button));
       resetPayPal();
       syncCheckoutCopy();
-      document.querySelector("#membership")?.scrollIntoView({ behavior: "smooth" });
+      document.querySelector("#checkout")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
 
-  document.querySelectorAll(".ebook-button").forEach((button) => {
-    button.addEventListener("click", () => {
-      selectedCheckout = { type: "ebook", id: button.dataset.audience === "member" ? "member" : "visitor" };
-      resetPayPal();
-      syncCheckoutCopy();
-      document.querySelector("#membership")?.scrollIntoView({ behavior: "smooth" });
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest(".ebook-button");
+    if (!button) return;
+    hydrateExtraProductCatalog();
+    const audience = button.dataset.audience || "visitor";
+    selectedCheckout = { type: "ebook", id: catalog.ebook[audience] ? audience : "visitor" };
+    selectedMethod = button.dataset.method || (selectedMethod === "paypal" ? "card" : selectedMethod);
+    document.querySelectorAll(".payment-method").forEach((item) => {
+      item.classList.toggle("active", item.dataset.method === selectedMethod);
     });
+    resetPayPal();
+    syncCheckoutCopy();
+    try {
+      button.disabled = true;
+      button.dataset.loading = "true";
+      await createStripeCheckout();
+    } catch (error) {
+      const item = getSelectedItem();
+      const label = methodLabels[selectedMethod] || selectedMethod;
+      setMessage(`${error.message}。${item?.title || "该商品"} 的 ${label} 暂时不可用，请稍后重试或改用 PayPal。`);
+      document.querySelector("#checkout")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      button.disabled = false;
+      delete button.dataset.loading;
+    }
   });
 
   document.querySelectorAll(".payment-method").forEach((button) => {
@@ -178,24 +329,22 @@
   offlinePaymentLink.addEventListener("click", async (event) => {
     event.preventDefault();
     const item = getSelectedItem();
-    setMessage("正在创建 Stripe 支付会话...");
 
     try {
-      const response = await fetch(checkoutEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(getPayload()),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "创建支付会话失败");
-      if (!result.url) throw new Error("支付平台没有返回收银台地址");
-      window.location.href = result.url;
+      await createStripeCheckout();
     } catch (error) {
       const label = methodLabels[selectedMethod] || selectedMethod;
-      setMessage(`${error.message}。如果是微信/支付宝，这是 Stripe 仍在审批该支付方式；银行卡请检查 Stripe 密钥和账户状态。`);
-      offlinePaymentText.textContent = `${item?.title || "当前商品"} 的 ${label}通道暂时没有返回可用收银台。`;
+      setMessage(`${error.message}。请更换 PayPal 或银行卡后重试。`);
+      offlinePaymentText.textContent = `${item?.title || "该商品"} 的 ${label}暂时不可用。`;
     }
   });
 
   syncCheckoutCopy();
+  fulfillStripeCheckout();
+
+  window.addEventListener("storage", (event) => {
+    if (event.key !== "yiten-book-products" && event.key !== "yiten-book-products-updated-at") return;
+    hydrateExtraProductCatalog();
+    syncCheckoutCopy();
+  });
 })();

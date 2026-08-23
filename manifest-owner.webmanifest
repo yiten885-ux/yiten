@@ -1,0 +1,19 @@
+{
+  "name": "Yiten Owner 后台",
+  "short_name": "Yiten 后台",
+  "description": "Yiten Huang 网站后台管理",
+  "start_url": "/owner",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbf7ef",
+  "theme_color": "#1f6653",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/owner-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

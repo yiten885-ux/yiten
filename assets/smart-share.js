@@ -9,12 +9,13 @@
   const platformNames = {
     native: "系统分享",
     wechat: "微信",
-    copy: "复制文案",
     substack: "Substack",
     youtube: "YouTube",
     xiaohongshu: "小红书",
     tiktok: "TikTok",
     x: "X",
+    reddit: "Reddit",
+    facebook: "Facebook",
     linkedin: "LinkedIn",
     weibo: "微博",
   };
@@ -23,7 +24,7 @@
 
   const splitSentences = (text) =>
     compact(text)
-      .split(/(?<=[。！？.!?；;])\s*/)
+      .split(/(?<=[。！？.!?])\s*/)
       .map((item) => item.trim())
       .filter(Boolean);
 
@@ -42,6 +43,16 @@
   };
 
   const buildInterpretation = (work) => {
+    if (window.YitenI18n?.getLanguage?.() === "en") {
+      const type = work.type || "content";
+      if (type.includes("Audio") || type.includes("Podcast")) {
+        return "My take: this is worth listening to with an action list nearby, turning ideas into next steps.";
+      }
+      if (type.includes("Project")) {
+        return "My take: this connects creation, distribution, payment, and review into one working system.";
+      }
+      return "My take: the value is not just information, but a sharper way to organize judgment and long-term action.";
+    }
     const type = work.type || "内容";
     const access = work.accessText || "";
     if (type.includes("音频") || type.includes("播客")) {
@@ -59,10 +70,24 @@
     const url = card.querySelector(".work-link")?.href || window.location.href;
     const type = compact(card.querySelector(".work-type")?.textContent);
     const accessText = compact(card.querySelector(".preview-copy")?.textContent);
-    return { title, summary, url, type, accessText };
+    const key = card.dataset.workKey || "";
+    return { title, summary, url, type, accessText, key };
   };
 
   const buildShareText = (work, platform) => {
+    if (window.YitenI18n?.getLanguage?.() === "en") {
+      const goldenLine = pickGoldenLine(work.title, work.summary);
+      return [
+        "Sharing something worth reading:",
+        `“${work.title}”`,
+        `Best line: ${goldenLine}`,
+        buildInterpretation(work),
+        work.summary ? `Why it matters: ${work.summary}` : "",
+        `Link: ${work.url}`,
+        "You can send this as-is, or edit it into your own note before posting.",
+      ].filter(Boolean).join("\n\n");
+    }
+
     const goldenLine = pickGoldenLine(work.title, work.summary);
     const platformLead = platform === "wechat"
       ? "我想分享一个今天看到的好内容："
@@ -102,11 +127,23 @@
     const encodedTitle = encodeURIComponent(work.title);
     const targets = {
       x: `https://twitter.com/intent/tweet?text=${encodedText}`,
+      reddit: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
       weibo: `https://service.weibo.com/share/share.php?url=${encodedUrl}&title=${encodedText}`,
       email: `mailto:?subject=${encodedTitle}&body=${encodedText}`,
     };
     return targets[platform];
+  };
+
+  const revealShareComposer = (card, work, platform) => {
+    const composer = card.querySelector("[data-share-composer]");
+    const draft = card.querySelector("[data-share-draft]");
+    if (!composer || !draft) return buildShareText(work, platform);
+    const generated = buildShareText(work, platform);
+    if (draft.dataset.edited !== "true") draft.value = generated;
+    composer.hidden = false;
+    return draft.value || generated;
   };
 
   const handleSmartShare = async (event) => {
@@ -121,26 +158,28 @@
 
     const platform = button.dataset.share;
     const work = readWorkFromCard(card);
-    const shareText = buildShareText(work, platform);
+    const shareText = revealShareComposer(card, work, platform);
     const previousText = button.textContent;
+    window.YitenShareRewards?.record?.(work, platform);
+    window.dispatchEvent(new Event("yiten:share-reward-refresh"));
 
     try {
       if (platform === "native" && navigator.share) {
         await navigator.share({ title: work.title, text: shareText, url: work.url });
-        button.textContent = "已打开分享";
+        button.textContent = window.YitenI18n?.getLanguage?.() === "en" ? "Share opened" : "已打开分享";
       } else {
         await copyText(shareText);
         const destination = platformDestinations[platform] || buildShareUrl(platform, work, shareText);
-        if (destination && platform !== "copy" && platform !== "wechat") {
+        if (destination && platform !== "wechat") {
           window.open(destination, "_blank", "noopener,noreferrer");
         }
         button.textContent = platform === "wechat"
-          ? "已复制微信文案"
-          : `已生成${platformNames[platform] || "分享"}文案`;
+          ? (window.YitenI18n?.getLanguage?.() === "en" ? "WeChat copy ready" : "已复制微信文案")
+          : (window.YitenI18n?.getLanguage?.() === "en" ? `${platformNames[platform] || "Share"} copy ready` : `已生成${platformNames[platform] || "分享"}文案`);
       }
     } catch (error) {
       console.warn("Smart share failed", error);
-      button.textContent = "生成失败";
+      button.textContent = window.YitenI18n?.getLanguage?.() === "en" ? "Failed" : "生成失败";
     }
 
     window.setTimeout(() => {
@@ -149,4 +188,8 @@
   };
 
   document.addEventListener("click", handleSmartShare, true);
+  document.addEventListener("input", (event) => {
+    const draft = event.target.closest("[data-share-draft]");
+    if (draft) draft.dataset.edited = "true";
+  });
 })();
