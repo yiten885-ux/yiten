@@ -98,6 +98,21 @@ test("signing endpoint is rate limited even while disabled", async () => {
   assert.equal(blocked.body.code, "rate_limited");
 });
 
+test("wechat verification endpoint is rate limited while unconfigured", async () => {
+  const wechat = requireProject("api/wechat/test-token.js");
+  const headers = {
+    host: "example.test",
+    "x-forwarded-for": "203.0.113.50",
+  };
+  for (let i = 1; i <= 30; i += 1) {
+    const res = await invoke(wechat, { method: "GET", url: "/api/wechat/test-token", headers });
+    assert.equal(res.statusCode, 503, `request ${i} should hit unconfigured state`);
+  }
+  const blocked = await invoke(wechat, { method: "GET", url: "/api/wechat/test-token", headers });
+  assert.equal(blocked.statusCode, 429);
+  assert.equal(blocked.body.code, "rate_limited");
+});
+
 test("view and upload limiters are wired into sync handler", async () => {
   const sync = requireProject("api/sync.js");
   const baseHeaders = adminRequestHeaders();

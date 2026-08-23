@@ -1,11 +1,18 @@
 const crypto = require("crypto");
+const { clientIp, rateLimited, wechatLimiter } = require("../../lib/rate-limit");
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     res.status(405).send("Method not allowed");
+    return;
+  }
+
+  const wechatLimit = await wechatLimiter(clientIp(req));
+  if (!wechatLimit.allowed) {
+    rateLimited(res, wechatLimit.retryAfterSeconds);
     return;
   }
 

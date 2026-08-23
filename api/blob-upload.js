@@ -1,6 +1,7 @@
 // 浏览器直传 Blob 的服务端令牌接口：客户端把文件直接上传到 Vercel Blob，
 // 不再经过无服务器函数体（避开 4.5MB 平台上限），支持几十 MB 的电子书/音频。
 const { readJsonBody, requireAdminRequest, setNoStore } = require("../lib/auth-shared");
+const { clientIp, rateLimited, uploadLimiter } = require("../lib/rate-limit");
 
 module.exports = async function handler(req, res) {
   setNoStore(res);
@@ -10,6 +11,11 @@ module.exports = async function handler(req, res) {
     return;
   }
   if (!requireAdminRequest(req, res, { sameOrigin: true })) return;
+  const uploadLimit = await uploadLimiter(clientIp(req));
+  if (!uploadLimit.allowed) {
+    rateLimited(res, uploadLimit.retryAfterSeconds);
+    return;
+  }
   try {
     const body = await readJsonBody(req, 64 * 1024);
     const { handleUpload } = require("@vercel/blob/client");
