@@ -16,6 +16,7 @@ const {
   serializePrivateState,
   writeState,
 } = require("../lib/site-state");
+const { clientIp, rateLimited, uploadLimiter, viewLimiter } = require("../lib/rate-limit");
 
 const maxUploadBytes = 35 * 1024 * 1024;
 const maxStateBodyBytes = 2 * 1024 * 1024;
@@ -122,6 +123,11 @@ const handleUpload = async (req, res) => {
     return;
   }
   if (!requireAdminRequest(req, res, { sameOrigin: true })) return;
+  const uploadLimit = await uploadLimiter(clientIp(req));
+  if (!uploadLimit.allowed) {
+    rateLimited(res, uploadLimit.retryAfterSeconds);
+    return;
+  }
   if (!isMediaConfigured()) {
     res.status(503).json({ ok: false, code: "blob_not_configured", message: "上传服务尚未配置。" });
     return;
@@ -187,6 +193,11 @@ const handleView = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     res.status(405).json({ ok: false, message: "Method not allowed" });
+    return;
+  }
+  const viewLimit = await viewLimiter(clientIp(req));
+  if (!viewLimit.allowed) {
+    rateLimited(res, viewLimit.retryAfterSeconds);
     return;
   }
   if (process.env.PUBLIC_VIEW_TRACKING_ENABLED !== "true") {

@@ -23,6 +23,7 @@
 4. Creator 与支付保持 fail-closed,直到各自门禁(见 README Release gates)完成;
 5. Service Worker 仅缓存公开白名单,绝不缓存 API 与受保护页;
 6. 测试不得访问生产 Blob/邮件/支付服务。
+7. 限流(`lib/rate-limit.js`):登录/上传/公共 catalog/浏览计数/签名端点均须过限流;限流检查须置于 enabled/凭据检查之前,保证禁用状态请求同样计数;新增可公网触达的端点必须接入对应限流器。
 
 ## 提交规范
 

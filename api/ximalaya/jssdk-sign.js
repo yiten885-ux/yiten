@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { isSameOriginRequest, setNoStore } = require("../../lib/auth-shared");
+const { clientIp, rateLimited, signLimiter } = require("../../lib/rate-limit");
 
 const readBody = (req) =>
   new Promise((resolve, reject) => {
@@ -43,6 +44,12 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== "POST") {
     res.status(405).json({ code: 405, message: "Method not allowed", signature: "" });
+    return;
+  }
+
+  const signLimit = await signLimiter(clientIp(req));
+  if (!signLimit.allowed) {
+    rateLimited(res, signLimit.retryAfterSeconds);
     return;
   }
 

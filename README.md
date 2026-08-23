@@ -25,17 +25,17 @@
 要求 Node.js 20+;无需测试框架安装。
 
 ```bash
-npm test        # node --test tests/security/*.test.js(当前 26 项)
+npm test        # node --test tests/security/*.test.js(当前 31 项)
 ```
 
-## 释放门禁(Release gates,未完成)
+## 释放门禁(Release gates)
 
-1. 轮换所有可能暴露的生产凭据(admin/session/邀请/storage/集成)。
-2. 审查并清理生产状态 Blob,私有值不进日志/不进 Git。
-3. 实现服务端 Creator 账号、一次性邀请与租户授权后再启用 Creator。
-4. 实现服务端支付目录 ID、verified webhooks、订单幂等、私有签名交付后再启用支付。
-5. 生产级限流:登录、上传、公共计数、签名端点。
-6. 在受保护 Preview 环境验证后再 Production 部署。
+1. 轮换所有可能暴露的生产凭据(admin/session/邀请/storage/集成)——**未完成,上线前必做**。
+2. 审查并清理生产状态 Blob,私有值不进日志/不进 Git——**未完成**。
+3. 实现服务端 Creator 账号、一次性邀请与租户授权后再启用 Creator——**未完成**。
+4. 实现服务端支付目录 ID、verified webhooks、订单幂等、私有签名交付后再启用支付——**未完成**。
+5. 生产级限流:登录、上传、公共计数、签名端点——**已实现**(`lib/rate-limit.js`,内存后端,5 个限流点接入;生产多实例建议接 Vercel KV 后端)。
+6. 在受保护 Preview 环境验证后再 Production 部署——**未完成**。
 
 ## 目录
 

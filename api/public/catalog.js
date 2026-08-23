@@ -1,5 +1,6 @@
 const { setNoStore } = require("../../lib/auth-shared");
 const { projectPublicCatalog, readState } = require("../../lib/site-state");
+const { catalogLimiter, clientIp, rateLimited } = require("../../lib/rate-limit");
 
 module.exports = async function handler(req, res) {
   setNoStore(res);
@@ -7,6 +8,12 @@ module.exports = async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     res.status(405).json({ ok: false, message: "Method not allowed" });
+    return;
+  }
+
+  const limit = await catalogLimiter(clientIp(req));
+  if (!limit.allowed) {
+    rateLimited(res, limit.retryAfterSeconds);
     return;
   }
 

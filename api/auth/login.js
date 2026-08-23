@@ -8,6 +8,7 @@ const {
   setNoStore,
   verifyAdminPassword,
 } = require("../../lib/auth-shared");
+const { clientIp, loginLimiter, rateLimited } = require("../../lib/rate-limit");
 
 module.exports = async function handler(req, res) {
   setNoStore(res);
@@ -23,6 +24,12 @@ module.exports = async function handler(req, res) {
   }
   if (!isAuthConfigured()) {
     res.status(503).json({ ok: false, code: "auth_not_configured", message: "后台认证尚未安全配置。" });
+    return;
+  }
+
+  const limit = await loginLimiter(clientIp(req));
+  if (!limit.allowed) {
+    rateLimited(res, limit.retryAfterSeconds);
     return;
   }
 
