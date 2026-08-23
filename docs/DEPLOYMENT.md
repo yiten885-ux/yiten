@@ -8,7 +8,9 @@
 - Vercel 账号(曾部署 `project-a4ft0`);
 - 域名 `yitenhuang.com` 已指向 Vercel(CNAME,Cloudflare)。
 
-## 连接步骤(需在 Vercel 面板操作,一次性)
+## 连接步骤(二选一,一次性)
+
+### 方式 A:Vercel 面板(推荐)
 
 1. 登录 vercel.com → **Add New → Project** → Import Git Repository → 选择 `yiten885-ux/yiten`;
 2. Framework Preset 选择 **Other**(本仓库是零构建静态 + Serverless 函数,由 `vercel.json` 驱动构建配置);
@@ -21,6 +23,17 @@
    - `PUBLIC_VIEW_TRACKING_ENABLED=false`;
 5. Deploy → 生成 Preview URL;
 6. Production 域名:Settings → Domains → 添加 `yitenhuang.com`。
+
+### 方式 B:Vercel CLI
+
+```bash
+npx vercel login            # 浏览器登录
+npx vercel link             # 关联 project-a4ft0 或新建项目
+npx vercel env add ADMIN_PASSWORD production   # 逐个添加环境变量
+npx vercel deploy --preview # 生成 Preview 部署
+```
+
+Git 推送后的自动部署在方式 A 下由 Vercel 面板接管;方式 B 的 `vercel deploy` 是手动触发。
 
 ## 发布流程(门禁通过后)
 
