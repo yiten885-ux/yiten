@@ -24,6 +24,7 @@
 5. Service Worker 仅缓存公开白名单,绝不缓存 API 与受保护页;
 6. 测试不得访问生产 Blob/邮件/支付服务。
 7. 限流(`lib/rate-limit.js`):登录/上传/公共 catalog/浏览计数/签名端点均须过限流;限流检查须置于 enabled/凭据检查之前,保证禁用状态请求同样计数;新增可公网触达的端点必须接入对应限流器。
+8. 校验层(样板 `assets/validate.js`,UMD 前后端共用):API 响应须经契约校验(`catalogResponse` 守护结构/类型,原样返回服务端已净化数据,不重写字段);业务错误统一 `{ ok:false, error:{ code, message } }`;客户端统一经 `assets/catalog.js` 式封装(超时/Abort/错误映射)。后续端点按此模式接入。
 
 ## 提交规范
 

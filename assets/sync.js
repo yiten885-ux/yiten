@@ -158,25 +158,40 @@
     if (scope === "disabled") return { ok: false, code: "sync_disabled" };
     if (scope === "admin" && !started) return { ok: false, code: "admin_sync_not_started" };
     try {
-      const endpoint = scope === "admin"
-        ? `./api/sync/state?t=${Date.now()}${lastSavedAt ? `&since=${encodeURIComponent(lastSavedAt)}` : ""}`
-        : `./api/public/catalog?t=${Date.now()}`;
-      const response = await fetch(endpoint, {
-        cache: "no-store",
-        credentials: scope === "admin" ? "include" : "omit",
-      });
-      const data = await response.json().catch(() => ({}));
-      if (scope === "admin" && response.status === 401) {
-        stop({ clearPrivate: true });
-        return { ok: false, code: data.code || "authentication_required" };
-      }
-      if (!response.ok || !data.ok) return { ok: false, code: data.code || "sync_failed" };
-      if (data.unchanged) {
-        if (data.savedAt) lastSavedAt = data.savedAt;
+      if (scope === "admin") {
+        const endpoint = `./api/sync/state?t=${Date.now()}${lastSavedAt ? `&since=${encodeURIComponent(lastSavedAt)}` : ""}`;
+        const response = await fetch(endpoint, {
+          cache: "no-store",
+          credentials: "include",
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          stop({ clearPrivate: true });
+          return { ok: false, code: data.code || "authentication_required" };
+        }
+        if (!response.ok || !data.ok) return { ok: false, code: data.code || "sync_failed" };
+        if (data.unchanged) {
+          if (data.savedAt) lastSavedAt = data.savedAt;
+          return data;
+        }
+        applyPrivateState(data);
         return data;
       }
-      if (scope === "admin") applyPrivateState(data);
-      else applyPublicCatalog(data);
+
+      // public:优先走统一 catalog 客户端(校验层);无客户端时回退原逻辑。
+      const catalogClient = typeof window !== "undefined" && window.YitenCatalog ? window.YitenCatalog : null;
+      if (catalogClient) {
+        const catalog = await catalogClient.fetchCatalog();
+        applyPublicCatalog(catalog);
+        return catalog;
+      }
+      const response = await fetch(`./api/public/catalog?t=${Date.now()}`, {
+        cache: "no-store",
+        credentials: "omit",
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) return { ok: false, code: data.code || "sync_failed" };
+      applyPublicCatalog(data);
       return data;
     } catch (error) {
       console.warn(`Yiten ${scope} sync pull failed`, error);
