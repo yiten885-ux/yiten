@@ -50,8 +50,8 @@ npm test                                        # 32 项安全回归
 | 2 | AUTH_SECRET | ✅ 已轮换(Production+Preview) | 旧 session 已全部作废 |
 | 3 | YITEN_STATE_READ_WRITE_TOKEN | ✅ 已轮换(全环境) | 从 yiten-state Store Dashboard 生成新 token;期间线上状态一度读不到,已恢复(works=17) |
 | 4 | BLOB_READ_WRITE_TOKEN | ✅ 已轮换(全环境) | yiten-media Store 新 token,上传配置验证通过(401 而非 503) |
-| 5 | STRIPE_SECRET_KEY | ⏳ 待轮换 | Stripe 后台 Roll key |
-| 6 | PAYPAL_CLIENT_ID/SECRET | ⏳ 待轮换 | PayPal Developer 重置 |
+| 5 | STRIPE_SECRET_KEY | ⏸ 暂不轮换(2026-08-23 结论) | Git 历史无泄露证据,支付全 fail-closed;阶段 3 启用支付时随新架构一起换 |
+| 6 | PAYPAL_CLIENT_ID/SECRET | ⏸ 暂不轮换(2026-08-23 结论) | 同上:无泄露证据,启用支付前再换 |
 | 7 | RESEND_API_KEY | ✅ 已轮换(全环境) | Resend 新 key 已上线 |
 | 8 | WECHAT_TOKEN | ⏸ 未配置 | 启用微信前再配 |
 | 9 | XIMALAYA | ⏸ 默认禁用 | 若启用则轮换 |
