@@ -52,7 +52,7 @@ npm test                                        # 32 项安全回归
 | 4 | BLOB_READ_WRITE_TOKEN | ✅ 已轮换(全环境) | yiten-media Store 新 token,上传配置验证通过(401 而非 503) |
 | 5 | STRIPE_SECRET_KEY | ⏳ 待轮换 | Stripe 后台 Roll key |
 | 6 | PAYPAL_CLIENT_ID/SECRET | ⏳ 待轮换 | PayPal Developer 重置 |
-| 7 | RESEND_API_KEY | ⏳ 待轮换 | Resend 新建 key |
+| 7 | RESEND_API_KEY | ✅ 已轮换(全环境) | Resend 新 key 已上线 |
 | 8 | WECHAT_TOKEN | ⏸ 未配置 | 启用微信前再配 |
 | 9 | XIMALAYA | ⏸ 默认禁用 | 若启用则轮换 |
 | 10 | Cloudflare/GitHub/Vercel 账号 | ⏸ 检查 | 无泄漏迹象 |
