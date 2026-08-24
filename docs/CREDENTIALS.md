@@ -49,7 +49,7 @@ npm test                                        # 32 项安全回归
 | 1 | ADMIN_PASSWORD | ✅ 已轮换(Production+Preview) | 新值在密码管理器 |
 | 2 | AUTH_SECRET | ✅ 已轮换(Production+Preview) | 旧 session 已全部作废 |
 | 3 | YITEN_STATE_READ_WRITE_TOKEN | ✅ 已轮换(全环境) | 从 yiten-state Store Dashboard 生成新 token;期间线上状态一度读不到,已恢复(works=17) |
-| 4 | BLOB_READ_WRITE_TOKEN | ⏳ 待轮换 | yiten-media Store(88MB/34 文件),勿重建 Store,用同样方式生成新 token |
+| 4 | BLOB_READ_WRITE_TOKEN | ✅ 已轮换(全环境) | yiten-media Store 新 token,上传配置验证通过(401 而非 503) |
 | 5 | STRIPE_SECRET_KEY | ⏳ 待轮换 | Stripe 后台 Roll key |
 | 6 | PAYPAL_CLIENT_ID/SECRET | ⏳ 待轮换 | PayPal Developer 重置 |
 | 7 | RESEND_API_KEY | ⏳ 待轮换 | Resend 新建 key |
