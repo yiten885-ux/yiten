@@ -934,13 +934,11 @@ workGrid.addEventListener("click", async (event) => {
   }
 });
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    activeFilter = button.dataset.filter;
-    filterButtons.forEach((item) => item.classList.remove("active"));
-    button.classList.add("active");
-    renderWorks();
-  });
+window.YitenEvents.delegate(document, ".filter", "click", (_event, button) => {
+  activeFilter = button.dataset.filter;
+  filterButtons.forEach((item) => item.classList.remove("active"));
+  button.classList.add("active");
+  renderWorks();
 });
 
 const diagnosticTools = window.YitenComponents.diagnosticTools;
@@ -977,10 +975,8 @@ const updateDiagnosticTool = (tool = "cashflow", shouldDispatch = true) => {
   if (shouldDispatch) window.dispatchEvent(new CustomEvent("yiten:tool-start", { detail: { tool } }));
 };
 
-document.querySelectorAll("[data-tool-start]").forEach((link) => {
-  link.addEventListener("click", () => {
-    updateDiagnosticTool(link.dataset.toolStart || "cashflow", true);
-  });
+window.YitenEvents.delegate(document, "[data-tool-start]", "click", (_event, link) => {
+  updateDiagnosticTool(link.dataset.toolStart || "cashflow", true);
 });
 
 updateDiagnosticTool("cashflow", false);
