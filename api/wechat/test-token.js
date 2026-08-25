@@ -1,12 +1,13 @@
 const crypto = require("crypto");
 const { clientIp, rateLimited, wechatLimiter } = require("../../lib/rate-limit");
+const validate = require("../../assets/validate.js");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
-    res.status(405).send("Method not allowed");
+    res.status(405).json(validate.apiError("method_not_allowed", "Method not allowed", 405));
     return;
   }
 
@@ -18,12 +19,12 @@ module.exports = async function handler(req, res) {
 
   const token = process.env.WECHAT_TOKEN;
   if (!token) {
-    res.status(503).send("verification unavailable");
+    res.status(503).json(validate.apiError("wechat_not_configured", "verification unavailable", 503));
     return;
   }
   const { signature, timestamp, nonce, echostr } = req.query || {};
   if (!signature || !timestamp || !nonce || !/^[a-f0-9]{40}$/i.test(String(signature))) {
-    res.status(403).send("invalid signature");
+    res.status(403).json(validate.apiError("invalid_signature", "invalid signature", 403));
     return;
   }
   const expected = crypto
@@ -38,5 +39,5 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  res.status(403).send("invalid signature");
+  res.status(403).json(validate.apiError("invalid_signature", "invalid signature", 403));
 };

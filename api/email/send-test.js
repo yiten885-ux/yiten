@@ -1,11 +1,12 @@
 const { requireAdminRequest, setNoStore } = require("../../lib/auth-shared");
 const { defaultOwnerEmail, sendResendEmail } = require("../../lib/email-shared");
+const validate = require("../../assets/validate.js");
 
 module.exports = async function handler(req, res) {
   setNoStore(res);
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    res.status(405).json({ message: "Method not allowed" });
+    res.status(405).json(validate.apiError("method_not_allowed", "Method not allowed", 405));
     return;
   }
   if (!requireAdminRequest(req, res, { sameOrigin: true })) return;
@@ -19,6 +20,6 @@ module.exports = async function handler(req, res) {
     });
     res.status(200).json({ ok: true, id: result.id });
   } catch (error) {
-    res.status(500).json({ ok: false, message: "Unable to send test email" });
+    res.status(500).json(validate.apiError("email_send_failed", "Unable to send test email", 500));
   }
 };
