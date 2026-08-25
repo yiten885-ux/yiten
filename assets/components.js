@@ -65,10 +65,101 @@
   `;
   };
 
+  // ---------- 作品卡片 ----------
+
+  // input: { work, title, summary, typeLabel, accessLabel, originalLabel,
+  //          copyrightLabel, publishedAt, previewText, inlineBody, fallbackBody,
+  //          audioSource, isAudioWork, missingAudioHint, unlockCopy, shareState,
+  //          rewardUnlocked, locked, index, workKey, url, coverUrl,
+  //          shareLabels, uiLabels }
+  // 纯函数:文案与格式化由调用方(app.js)计算,本组件只做安全装配。
+  const workCard = (input) => {
+    const {
+      work, title, summary, typeLabel, accessLabel, originalLabel, copyrightLabel,
+      publishedAt, previewText, inlineBody, fallbackBody, audioSource, isAudioWork,
+      missingAudioHint, unlockCopy, shareState, rewardUnlocked, locked, index, workKey,
+      url, coverUrl, shareLabels = {}, uiLabels = {},
+    } = input;
+    const attr = escapeAttribute;
+    const progressStyle = `style="--free-percent: ${Number(work.freePercent) || 35}%"`;
+
+    // 纵深防御:URL 一律再过安全过滤(即使调用方已净化)
+    const safeCover = safePublicClientUrl(coverUrl);
+    const coverBlock = safeCover
+      ? `<div class="work-cover"><img src="${attr(safeCover)}" alt="${attr(title)}" loading="lazy" /></div>`
+      : `<div class="work-cover work-cover-text" aria-hidden="true"><span class="work-cover-type">${escapeHtml(typeLabel)}</span><span class="work-cover-title">${escapeHtml(title)}</span></div>`;
+
+    const timeBlock = publishedAt
+      ? `<time class="work-time" datetime="${attr(work.publishedAt || work.updatedAt || work.createdAt)}">${escapeHtml(publishedAt)}</time>`
+      : "";
+
+    const metaRow = `
+            <div class="work-meta-row">
+              <span class="work-type">${escapeHtml(typeLabel)}</span>
+              ${work.original === false ? "" : `<span class="original-pill">${escapeHtml(originalLabel)}</span>`}
+              ${work.copyrightHash ? `<span class="copyright-pill" title="${attr(work.copyrightHash)}">${escapeHtml(copyrightLabel)}</span>` : ""}
+              <span class="access-pill">${escapeHtml(accessLabel)}</span>
+            </div>`;
+
+    const bodyBlock = inlineBody || fallbackBody
+      ? `<details class="published-body work-body-details" id="${attr(work.id || workKey)}"><summary>${rewardUnlocked || work.access === "free" ? "展开完整内容" : "展开免费试看"}</summary><div class="published-body-content">${inlineBody || fallbackBody}</div></details>`
+      : "";
+
+    const safeAudio = safePublicClientUrl(audioSource, { allowHash: false });
+    const audioBlock = safeAudio
+      ? `<div class="audio-player-shell"><span class="audio-play-label">播放音频</span><audio class="work-audio-player" controls preload="metadata" src="${attr(safeAudio)}"></audio></div>`
+      : isAudioWork
+        ? `<div class="audio-player-shell audio-missing"><strong>暂无可播放音频</strong><small>${escapeHtml(missingAudioHint)}</small></div>`
+        : "";
+
+    const attachmentsBlock = (() => {
+      const list = Array.isArray(work.attachments) ? work.attachments : [];
+      if (!list.length) return "";
+      return `<div class="work-attachments"><span>含 ${list.length} 个配套附件</span></div>`;
+    })();
+
+    const hasExpandableContent = Boolean(bodyBlock);
+    const workUrl = hasExpandableContent ? `#${attr(work.id || workKey)}` : attr(safePublicClientUrl(url) || "#works");
+    const linkTarget = hasExpandableContent ? "" : ` target="_blank" rel="noreferrer"`;
+
+    const shareButtons = Object.keys(shareLabels).length
+      ? Object.entries(shareLabels).map(([platform, label]) => `<button type="button" data-share="${attr(platform)}">${escapeHtml(label)}</button>`).join("")
+      : "";
+
+    return `
+        <article class="work-card${isAudioWork ? " audio-work-card" : ""}${locked && !rewardUnlocked ? " gated" : ""}${rewardUnlocked ? " reward-unlocked" : ""}" data-index="${index}" data-work-key="${attr(workKey)}">
+          ${coverBlock}
+          ${timeBlock}
+          <div>
+            ${metaRow}
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(summary)}</p>
+            ${audioBlock}
+            <div class="preview-meter" ${progressStyle}><span></span></div>
+            <small class="preview-copy">${escapeHtml(previewText)}</small>
+            ${bodyBlock}
+            ${attachmentsBlock}
+          </div>
+          <div class="work-actions">
+            <a class="work-link" href="${workUrl}"${linkTarget}>${locked && !rewardUnlocked ? escapeHtml(uiLabels.readPreview || "") : escapeHtml(uiLabels.readFull || "")}</a>
+            ${locked && !rewardUnlocked ? `<button class="work-link reward-unlock-button" type="button" data-unlock-work ${shareState && shareState.availableUnlocks < 1 ? "disabled" : ""}>${escapeHtml(unlockCopy)}</button><a class="work-link subscribe-link" href="#membership">${escapeHtml(uiLabels.subscribeUnlock || "")}</a>` : ""}
+            ${shareButtons ? `<div class="share-actions" aria-label="${escapeHtml(uiLabels.shareAria || "")} ${attr(title)}">${shareButtons}</div>` : ""}
+            <div class="share-composer" data-share-composer hidden>
+              <label>${escapeHtml(uiLabels.shareTextLabel || "")}
+                <textarea data-share-draft rows="7"></textarea>
+              </label>
+              <small>${escapeHtml(uiLabels.shareHint || "")}</small>
+            </div>
+          </div>
+        </article>
+      `;
+  };
+
   return {
     escapeAttribute,
     escapeHtml,
     safePublicClientUrl,
     shareRewardPanel,
+    workCard,
   };
 });

@@ -84,3 +84,90 @@ test("components: lastAutoUnlocked title is escaped in panel copy", () => {
   assert.match(html, /已兑现：&lt;b&gt;坏&lt;\/b&gt;标题/);
   assert.doesNotMatch(html, /<b>坏<\/b>/);
 });
+
+test("components: workCard renders cover, time under cover and safe content", () => {
+  const c = requireProject("assets/components.js");
+  const base = {
+    work: { title: "标题", access: "free", freePercent: 100, id: "w1", url: "https://example.test/a", copyrightHash: "", original: true, attachments: [] },
+    title: "标题",
+    summary: "摘要",
+    typeLabel: "札记",
+    accessLabel: "免费",
+    originalLabel: "原创",
+    copyrightLabel: "版权指纹",
+    publishedAt: "发布于 2026年8月16日",
+    previewText: "试看",
+    inlineBody: "",
+    fallbackBody: "<p>正文</p>",
+    audioSource: "",
+    isAudioWork: false,
+    missingAudioHint: "",
+    unlockCopy: "",
+    shareState: { availableUnlocks: 0 },
+    rewardUnlocked: false,
+    locked: false,
+    index: 0,
+    workKey: "k1",
+    url: "https://example.test/a",
+    coverUrl: "",
+    shareLabels: { wechat: "微信", x: "X" },
+    uiLabels: { readPreview: "读预览", readFull: "读全文", subscribeUnlock: "订阅解锁", shareAria: "分享", shareTextLabel: "文案", shareHint: "提示" },
+  };
+  const html = c.workCard(base);
+  assert.match(html, /work-cover work-cover-text/);           // 文字封面兜底
+  assert.match(html, /work-cover-title/);                      // 封面含标题
+  assert.match(html, /class="work-time"/);                     // 时间在封面下方
+  assert.match(html, /发布于 2026年8月16日/);
+  assert.match(html, /读全文/);
+  assert.match(html, /data-share="wechat"/);
+  assert.doesNotMatch(html, /<script\b/);
+});
+
+test("components: workCard image cover and gated unlock row", () => {
+  const c = requireProject("assets/components.js");
+  const html = c.workCard({
+    work: { title: "付费", access: "member", freePercent: 20, id: "w2", url: "https://example.test/p", copyrightHash: "abc", original: true, attachments: [] },
+    title: "付费",
+    summary: "s",
+    typeLabel: "文章",
+    accessLabel: "会员",
+    originalLabel: "原创",
+    copyrightLabel: "版权指纹",
+    publishedAt: "",
+    previewText: "pv",
+    inlineBody: "",
+    fallbackBody: "",
+    audioSource: "",
+    isAudioWork: false,
+    missingAudioHint: "",
+    unlockCopy: "分享 3 次解锁",
+    shareState: { availableUnlocks: 2 },
+    rewardUnlocked: false,
+    locked: true,
+    index: 1,
+    workKey: "k2",
+    url: "https://example.test/p",
+    coverUrl: "https://example.test/cover.jpg",
+    shareLabels: { native: "分享" },
+    uiLabels: { readPreview: "读预览", readFull: "读全文", subscribeUnlock: "订阅解锁", shareAria: "分享", shareTextLabel: "文案", shareHint: "提示" },
+  });
+  assert.match(html, /<img src="https:\/\/example\.test\/cover\.jpg"/); // 图片封面
+  assert.match(html, /class="work-card gated"/);
+  assert.match(html, /data-unlock-work/);                              // 解锁按钮
+  assert.doesNotMatch(html, /disabled/);                                // availableUnlocks=2,不禁用
+  assert.match(html, /读预览/);
+});
+
+test("components: workCard rejects javascript cover url", () => {
+  const c = requireProject("assets/components.js");
+  const html = c.workCard({
+    work: { title: "t", access: "free", freePercent: 100, id: "w3", url: "javascript:alert(1)", original: true, attachments: [] },
+    title: "t", summary: "s", typeLabel: "札记", accessLabel: "免费", originalLabel: "原创", copyrightLabel: "",
+    publishedAt: "", previewText: "", inlineBody: "", fallbackBody: "", audioSource: "", isAudioWork: false,
+    missingAudioHint: "", unlockCopy: "", shareState: {}, rewardUnlocked: false, locked: false, index: 0, workKey: "k3",
+    url: "javascript:alert(1)", coverUrl: "javascript:alert(1)",
+    shareLabels: {}, uiLabels: { readPreview: "", readFull: "", subscribeUnlock: "", shareAria: "", shareTextLabel: "", shareHint: "" },
+  });
+  // coverUrl 是调用方用 safePublicClientUrl 净化后的结果;此处直接传危险值,组件不应输出 <img src="javascript:
+  assert.doesNotMatch(html, /javascript:/);
+});

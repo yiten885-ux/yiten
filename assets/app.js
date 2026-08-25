@@ -788,60 +788,41 @@ const renderWorks = () => {
         : isAudioWork
           ? `<div class="audio-player-shell audio-missing"><strong>暂无可播放音频</strong><small>${escapeHtml(missingAudioHint)}</small></div>`
           : "";
-      const coverUrl = safePublicClientUrl(work.cover || work.coverUrl || "");
-      const coverBlock = coverUrl
-        ? `<div class="work-cover"><img src="${escapeAttribute(coverUrl)}" alt="${escapeAttribute(title)}" loading="lazy" /></div>`
-        : `<div class="work-cover work-cover-text" aria-hidden="true"><span class="work-cover-type">${escapeHtml(typeLabel)}</span><span class="work-cover-title">${escapeHtml(title)}</span></div>`;
-      const timeBlock = publishedAt
-        ? `<time class="work-time" datetime="${escapeAttribute(work.publishedAt || work.updatedAt || work.createdAt)}">${escapeHtml(publishedAt)}</time>`
-        : "";
-      const hasExpandableContent = Boolean(bodyBlock);
       const workUrl = hasExpandableContent ? `#${escapeAttribute(work.id || createWorkKey(work))}` : escapeAttribute(work.url);
       const linkTarget = hasExpandableContent ? "" : ` target="_blank" rel="noreferrer"`;
-      return `
-        <article class="work-card${isAudioWork ? " audio-work-card" : ""}${locked && !rewardUnlocked ? " gated" : ""}${rewardUnlocked ? " reward-unlocked" : ""}" data-index="${index}" data-work-key="${escapeAttribute(workKey)}">
-          ${coverBlock}
-          ${timeBlock}
-          <div>
-            <div class="work-meta-row">
-              <span class="work-type">${escapeHtml(typeLabel)}</span>
-              ${work.original === false ? "" : `<span class="original-pill">${escapeHtml(originalLabel)}</span>`}
-              ${work.copyrightHash ? `<span class="copyright-pill" title="${escapeAttribute(work.copyrightHash)}">${escapeHtml(copyrightLabel)}</span>` : ""}
-              <span class="access-pill">${escapeHtml(accessLabel)}</span>
-            </div>
-            <h3>${escapeHtml(title)}</h3>
-            <p>${escapeHtml(summary)}</p>
-            ${audioBlock}
-            <div class="preview-meter" ${progressStyle}><span></span></div>
-            <small class="preview-copy">${escapeHtml(previewText)}</small>
-            ${bodyBlock}
-            ${renderAttachments(work.attachments)}
-          </div>
-          <div class="work-actions">
-            <a class="work-link" href="${workUrl}"${linkTarget}>${locked && !rewardUnlocked ? chooseText(uiText.readPreview) : chooseText(uiText.readFull)}</a>
-            ${locked && !rewardUnlocked ? `<button class="work-link reward-unlock-button" type="button" data-unlock-work ${shareState.availableUnlocks < 1 ? "disabled" : ""}>${escapeHtml(unlockCopy)}</button><a class="work-link subscribe-link" href="#membership">${chooseText(uiText.subscribeUnlock)}</a>` : ""}
-            <div class="share-actions" aria-label="${chooseText(uiText.shareAria)} ${escapeAttribute(title)}">
-              <button type="button" data-share="native">${chooseText(uiText.shareLabel)}</button>
-              <button type="button" data-share="wechat">${chooseText(platformButtonLabels.wechat)}</button>
-              <button type="button" data-share="substack">${chooseText(platformButtonLabels.substack)}</button>
-              <button type="button" data-share="youtube">${chooseText(platformButtonLabels.youtube)}</button>
-              <button type="button" data-share="xiaohongshu">${chooseText(platformButtonLabels.xiaohongshu)}</button>
-              <button type="button" data-share="tiktok">${chooseText(platformButtonLabels.tiktok)}</button>
-              <button type="button" data-share="x">${chooseText(platformButtonLabels.x)}</button>
-              <button type="button" data-share="reddit">${chooseText(platformButtonLabels.reddit)}</button>
-              <button type="button" data-share="facebook">${chooseText(platformButtonLabels.facebook)}</button>
-              <button type="button" data-share="linkedin">${chooseText(platformButtonLabels.linkedin)}</button>
-              <button type="button" data-share="weibo">${chooseText(platformButtonLabels.weibo)}</button>
-            </div>
-            <div class="share-composer" data-share-composer hidden>
-              <label>${chooseText(uiText.shareTextLabel)}
-                <textarea data-share-draft rows="7"></textarea>
-              </label>
-              <small>${chooseText(uiText.shareHint)}</small>
-            </div>
-          </div>
-        </article>
-      `;
+      return window.YitenComponents.workCard({
+        work,
+        title,
+        summary,
+        typeLabel,
+        accessLabel,
+        originalLabel,
+        copyrightLabel,
+        publishedAt,
+        previewText,
+        inlineBody,
+        fallbackBody,
+        audioSource,
+        isAudioWork,
+        missingAudioHint,
+        unlockCopy,
+        shareState,
+        rewardUnlocked,
+        locked,
+        index,
+        workKey,
+        url: work.url,
+        coverUrl: safePublicClientUrl(work.cover || work.coverUrl || ""),
+        shareLabels: Object.fromEntries(Object.entries(platformButtonLabels).map(([key, label]) => [key, chooseText(label)])),
+        uiLabels: {
+          readPreview: chooseText(uiText.readPreview),
+          readFull: chooseText(uiText.readFull),
+          subscribeUnlock: chooseText(uiText.subscribeUnlock),
+          shareAria: chooseText(uiText.shareAria),
+          shareTextLabel: chooseText(uiText.shareTextLabel),
+          shareHint: chooseText(uiText.shareHint),
+        },
+      });
     })
     .join("");
 
