@@ -34,6 +34,15 @@
 
 | 日期 | 键 | 处置 | 备注 |
 |---|---|---|---|
-| — | — | — | 待用户执行后填写 |
+| 2026-08-25 | `yiten-creator-accounts` | **清除** | 含 passwordHash/KYC/支付账户,浏览器端旧实现,Creator 已禁用 |
+| 2026-08-25 | `yiten-creator-invites` | **清除** | 含邀请 token/inviteUrl |
+| 2026-08-25 | `yiten-creator-work:yiten885@gmail.com` | **清除** | 键名含个人邮箱,Creator 已禁用 |
+| 2026-08-25 | `yiten-creator-content-review-queue` | **清除** | 空数组 |
+| 2026-08-25 | `yiten-creator-review-queue` | **清除** | 空数组 |
+| 2026-08-25 | `yiten-admin-draft` | 保留 | 后台草稿(非敏感内容) |
+| 2026-08-25 | `yiten-share-rewards-v1` | 保留 | 站点分享解锁功能数据 |
+| — | 公开键(works/products/contact/views/updated-at) | 保留 | 未改动,线上 catalog 验证 17 作品正常 |
+
+> 执行方式:下载原状态备份(`/tmp/yiten-site-state-backup-*.json`)→ 删除 5 个 Creator 键 → CLI `blob copy` 写回确切 pathname → 删除中间产物。私有值未进入仓库/日志。
 
 > 注:本仓库 `tests/security/p0-boundaries.test.js` 已断言:公开投影输出键白名单、私有哨兵键不泄露;处置后必须保持该回归通过。
