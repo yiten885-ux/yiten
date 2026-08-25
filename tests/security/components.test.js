@@ -203,3 +203,36 @@ test("components: bookProductData rejects dangerous cover and handles null", () 
   assert.deepEqual(minimal.points, []);
   assert.deepEqual(minimal.formats, []);
 });
+
+test("components: diagnosticTools expose three complete tools", () => {
+  const c = requireProject("assets/components.js");
+  const tools = c.diagnosticTools;
+  assert.deepEqual(Object.keys(tools).sort(), ["cashflow", "map", "windfall"]);
+  for (const [name, tool] of Object.entries(tools)) {
+    assert.equal(typeof tool.title, "string", `${name}.title`);
+    assert.equal(typeof tool.copy, "string", `${name}.copy`);
+    assert.ok(Array.isArray(tool.questions) && tool.questions.length >= 3, `${name}.questions`);
+    assert.ok(tool.progress, `${name}.progress`);
+  }
+});
+
+test("components: subscribeEmail validates, dedupes and persists", () => {
+  const c = requireProject("assets/components.js");
+  const storage = { data: new Map(), getItem(k) { return this.data.has(k) ? this.data.get(k) : null; }, setItem(k, v) { this.data.set(k, String(v)); } };
+  const bad = c.subscribeEmail("not-an-email", { storage });
+  assert.equal(bad.ok, false);
+  assert.match(bad.message, /邮箱格式/);
+  assert.equal(storage.data.size, 0, "invalid email must not persist");
+
+  const first = c.subscribeEmail("Reader@Example.com ", { storage });
+  assert.equal(first.ok, true);
+  const saved = JSON.parse(storage.data.get("personal-site-subscribers"));
+  assert.deepEqual(saved, ["reader@example.com"], "normalized and lowercased");
+
+  const second = c.subscribeEmail("reader@example.com", { storage });
+  assert.equal(second.subscribed, false, "duplicate must not be appended");
+  assert.equal(JSON.parse(storage.data.get("personal-site-subscribers")).length, 1);
+
+  const noStorage = c.subscribeEmail("a@b.co", {});
+  assert.equal(noStorage.ok, true, "validation-only mode");
+});

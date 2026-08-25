@@ -943,41 +943,7 @@ filterButtons.forEach((button) => {
   });
 });
 
-const diagnosticTools = {
-  cashflow: {
-    step: "Step 01",
-    progress: "33%",
-    title: "家庭财务体检表",
-    checkupTitle: "最新作品：免费家庭财务体检",
-    copy: "填写收入、必要支出、债务、现金和保障数据，系统会先帮你看见家庭财务结构里最脆弱的地方。",
-    checkupDescription: "填写几个基础数据，系统会给出一个简版风险等级。这个测评不能替代专业财务建议，但能帮助你快速发现家庭财务结构里的薄弱环节。",
-    questions: ["月度净现金流是否为正", "债务还款是否压缩生活", "应急金能否支撑 6 个月"],
-    signal: "即时反馈：完成数据后会生成风险等级和三条修复建议。",
-    feedback: "当前入口：家庭财务体检表。点击“进入诊断”后从第一组问题开始。",
-  },
-  windfall: {
-    step: "Step 02",
-    progress: "66%",
-    title: "50万财富守恒测评",
-    checkupTitle: "最新作品：50万财富守恒测评",
-    copy: "同样一组家庭数据，会切换到“第一笔大钱”场景：收入突然增加、奖金到账或卖出资产后，哪些结构最容易让钱重新流走。",
-    checkupDescription: "用现金流、债务、人情支出和消费行为判断：拿到第一笔大钱后，你是否存在 18-36 个月返贫风险。",
-    questions: ["收入上涨后消费是否同步上涨", "资产负债率是否放大波动", "亲友借钱是否侵蚀安全垫"],
-    signal: "即时反馈：系统会把结果解释成守财能力，而不只是财务分数。",
-    feedback: "已切换到 50 万财富守恒视角。先用同一组家庭数据检查返贫风险。",
-  },
-  map: {
-    step: "Step 03",
-    progress: "100%",
-    title: "家庭防坠落风险地图",
-    checkupTitle: "最新作品：家庭防坠落风险地图",
-    copy: "把家庭风险从钱扩展到人：老人、孩子、健康、婚姻、关系、人情和黑天鹅事件，都会影响财富是否能守住。",
-    checkupDescription: "这个视角会把测评结果解释成家庭防线地图，帮助你定位最先要修补的现金流、保障、关系和黑天鹅风险。",
-    questions: ["家庭是否依赖单一收入", "医保和现金储备是否明确", "关系支出是否有边界"],
-    signal: "即时反馈：完成后会优先给出三条最该修补的防线。",
-    feedback: "已切换到家庭防坠落风险地图。测评结果会帮你定位最先要修补的防线。",
-  },
-};
+const diagnosticTools = window.YitenComponents.diagnosticTools;
 
 const updateDiagnosticTool = (tool = "cashflow", shouldDispatch = true) => {
   const active = diagnosticTools[tool] || diagnosticTools.cashflow;
@@ -1046,16 +1012,10 @@ workForm?.addEventListener("submit", (event) => {
 
 subscribeForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  const email = new FormData(subscribeForm).get("email").trim().toLowerCase();
-  const subscribers = JSON.parse(localStorage.getItem("personal-site-subscribers") || "[]");
-
-  if (!subscribers.includes(email)) {
-    subscribers.push(email);
-    localStorage.setItem("personal-site-subscribers", JSON.stringify(subscribers));
-  }
-
-  subscribeMessage.textContent = "已订阅。后续更新会发送到你的邮箱。";
-  subscribeForm.reset();
+  const email = new FormData(subscribeForm).get("email");
+  const result = window.YitenComponents.subscribeEmail(email, { storage: localStorage, storageKey: "personal-site-subscribers" });
+  subscribeMessage.textContent = result.message;
+  if (result.ok) subscribeForm.reset();
 });
 
 resetDemo?.addEventListener("click", () => {
