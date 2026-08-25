@@ -218,20 +218,19 @@ const renderShareRewardPanel = () => {
     section.insertAdjacentElement("afterend", panel);
   }
   const state = readShareRewards();
-  const nextCopy = state.lastAutoUnlocked
-    ? `${getLang() === "en" ? "Unlocked" : "已兑现解锁"}：${state.lastAutoUnlocked.title}`
-    : state.availableUnlocks > 0 ? chooseText(uiText.nowUnlockable) : formatUnlockCopy(state);
-  panel.innerHTML = `
-    <div>
-      <strong>${chooseText(uiText.shareReward)}</strong>
-      <span>${chooseText(uiText.shareRewardRulePrefix)} ${SHARE_REWARD_THRESHOLD} ${chooseText(uiText.shareRewardRuleSuffix)}</span>
-    </div>
-    <div class="share-reward-stats" aria-live="polite">
-      <span>${chooseText(uiText.sharedCount)} ${state.completedShares} ${chooseText(uiText.times)}</span>
-      <span>${chooseText(uiText.availableUnlocks)} ${state.availableUnlocks} ${chooseText(uiText.times)}</span>
-      <span>${escapeHtml(nextCopy)}</span>
-    </div>
-  `;
+  const components = window.YitenComponents;
+  const copy = {
+    title: chooseText(uiText.shareReward),
+    rulePrefix: chooseText(uiText.shareRewardRulePrefix),
+    ruleSuffix: chooseText(uiText.shareRewardRuleSuffix),
+    sharedCount: chooseText(uiText.sharedCount),
+    availableUnlocks: chooseText(uiText.availableUnlocks),
+    times: chooseText(uiText.times),
+    nowUnlockable: chooseText(uiText.nowUnlockable),
+    waiting: formatUnlockCopy(state),
+    unlockedPrefix: `${getLang() === "en" ? "Unlocked" : "已兑现解锁"}：`,
+  };
+  panel.innerHTML = components.shareRewardPanel({ state, copy, threshold: SHARE_REWARD_THRESHOLD });
 };
 
 const refreshShareRewardViews = () => {

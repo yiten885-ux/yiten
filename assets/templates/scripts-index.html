@@ -4,12 +4,14 @@
        2. catalog.js    — catalog 客户端(依赖 validate)
        3. store.js       — 状态管理(UMD,window.YitenStore;app 依赖)
        4. sync.js       — 同步(public 优先走 YitenCatalog;admin 页 data-sync-scope="admin")
-       5. app.js        — 页面渲染(依赖 catalog/store)
-       6. smart-share/payments/ximalaya/install/i18n — 功能模块
+       5. components.js — 组件化渲染(纯函数 HTML,依赖 store)
+       6. app.js        — 页面装配与事件(依赖 catalog/store/components)
+       7. smart-share/payments/ximalaya/install/i18n — 功能模块
      版本号约定:v=YYYYMMDD-<slug>;改动即更新,防浏览器/Service Worker 缓存旧档。 -->
     <script src="./assets/validate.js?v=20260823-refactor" defer></script>
     <script src="./assets/catalog.js?v=20260823-refactor" defer></script>
     <script src="./assets/store.js?v=20260823-refactor" defer></script>
+    <script src="./assets/components.js?v=20260823-refactor" defer></script>
     <script src="./assets/sync.js?v=20260804-security" data-sync-scope="public"></script>
     <script src="./assets/app.js?v=20260602-audio-publish-guard"></script>
     <script src="./assets/smart-share.js?v=20260602-blob-audio-sync"></script>
