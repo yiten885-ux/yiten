@@ -165,11 +165,12 @@
           credentials: "include",
         });
         const data = await response.json().catch(() => ({}));
+        const errorCode = (data && data.error && data.error.code) || (data && data.code) || "";
         if (response.status === 401) {
           stop({ clearPrivate: true });
-          return { ok: false, code: data.code || "authentication_required" };
+          return { ok: false, code: errorCode || "authentication_required" };
         }
-        if (!response.ok || !data.ok) return { ok: false, code: data.code || "sync_failed" };
+        if (!response.ok || !data.ok) return { ok: false, code: errorCode || "sync_failed" };
         if (data.unchanged) {
           if (data.savedAt) lastSavedAt = data.savedAt;
           return data;

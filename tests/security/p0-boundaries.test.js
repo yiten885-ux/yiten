@@ -78,7 +78,7 @@ test("all payment and fulfillment endpoints fail closed without external calls",
     for (const [modulePath, method, url] of cases) {
       const response = await invoke(requireProject(modulePath), { method, url });
       assert.equal(response.statusCode, 503, modulePath);
-      assert.equal(response.body.code, "payments_disabled_security_review", modulePath);
+      assert.equal(response.body.error.code, "payments_disabled_security_review", modulePath);
     }
     const replayableGet = await invoke(requireProject("api/payments.js"), {
       method: "GET",

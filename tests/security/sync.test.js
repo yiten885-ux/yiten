@@ -221,5 +221,5 @@ test("upload is admin-only and public view writes are disabled by default", asyn
     body: { workKey: "anything" },
   });
   assert.equal(view.statusCode, 503);
-  assert.equal(view.body.code, "view_tracking_disabled");
+  assert.equal(view.body.error.code, "view_tracking_disabled");
 });

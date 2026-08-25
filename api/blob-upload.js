@@ -2,12 +2,13 @@
 // 不再经过无服务器函数体（避开 4.5MB 平台上限），支持几十 MB 的电子书/音频。
 const { readJsonBody, requireAdminRequest, setNoStore } = require("../lib/auth-shared");
 const { clientIp, rateLimited, uploadLimiter } = require("../lib/rate-limit");
+const validate = require("../assets/validate.js");
 
 module.exports = async function handler(req, res) {
   setNoStore(res);
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    res.status(405).json({ error: "Method not allowed" });
+    res.status(405).json(validate.apiError("method_not_allowed", "Method not allowed", 405));
     return;
   }
   if (!requireAdminRequest(req, res, { sameOrigin: true })) return;
@@ -35,6 +36,6 @@ module.exports = async function handler(req, res) {
     res.status(200).json(jsonResponse);
   } catch (error) {
     const status = Number(error.status) || 400;
-    res.status(status).json({ error: status < 500 ? error.message : "client upload token failed" });
+    res.status(status).json(validate.apiError(status < 500 ? "upload_token_failed" : "upload_token_unavailable", status < 500 ? error.message : "client upload token failed", status));
   }
 };

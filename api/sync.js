@@ -17,6 +17,7 @@ const {
   writeState,
 } = require("../lib/site-state");
 const { clientIp, rateLimited, uploadLimiter, viewLimiter } = require("../lib/rate-limit");
+const validate = require("../assets/validate.js");
 
 const maxUploadBytes = 35 * 1024 * 1024;
 const maxStateBodyBytes = 2 * 1024 * 1024;
@@ -64,7 +65,7 @@ const readRawBody = (req) =>
 const handleState = async (req, res) => {
   if (req.method !== "GET" && req.method !== "POST") {
     res.setHeader("Allow", "GET, POST");
-    res.status(405).json({ ok: false, message: "Method not allowed" });
+    res.status(405).json(validate.apiError("method_not_allowed", "Method not allowed", 405));
     return;
   }
 
@@ -84,21 +85,21 @@ const handleState = async (req, res) => {
   const body = await readJsonBody(req, maxStateBodyBytes);
   const incoming = body.items;
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
-    res.status(400).json({ ok: false, message: "items must be an object." });
+    res.status(400).json(validate.apiError("invalid_state_items", "items must be an object.", 400));
     return;
   }
   const entries = Object.entries(incoming);
   if (!entries.length || entries.length > maxStateKeysPerRequest) {
-    res.status(400).json({ ok: false, message: "Invalid number of state keys." });
+    res.status(400).json(validate.apiError("invalid_state_keys", "Invalid number of state keys.", 400));
     return;
   }
   for (const [key, value] of entries) {
     if (!isPrivateKey(key)) {
-      res.status(400).json({ ok: false, message: "Unknown state key." });
+      res.status(400).json(validate.apiError("unknown_state_key", "Unknown state key.", 400));
       return;
     }
     if (Buffer.byteLength(String(value ?? "")) > maxStateValueBytes) {
-      res.status(413).json({ ok: false, message: "State value is too large." });
+      res.status(413).json(validate.apiError("state_value_too_large", "State value is too large.", 413));
       return;
     }
   }
@@ -119,7 +120,7 @@ const handleState = async (req, res) => {
 const handleUpload = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    res.status(405).json({ ok: false, message: "Method not allowed" });
+    res.status(405).json(validate.apiError("method_not_allowed", "Method not allowed", 405));
     return;
   }
   if (!requireAdminRequest(req, res, { sameOrigin: true })) return;
@@ -129,7 +130,7 @@ const handleUpload = async (req, res) => {
     return;
   }
   if (!isMediaConfigured()) {
-    res.status(503).json({ ok: false, code: "blob_not_configured", message: "上传服务尚未配置。" });
+    res.status(503).json(validate.apiError("blob_not_configured", "上传服务尚未配置。", 503));
     return;
   }
 
@@ -140,21 +141,21 @@ const handleUpload = async (req, res) => {
   const allowedExtensions = allowedUploadTypes.get(contentType);
   const contentLength = Number(req.headers["content-length"] || 0);
   if (!allowedUploadFolders.has(folder)) {
-    res.status(403).json({ ok: false, message: "Upload folder is not allowed." });
+    res.status(403).json(validate.apiError("upload_folder_forbidden", "Upload folder is not allowed.", 403));
     return;
   }
   if (!fileName || !allowedExtensions?.has(extensionFromName(fileName))) {
-    res.status(415).json({ ok: false, message: "File type is not allowed." });
+    res.status(415).json(validate.apiError("file_type_not_allowed", "File type is not allowed.", 415));
     return;
   }
   if (Number.isFinite(contentLength) && contentLength > maxUploadBytes) {
-    res.status(413).json({ ok: false, message: "文件超过当前上传限制。" });
+    res.status(413).json(validate.apiError("upload_too_large", "文件超过当前上传限制。", 413));
     return;
   }
 
   const body = await readRawBody(req);
   if (!body.length) {
-    res.status(400).json({ ok: false, message: "没有收到文件内容。" });
+    res.status(400).json(validate.apiError("empty_upload", "没有收到文件内容。", 400));
     return;
   }
   const blob = await putBlob({
@@ -192,7 +193,7 @@ const normalizeViewKey = (value) => {
 const handleView = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    res.status(405).json({ ok: false, message: "Method not allowed" });
+    res.status(405).json(validate.apiError("method_not_allowed", "Method not allowed", 405));
     return;
   }
   const viewLimit = await viewLimiter(clientIp(req));
@@ -201,17 +202,17 @@ const handleView = async (req, res) => {
     return;
   }
   if (process.env.PUBLIC_VIEW_TRACKING_ENABLED !== "true") {
-    res.status(503).json({ ok: false, code: "view_tracking_disabled", message: "浏览统计暂未启用。" });
+    res.status(503).json(validate.apiError("view_tracking_disabled", "浏览统计暂未启用。", 503));
     return;
   }
   if (!isSameOriginRequest(req)) {
-    res.status(403).json({ ok: false, code: "origin_forbidden", message: "请求来源无效。" });
+    res.status(403).json(validate.apiError("origin_forbidden", "请求来源无效。", 403));
     return;
   }
   const body = await readJsonBody(req, 8 * 1024);
   const workKey = normalizeViewKey(body.workKey || body.id || body.key);
   if (!workKey) {
-    res.status(400).json({ ok: false, message: "Missing work key." });
+    res.status(400).json(validate.apiError("missing_work_key", "Missing work key.", 400));
     return;
   }
 
@@ -223,7 +224,7 @@ const handleView = async (req, res) => {
       .filter(Boolean)
   );
   if (!publishedIds.has(workKey)) {
-    res.status(404).json({ ok: false, message: "Unknown published work." });
+    res.status(404).json(validate.apiError("unknown_work", "Unknown published work.", 404));
     return;
   }
 
@@ -254,7 +255,7 @@ module.exports = async function handler(req, res) {
     if (target === "state") return await handleState(req, res);
     if (target === "upload") return await handleUpload(req, res);
     if (target === "view") return await handleView(req, res);
-    res.status(404).json({ ok: false, message: "Unknown sync endpoint." });
+    res.status(404).json(validate.apiError("unknown_endpoint", "Unknown sync endpoint.", 404));
   } catch (error) {
     const status = Number(error.status) || 500;
     res.status(status).json({
