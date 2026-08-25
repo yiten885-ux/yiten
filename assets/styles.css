@@ -734,3 +734,56 @@ textarea:focus {
     display: grid;
   }
 }
+
+/* ===== work card covers + publish time(2026-08-23)===== */
+.work-cover {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #1f5e4d 0%, #164a3d 55%, #0f2e25 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 16px;
+}
+.work-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.work-cover-text .work-cover-type {
+  position: relative;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 247, 0.78);
+  margin-bottom: 6px;
+}
+.work-cover-text .work-cover-title {
+  position: relative;
+  font-family: "Noto Serif SC", serif;
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: #fffdf7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.work-time {
+  display: block;
+  font-size: 12px;
+  color: var(--muted, #6f6a61);
+  margin: 0 0 10px;
+}
+@media (max-width: 520px) {
+  .work-cover-text .work-cover-title {
+    font-size: 17px;
+  }
+}

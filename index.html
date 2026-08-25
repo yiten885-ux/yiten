@@ -21,8 +21,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./assets/styles.css?v=20260602-audio-publish-guard" />
-    <link rel="stylesheet" href="./assets/launch.css?v=20260602-audio-publish-guard" />
+    <link rel="stylesheet" href="./assets/styles.css?v=20260823-work-covers" />
+    <link rel="stylesheet" href="./assets/launch.css?v=20260823-work-covers" />
     <!-- /head-base:页面特定部分(title/OG/canonical/description)位于上方,保持页面差异 -->
   </head>
   <body>
@@ -85,6 +85,15 @@
         <div class="section-head">
           <div><p class="section-kicker">Latest Work</p><h2 id="checkupTitle">最新作品：免费家庭财务体检</h2></div>
           <p id="checkupDescription" class="muted">填写几个基础数据，系统会给出一个简版风险等级。这个测评不能替代专业财务建议，但能帮助你快速发现家庭财务结构里的薄弱环节。</p>
+        </div>
+        <div class="more-works">
+          <div class="section-head compact-head">
+            <div><p class="section-kicker">Wall</p><h2>更多文章与札记</h2></div>
+            <div class="filters" aria-label="作品筛选">
+              <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="essay">文章</button><button class="filter" data-filter="project">项目</button><button class="filter" data-filter="note">札记</button>
+            </div>
+          </div>
+          <div id="workGrid" class="work-grid" aria-live="polite"></div>
         </div>
         <article class="checkup-card" aria-label="免费家庭财务体检">
           <form id="financeCheckupForm" class="checkup-form">
@@ -160,15 +169,6 @@
             <a class="button secondary" href="#books">阅读《只富一次》三部曲</a>
             <a class="button secondary" href="#subscribe">订阅 Newsletter</a>
           </div>
-        </div>
-        <div class="more-works">
-          <div class="section-head compact-head">
-            <div><p class="section-kicker">Wall</p><h2>更多文章与札记</h2></div>
-            <div class="filters" aria-label="作品筛选">
-              <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="essay">文章</button><button class="filter" data-filter="project">项目</button><button class="filter" data-filter="note">札记</button>
-            </div>
-          </div>
-          <div id="workGrid" class="work-grid" aria-live="polite"></div>
         </div>
 
         <section id="subscribe" class="subscribe newsletter-inline">
@@ -631,7 +631,7 @@
     <script src="./assets/store.js?v=20260823-refactor" defer></script>
     <script src="./assets/components.js?v=20260823-refactor" defer></script>
     <script src="./assets/sync.js?v=20260804-security" data-sync-scope="public"></script>
-    <script src="./assets/app.js?v=20260602-audio-publish-guard"></script>
+    <script src="./assets/app.js?v=20260823-work-covers"></script>
     <script src="./assets/smart-share.js?v=20260602-blob-audio-sync"></script>
     <script src="./assets/payments.js?v=20260602-blob-audio-sync"></script>
     <script src="./assets/ximalaya.js?v=20260602-blob-audio-sync"></script>

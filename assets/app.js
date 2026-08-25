@@ -788,18 +788,26 @@ const renderWorks = () => {
         : isAudioWork
           ? `<div class="audio-player-shell audio-missing"><strong>暂无可播放音频</strong><small>${escapeHtml(missingAudioHint)}</small></div>`
           : "";
+      const coverUrl = safePublicClientUrl(work.cover || work.coverUrl || "");
+      const coverBlock = coverUrl
+        ? `<div class="work-cover"><img src="${escapeAttribute(coverUrl)}" alt="${escapeAttribute(title)}" loading="lazy" /></div>`
+        : `<div class="work-cover work-cover-text" aria-hidden="true"><span class="work-cover-type">${escapeHtml(typeLabel)}</span><span class="work-cover-title">${escapeHtml(title)}</span></div>`;
+      const timeBlock = publishedAt
+        ? `<time class="work-time" datetime="${escapeAttribute(work.publishedAt || work.updatedAt || work.createdAt)}">${escapeHtml(publishedAt)}</time>`
+        : "";
       const hasExpandableContent = Boolean(bodyBlock);
       const workUrl = hasExpandableContent ? `#${escapeAttribute(work.id || createWorkKey(work))}` : escapeAttribute(work.url);
       const linkTarget = hasExpandableContent ? "" : ` target="_blank" rel="noreferrer"`;
       return `
         <article class="work-card${isAudioWork ? " audio-work-card" : ""}${locked && !rewardUnlocked ? " gated" : ""}${rewardUnlocked ? " reward-unlocked" : ""}" data-index="${index}" data-work-key="${escapeAttribute(workKey)}">
+          ${coverBlock}
+          ${timeBlock}
           <div>
             <div class="work-meta-row">
               <span class="work-type">${escapeHtml(typeLabel)}</span>
               ${work.original === false ? "" : `<span class="original-pill">${escapeHtml(originalLabel)}</span>`}
               ${work.copyrightHash ? `<span class="copyright-pill" title="${escapeAttribute(work.copyrightHash)}">${escapeHtml(copyrightLabel)}</span>` : ""}
               <span class="access-pill">${escapeHtml(accessLabel)}</span>
-              ${publishedAt ? `<time class="work-time" datetime="${escapeAttribute(work.publishedAt || work.updatedAt || work.createdAt)}">${escapeHtml(publishedAt)}</time>` : ""}
             </div>
             <h3>${escapeHtml(title)}</h3>
             <p>${escapeHtml(summary)}</p>
