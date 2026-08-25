@@ -1,0 +1,17 @@
+<!-- assets/templates/scripts-index.html — index 页脚本引入清单
+     加载顺序约定(依赖方向,勿乱序):
+       1. validate.js   — 校验层(UMD,window.YitenValidate)
+       2. catalog.js    — catalog 客户端(依赖 validate)
+       3. sync.js       — 同步(public 优先走 YitenCatalog;admin 页 data-sync-scope="admin")
+       4. app.js        — 页面渲染(依赖 catalog 数据)
+       5. smart-share/payments/ximalaya/install/i18n — 功能模块
+     版本号约定:v=YYYYMMDD-<slug>;改动即更新,防浏览器/Service Worker 缓存旧档。 -->
+    <script src="./assets/validate.js?v=20260823-refactor" defer></script>
+    <script src="./assets/catalog.js?v=20260823-refactor" defer></script>
+    <script src="./assets/sync.js?v=20260804-security" data-sync-scope="public"></script>
+    <script src="./assets/app.js?v=20260602-audio-publish-guard"></script>
+    <script src="./assets/smart-share.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/payments.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/ximalaya.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/install.js?v=20260602-blob-audio-sync"></script>
+    <script src="./assets/i18n.js?v=20260602-blob-audio-sync"></script>
