@@ -145,26 +145,19 @@ const createWorkKey = (work) => {
   return `work-${hash.toString(16)}`;
 };
 
-const readShareRewards = () => {
-  try {
-    const saved = JSON.parse(localStorage.getItem(SHARE_REWARD_STORAGE_KEY) || "{}");
-    return {
-      completedShares: Number(saved.completedShares || 0),
-      availableUnlocks: Number(saved.availableUnlocks || 0),
-      unlockedWorks: saved.unlockedWorks || {},
-      history: Array.isArray(saved.history) ? saved.history : [],
-      lastAutoUnlocked: saved.lastAutoUnlocked || null,
-      updatedAt: saved.updatedAt || "",
-    };
-  } catch (_error) {
-    return { completedShares: 0, availableUnlocks: 0, unlockedWorks: {}, history: [], lastAutoUnlocked: null, updatedAt: "" };
-  }
-};
+// 分享奖励状态统一走 YitenStore(持久化 + 订阅);read/save 保留原签名,行为等价。
+const shareRewardsStore = window.YitenStore.createStore({
+  state: { completedShares: 0, availableUnlocks: 0, unlockedWorks: {}, history: [], lastAutoUnlocked: null, updatedAt: "" },
+  storage: localStorage,
+  storageKey: SHARE_REWARD_STORAGE_KEY,
+  storageVersion: 1,
+});
+
+const readShareRewards = () => shareRewardsStore.get();
 
 const saveShareRewards = (state) => {
-  state.updatedAt = new Date().toISOString();
-  localStorage.setItem(SHARE_REWARD_STORAGE_KEY, JSON.stringify(state));
-  window.dispatchEvent(new CustomEvent("yiten:share-reward-updated", { detail: state }));
+  shareRewardsStore.set({ ...state, updatedAt: new Date().toISOString() });
+  window.dispatchEvent(new CustomEvent("yiten:share-reward-updated", { detail: shareRewardsStore.get() }));
 };
 
 const isRewardUnlocked = (work) => Boolean(readShareRewards().unlockedWorks[createWorkKey(work)]);
