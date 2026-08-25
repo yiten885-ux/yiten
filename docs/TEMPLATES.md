@@ -7,6 +7,7 @@
 | 文件 | 内容 | 使用页面 |
 |---|---|---|
 | `head-base.html` | 公共 head:charset/viewport/theme-color/字体/样式引用 | 全部页面 |
+| `head-backend.html` | 后台页公共 head:charset/viewport/robots noindex/字体/样式(字体权重为页面差异,见模板注释) | admin / creator(owner 为例外) |
 | `site-header.html` | 站点导航(index 版) | index(后台页有独立导航) |
 | `site-footer.html` | 站点页脚(法律页链接) | index(后台页无) |
 | `scripts-index.html` | index 脚本引入清单(顺序 + 版本约定) | index |

@@ -24,6 +24,7 @@ const contentLines = (templatePath) => {
       if (!line.includes("-->")) inComment = true;
       continue;
     }
+    if (line.includes("@WEIGHTS@") || line.includes("@NOTO@")) continue; // 占位行,页面按自身权重填充
     lines.push(line);
   }
   return lines;
@@ -46,6 +47,25 @@ for (const template of templates) {
     }
   });
 }
+
+test("backend pages stay in sync with head-backend template (admin + creator)", () => {
+  const lines = contentLines("assets/templates/head-backend.html");
+  assert.ok(lines.length > 5, "head-backend should carry shared head lines");
+  for (const pageName of ["admin.html", "creator.html"]) {
+    const page = fs.readFileSync(path.join(projectRoot, pageName), "utf8");
+    for (const line of lines) {
+      assert.ok(page.includes(line), `${pageName} is missing head-backend line: ${line}`);
+    }
+  }
+});
+
+test("owner page keeps the minimal backend baseline (documented exception)", () => {
+  const page = fs.readFileSync(path.join(projectRoot, "owner.html"), "utf8");
+  assert.ok(page.includes('<meta charset="UTF-8" />'));
+  assert.ok(page.includes('<meta name="robots" content="noindex, nofollow" />'));
+  // owner 是 head-backend 的例外:不引用 styles.css/launch.css(内联样式)
+  assert.ok(!page.includes('assets/styles.css'), "owner must not pull site stylesheet");
+});
 
 test("template files reference existing assets with current version markers", () => {
   const page = readPage();
