@@ -155,11 +155,53 @@
       `;
   };
 
+  // ---------- 书籍产品数据映射 ----------
+
+  const coverSrc = (cover) => safePublicClientUrl(
+    typeof cover === "string" ? cover : cover && (cover.url || cover.src || cover.preview || cover.href) || "",
+    { allowHash: false }
+  );
+
+  const splitList = (value) => String(value || "").split(/[\n,，、/]+/).map((item) => item.trim()).filter(Boolean);
+
+  // 产品对象 → 卡片展示数据(纯函数,不含 HTML;DOM 绑定由调用方完成)
+  const bookProductData = (product) => {
+    if (!product || typeof product !== "object") return null;
+    const files = Array.isArray(product.files)
+      ? product.files.map((file) => (file && file.name) || "").filter(Boolean)
+      : [];
+    const fileExts = Array.from(new Set(files.map((name) => (name.split(".").pop() || "").toUpperCase()).filter(Boolean)));
+    const highlights = splitList(product.includes);
+    const fallback = files.length
+      ? Array.from(new Set(files.map((name) => `${(name.split(".").pop() || "").toUpperCase() || "文件"} 格式已配置`)))
+      : [];
+    return {
+      title: String(product.title || ""),
+      description: String(product.description || ""),
+      points: (highlights.length ? highlights : fallback).slice(0, 5),
+      visitorPrice: Number.isFinite(Number(product.visitorPrice)) ? Number(product.visitorPrice) : null,
+      memberPrice: Number.isFinite(Number(product.memberPrice)) ? Number(product.memberPrice) : null,
+      cover: coverSrc(product.cover || product.coverUrl),
+      files,
+      formats: (splitList(product.formats).length ? splitList(product.formats) : fileExts).slice(0, 8),
+    };
+  };
+
+  const formatPrice = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return `$${String(value)}`;
+    return `$${numeric.toFixed(numeric % 1 ? 2 : 0)}`;
+  };
+
   return {
+    bookProductData,
+    coverSrc,
     escapeAttribute,
     escapeHtml,
+    formatPrice,
     safePublicClientUrl,
     shareRewardPanel,
+    splitList,
     workCard,
   };
 });

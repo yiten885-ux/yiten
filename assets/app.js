@@ -330,10 +330,7 @@ const readBookProducts = () => {
 };
 
 const isPublishedProduct = (product) => Boolean(product && (product.status === "published" || product.status === "已发布" || product.published === true));
-const getCoverSrc = (cover) => safePublicClientUrl(
-  typeof cover === "string" ? cover : cover?.url || cover?.src || cover?.preview || cover?.href || "",
-  { allowHash: false }
-);
+const getCoverSrc = (cover) => window.YitenComponents.coverSrc(cover);
 
 const escapeHtml = (value) =>
   String(value).replace(/[&<>"']/g, (character) => {
@@ -549,41 +546,27 @@ const renderBookProducts = () => {
   const singleMemberPrice = document.querySelector("[data-single-member-price]");
   const bundleVisitorPrice = document.querySelector("[data-bundle-visitor-price]");
   const bundleMemberPrice = document.querySelector("[data-bundle-member-price]");
-  const formatPrice = (value) => {
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric)) return `$${escapeHtml(value)}`;
-    return `$${numeric.toFixed(numeric % 1 ? 2 : 0)}`;
-  };
+  const formatPrice = (value) => window.YitenComponents.formatPrice(value);
 
   // 单品卡 2 / 3：从后台「单本二 / 单本三」(extra1 / extra2) 数据驱动，
   // 镜像单品卡 1 的结构；未发布时保留页面默认文案，绝不留空。
   const bindSingleProductCard = (product, suffix) => {
     if (!isPublishedProduct(product) || !product.title) return;
     const pick = (name) => document.querySelector(`[data-single${suffix}-${name}]`);
-    const coverSrc = getCoverSrc(product.cover || product.coverUrl);
+    const data = window.YitenComponents.bookProductData(product);
+    if (!data) return;
     const coverEl = pick("cover");
-    if (coverSrc && coverEl) coverEl.src = coverSrc;
+    if (data.cover && coverEl) coverEl.src = data.cover;
     const titleEl = pick("title");
-    if (titleEl) titleEl.textContent = product.title;
+    if (titleEl) titleEl.textContent = data.title;
     const descEl = pick("description");
-    if (product.description && descEl) descEl.textContent = product.description;
+    if (data.description && descEl) descEl.textContent = data.description;
     const pointsEl = pick("points");
-    if (pointsEl) {
-      const highlights = String(product.includes || "")
-        .split(/[\n,，、]+/)
-        .map((item) => item.trim())
-        .filter(Boolean);
-      const files = Array.isArray(product.files) ? product.files.map((file) => file.name).filter(Boolean) : [];
-      const fallback = files.length
-        ? Array.from(new Set(files.map((name) => `${name.split(".").pop()?.toUpperCase() || "文件"} 格式已配置`)))
-        : [];
-      const list = highlights.length ? highlights : fallback;
-      if (list.length) pointsEl.innerHTML = list.slice(0, 5).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-    }
+    if (pointsEl && data.points.length) pointsEl.innerHTML = data.points.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     const visitorEl = pick("visitor-price");
-    if (product.visitorPrice && visitorEl) visitorEl.textContent = formatPrice(product.visitorPrice);
+    if (data.visitorPrice !== null && visitorEl) visitorEl.textContent = formatPrice(data.visitorPrice);
     const memberEl = pick("member-price");
-    if (product.memberPrice && memberEl) memberEl.textContent = formatPrice(product.memberPrice);
+    if (data.memberPrice !== null && memberEl) memberEl.textContent = formatPrice(data.memberPrice);
   };
   bindSingleProductCard(products.extra1, "2");
   bindSingleProductCard(products.extra2, "3");
@@ -637,19 +620,20 @@ const renderBookProducts = () => {
         const slot = product.slot === "extra1" || product.slot === "extra2"
           ? product.slot
           : `extra-dynamic-${index + 1}`;
-        const files = Array.isArray(product.files) ? product.files.map((file) => file.name).filter(Boolean) : [];
-        const cover = getCoverSrc(product.cover || product.coverUrl) || "./public/ebook-cover.svg";
+        const data = window.YitenComponents.bookProductData(product);
+        const cover = data.cover || "./public/ebook-cover.svg";
+        const formats = data.formats.slice(0, 4);
         return `
           <article class="extra-product-card">
-            <figure><img src="${escapeAttribute(cover)}" alt="${escapeAttribute(product.title)} 缩略图" /></figure>
+            <figure><img src="${escapeAttribute(cover)}" alt="${escapeAttribute(data.title)} 缩略图" /></figure>
             <div>
               <span class="plan-tag quiet">新上架</span>
-              <h3>${escapeHtml(product.title)}</h3>
-              <p>${escapeHtml(product.description || "创作者上架的补充资料包。")}</p>
-              ${files.length ? `<div class="format-pills">${Array.from(new Set(files.map((name) => name.split(".").pop()?.toUpperCase() || "文件"))).slice(0, 4).map((format) => `<span>${escapeHtml(format)}</span>`).join("")}</div>` : ""}
+              <h3>${escapeHtml(data.title)}</h3>
+              <p>${escapeHtml(data.description || "创作者上架的补充资料包。")}</p>
+              ${formats.length ? `<div class="format-pills">${formats.map((format) => `<span>${escapeHtml(format)}</span>`).join("")}</div>` : ""}
             </div>
             <div class="extra-product-actions">
-              <strong>${formatPrice(product.visitorPrice || 29)}</strong>
+              <strong>${formatPrice(data.visitorPrice !== null ? data.visitorPrice : 29)}</strong>
               <button class="button primary ebook-button" data-audience="${slot}" type="button">购买</button>
             </div>
           </article>

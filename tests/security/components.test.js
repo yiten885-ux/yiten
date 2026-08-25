@@ -171,3 +171,35 @@ test("components: workCard rejects javascript cover url", () => {
   // coverUrl 是调用方用 safePublicClientUrl 净化后的结果;此处直接传危险值,组件不应输出 <img src="javascript:
   assert.doesNotMatch(html, /javascript:/);
 });
+
+test("components: bookProductData maps product to card data safely", () => {
+  const c = requireProject("assets/components.js");
+  const data = c.bookProductData({
+    title: "《只富一次》电子书",
+    description: "desc",
+    includes: "现金流\n债务，应急金",
+    files: [{ name: "ebook.pdf" }, { name: "ebook.pdf" }, { name: "audio.m4a" }],
+    visitorPrice: 29.5,
+    memberPrice: 19,
+    cover: "https://example.test/cover.png",
+  });
+  assert.equal(data.title, "《只富一次》电子书");
+  assert.deepEqual(data.points, ["现金流", "债务", "应急金"]);
+  assert.deepEqual(data.formats, ["PDF", "M4A"]); // 去重 + 大写
+  assert.equal(c.formatPrice(data.visitorPrice), "$29.50");
+  assert.equal(c.formatPrice(data.memberPrice), "$19");
+  assert.equal(data.cover, "https://example.test/cover.png");
+});
+
+test("components: bookProductData rejects dangerous cover and handles null", () => {
+  const c = requireProject("assets/components.js");
+  const data = c.bookProductData({ title: "t", cover: "javascript:alert(1)", coverUrl: "data:text/html,x", visitorPrice: "29" });
+  assert.equal(data.cover, "");
+  assert.equal(c.formatPrice(data.visitorPrice), "$29");
+  assert.equal(c.bookProductData(null), null);
+  assert.equal(c.bookProductData("x"), null);
+  // 无 includes/files 时 points 为空、formats 为空
+  const minimal = c.bookProductData({ title: "t" });
+  assert.deepEqual(minimal.points, []);
+  assert.deepEqual(minimal.formats, []);
+});
