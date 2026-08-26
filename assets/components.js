@@ -261,6 +261,26 @@
     return { ok: true, subscribed, message: "已订阅。后续更新会发送到你的邮箱。" };
   };
 
+  // ---------- 札记发布历史时间线(纯函数) ----------
+
+  // works 中 type=note 且已发布的条目,按发布时间倒序输出时间线 HTML。
+  const noteTimeline = (works, { lang = "zh" } = {}) => {
+    const notes = (Array.isArray(works) ? works : [])
+      .filter((work) => work && (work.type === "note" || work.type === "札记"))
+      .map((work) => ({ work, ts: Date.parse(work.publishedAt || work.createdAt || "") }))
+      .filter((item) => Number.isFinite(item.ts))
+      .sort((a, b) => b.ts - a.ts);
+    if (!notes.length) return "";
+    return `<ul class="note-timeline">${notes
+      .map(({ work, ts }) => {
+        const date = new Date(ts);
+        const label = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const anchor = work.id || work.sourceId || work.key || "works";
+        return `<li><time datetime="${escapeAttribute(work.publishedAt || work.createdAt || "")}">${escapeHtml(label)}</time><a href="#${escapeAttribute(anchor)}">${escapeHtml(work.title || "未命名札记")}</a></li>`;
+      })
+      .join("")}</ul>`;
+  };
+
   return {
     bookProductData,
     coverSrc,
@@ -270,6 +290,7 @@
     formatPrice,
     safePublicClientUrl,
     shareRewardPanel,
+    noteTimeline,
     splitList,
     subscribeEmail,
     workCard,

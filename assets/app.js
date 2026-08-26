@@ -734,6 +734,13 @@ const shareWork = async (platform, work) => {
   return "该平台暂未配置";
 };
 
+const renderNoteArchive = () => {
+  const container = document.querySelector("#noteArchive");
+  if (!container) return;
+  const html = window.YitenComponents.noteTimeline(readWorks(), { lang: getLang() });
+  container.innerHTML = html || `<p class="muted note-timeline-empty">暂无札记发布历史。</p>`;
+};
+
 const renderWorks = () => {
   const works = readWorks().map(normalizeWork).filter(hasPlayableAudioWhenNeeded);
   const visibleWorks =
@@ -828,6 +835,8 @@ const renderWorks = () => {
   });
 };
 
+renderNoteArchive();
+
 window.YitenShareRewards = {
   record(work, platform) {
     const state = recordShareReward(
@@ -861,6 +870,7 @@ window.addEventListener("yiten:share-reward-updated", () => {
   renderShareRewardPanel();
 });
 window.addEventListener("yiten-sync-updated", (event) => {
+  renderNoteArchive();
   const keys = event.detail?.keys || [];
   const shouldRefreshWorks = keys.some((key) =>
     ["personal-site-works", "personal-site-works-updated-at", "yiten-share-rewards-v1"].includes(key) ||
@@ -1024,6 +1034,7 @@ resetDemo?.addEventListener("click", () => {
 });
 
 window.addEventListener("yiten:languagechange", () => {
+  renderNoteArchive();
   renderShareRewardPanel();
   renderBookProducts();
   renderWorks();

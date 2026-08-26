@@ -236,3 +236,21 @@ test("components: subscribeEmail validates, dedupes and persists", () => {
   const noStorage = c.subscribeEmail("a@b.co", {});
   assert.equal(noStorage.ok, true, "validation-only mode");
 });
+
+test("components: noteTimeline lists notes newest-first with anchors", () => {
+  const c = requireProject("assets/components.js");
+  const html = c.noteTimeline([
+    { id: "n1", title: "第一条", type: "note", publishedAt: "2026-08-16T10:00:00Z" },
+    { id: "n2", title: "第二条", type: "note", publishedAt: "2026-08-18T10:00:00Z" },
+    { id: "e1", title: "文章不算", type: "essay", publishedAt: "2026-08-20T10:00:00Z" },
+    { id: "n3", title: "无日期不算", type: "note" },
+  ]);
+  const order = [...html.matchAll(/<a href="#([^"]+)">/g)].map((m) => m[1]);
+  assert.deepEqual(order, ["n2", "n1"], "newest first, only notes with dates");
+  assert.match(html, /2026-08-18/);
+  assert.match(html, />第二条</);
+  assert.doesNotMatch(html, /文章不算/);
+  assert.doesNotMatch(html, /无日期不算/);
+  assert.equal(c.noteTimeline([]), "");
+  assert.equal(c.noteTimeline(null), "");
+});

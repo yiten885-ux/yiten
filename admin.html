@@ -938,11 +938,13 @@
           return;
         }
         publishedWorkManager.innerHTML = [
-          `<div role="row" class="table-head"><span>标题</span><span>类型</span><span>浏览</span><span>状态</span><span>操作</span></div>`,
+          `<div role="row" class="table-head"><span>标题</span><span>类型</span><span>发布时间</span><span>浏览</span><span>状态</span><span>操作</span></div>`,
           ...works.map((work, index) => {
             const state = work.hidden ? "已隐藏" : "已发布";
             const views = readWorkViews()[createWorkKey(work)]?.count || 0;
-            return `<div role="row" data-work-index="${index}"><span>${escapeHtml(work.title || "未命名")}</span><span>${escapeHtml(work.type || "essay")}</span><span>${escapeHtml(views)}</span><span><span class="kyc-status ${work.hidden ? "" : "approved"}">${state}</span></span><span class="row-actions"><button type="button" data-published-action="share">一键分发</button><button type="button" data-published-action="toggle">${work.hidden ? "恢复显示" : "一键隐藏"}</button><button type="button" data-published-action="delete">删除</button></span></div>`;
+            const publishedAt = (work.publishedAt || work.createdAt || "");
+            const publishedLabel = publishedAt ? new Date(publishedAt).toISOString().slice(0, 10) : "—";
+            return `<div role="row" data-work-index="${index}"><span>${escapeHtml(work.title || "未命名")}</span><span>${escapeHtml(work.type || "essay")}</span><span>${escapeHtml(publishedLabel)}</span><span>${escapeHtml(views)}</span><span><span class="kyc-status ${work.hidden ? "" : "approved"}">${state}</span></span><span class="row-actions"><button type="button" data-published-action="share">一键分发</button><button type="button" data-published-action="toggle">${work.hidden ? "恢复显示" : "一键隐藏"}</button><button type="button" data-published-action="delete">删除</button></span></div>`;
           }),
         ].join("");
         renderViewMetrics();
